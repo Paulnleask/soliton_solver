@@ -3,8 +3,7 @@
 </p>
 
 <h4 align="center">
-Extremely user-friendly GPU soliton simulations with real-time interactivity
-via Numba CUDA and CUDA–OpenGL interoperability.
+GPU-based finite-difference PDE solver for topological solitons in 2D nonlinear field theories, with Numba CUDA and CUDA–OpenGL rendering.
 </h4>
 
 <p align="center">
@@ -33,7 +32,7 @@ via Numba CUDA and CUDA–OpenGL interoperability.
 </p>
 
 `soliton_solver` is a modern scientific computing framework for nonlinear field
-theories with solitonic structure. It targets GPU-first workflows: Numba CUDA
+theories with topological solitons. It targets GPU-first workflows: Numba CUDA
 kernels for evolution, and CUDA–OpenGL interoperability for low-latency,
 zero-copy visualization. The API is object-oriented, dependency-injection
 friendly, and designed for rapid experimentation.
@@ -42,7 +41,7 @@ friendly, and designed for rapid experimentation.
 
 ## Installation
 
-Install from PyPI:
+Install from PyPI (in progress, not currently implemented):
 
 ```bash
 pip install soliton-solver
@@ -72,15 +71,27 @@ Run a built-in example:
 python -m soliton_solver.examples.abelian_higgs_gl
 ```
 
-Minimal Python usage:
+Typical Python usage (including OpenGL visualization) for an example theory:
 
 ```python
+from soliton_solver.theories import load_theory
 from soliton_solver.core.simulation import Simulation
-from soliton_solver.theories.registry import get_theory
 
-theory = get_theory("baby_skyrme")
-sim = Simulation(theory=theory, params=params)
-sim.run()
+theory = load_theory("Ginzburg-Landau superconductor")
+
+def run_gl_simulation():
+    params = theory.params.default_params(
+        xlen=320, ylen=320, xsize=50.0, ysize=50.0,     # Grid params 
+        q=1.0, Lambda=1.0, u1=1.0,                      # Abelian Higgs parameters
+        newtonflow=False,                               # Start simulation with flow on/off (True/False)
+        unit_magnetization=False                        # Required flag for magnetization (False if no magnetization)
+        )
+    sim = Simulation(params, theory)
+    sim.initialize({"mode": "ground"})
+    theory.render_gl.run_viewer(sim, sim.rp, steps_per_frame=5)
+
+if __name__ == "__main__":
+    run_gl_simulation()
 ```
 
 Simulations execute entirely on the GPU. Field data streams directly from
@@ -88,24 +99,17 @@ CUDA memory into OpenGL buffers using zero-copy CUDA–OpenGL interop.
 
 ---
 
-## Built-in Models
+## Currently supported built-in models
 
-### Gauge / GL-type Systems
-
-| Model | Fields | Gauge | Dimension |
-|--------|--------|--------|------------|
-| Abelian Higgs (Ginzburg–Landau) | Complex scalar | U(1) | 2D |
-| Maxwell–Chern–Simons–Higgs | Complex scalar | U(1) | 2D |
-| Ferromagnetic Superconductor | Multi-component | Yes | 2D |
-| Spin-Triplet Superconducting Magnet | Multi-component | Yes | 2D |
-
-### Topological Soliton Models
-
-| Model | Fields | Dimension |
-|--------|--------|------------|
-| Baby Skyrme | O(3) vector | 2D |
-| Chiral Magnet | Magnetization vector | 2D |
-| Liquid Crystal (GL-type) | Tensor / vector | 2D |
+| Model | Fields | Energy functional |
+|--------|--------|--------|
+| Abelian Higgs (Ginzburg-Landau) | $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^2$ | $E_{\textup{AH}}[\psi, \vec{A}] = \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2}\|\vec{D}\psi\|^2 + \frac{1}{2}\|\vec{\nabla}\times\vec{A}\|^2 + \frac{\lambda}{8} \left( u^2 - \|\psi\|^2 \right)^2\right\}$ |
+| Baby Skyrme | $\vec{m} \in \mathbb{R}^3$ | $E[\vec{m}] = \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2} \|\nabla \vec{m}\|^2 + \frac{\kappa^2}{4} \left( \partial_i \vec{m} \times \partial_j \vec{m} \right)^2+ V(\vec{m}) \right\}$ |
+| Chiral Magnet | $\vec{n} \in \mathbb{R}^3$, $\psi \in \mathbb{R}$ | $E_{\textup{CM}}[\vec{n}] = \int_{\mathbb{R}^2}\textup{d}^2x \left\{ \frac{J}{2}\|\textup{d}\vec{n}\|^2 + \mathcal{D} \sum_{i=1}^3 \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + M_sV(\vec{n}) + \frac{1}{2\mu_0}  \|\bm{\nabla}\psi\|^2 \right\}, \quad \Delta \psi = -\mu_0\,\bm{\nabla}\cdot(M_s\vec{n})$ |
+| Ferromagnetic Superconductor | $\vec{m} \in \mathbb{R}^3$, $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | $E_{\textup{FS}}[\vec{m}, \psi, \vec{A}] = \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2}\|\vec{D}\psi\|^2 + \frac{1}{2}\|\vec{\nabla}\times\vec{A}\|^2 + \frac{b}{4} \left( u^2 - \|\psi\|^2 \right)^2 + \frac{1}{2}\|\nabla\vec{m}\|^2 - \vec{m}\cdot(\vec{\nabla}\times\vec{A})\right\}$ |
+| Liquid Crystal (GL-type) | $\vec{n} \in \mathbb{R}^3$, $\phi \in \mathbb{R}$ | $E_{\textup{LC}}[\vec{n}] = \int_{\mathbb{R}^2} \textup{d}^2x \, \left\{ \frac{K}{2} \|\nabla \vec{n}\|^2 + K q_0 \vec{n}\cdot(\bm{\nabla} \times \vec{n}) + V(\vec{n}) + \frac{\varepsilon_0}{2} \|\bm{\nabla} \Phi\|^2 \right\}, \quad \Delta \Phi = -\frac{1}{\varepsilon_0}\bm{\nabla} \cdot \vec{P}[\vec{n}]$ |
+| Maxwell-Chern-Simons-Higgs | $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | $E_{\textup{CSLG}}[\psi,\vec{A}] = E_{\textup{AH}}[\psi,\vec{A}] + \int_{\mathbb{R}^2} \textup{d}^2x \, \left\{ \frac{1}{2}\|\bm{\nabla} A_0\|^2 + \frac{1}{2}q^2\|\psi\|^2 A_0^2 \right\}, \quad \left(-\nabla^2+q^2\|\psi\|^2\right)A_0 = -\kappa B[\vec{A}]$ |
+| Spin-Triplet Superconducting Magnet | $\vec{m} \in \mathbb{R}^3$, $\psi_1, \psi_2 \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | TBD |
 
 All models are GPU-accelerated and compatible with real-time rendering.
 
@@ -149,7 +153,6 @@ Physics-agnostic and reusable.
 ### Theories
 
 Each theory provides:
-
 - Parameter definitions
 - Initial configuration
 - Evolution kernels (Numba CUDA)
@@ -163,13 +166,48 @@ remains independent of specific physical models.
 
 ## Background
 
-`soliton_solver` targets classical nonlinear field theories of the form
+To compute topological solitons using `soliton_solver`, it relaxes the field $\phi$ toward a local
+minimizer of the discrete energy $E_h[\phi]$, equivalently a stationary point
+of the nonlinear field equations.
 
-\[
-\partial_t \Phi = \mathcal{F}(\Phi, \nabla \Phi, A, \nabla A)
-\]
+A simple gradient descent in $\phi$ is robust but often inefficient. Soliton
+energy landscapes are typically stiff: short-wavelength modes relax rapidly,
+while long-wavelength modes and collective coordinates (such as soliton
+separation or internal phases) relax slowly. This leads to very slow
+convergence for multi-soliton configurations.
 
-including scalar, vector, and gauge fields. The framework emphasizes:
+To accelerate minimization, we use **arrested Newton flow**. This introduces a
+fictitious second-order dynamics in an artificial time variable $t$:
+$$
+\ddot{\phi}(t) = - \nabla_\phi E_h[\phi(t)].
+$$
+The initial condition is taken from rest,
+$\dot{\phi}(0) = 0$, with $\phi(0)$ chosen to encode the desired topology.
+The system is rewritten as a first-order system in $(\phi, \dot{\phi})$ and
+integrated numerically using a standard explicit scheme, e.g. fourth-order
+Runge–Kutta with time step $\delta t$.
+
+The key feature is the **flow arrest condition**. After each time step we
+compare the discrete energies:
+$$
+E_h[\phi^{n+1}] \quad \text{and} \quad E_h[\phi^{n}].
+$$
+If the energy increases,
+$$
+E_h[\phi^{n+1}] > E_h[\phi^{n}],
+$$
+the velocity is reset to zero:
+$$
+\dot{\phi}^{\,n+1} \leftarrow 0.
+$$
+
+Intuitively, the second-order dynamics accelerates motion along shallow
+directions of the energy landscape, while the arrest criterion prevents
+overshooting and oscillations near a minimum. In practice, this approach
+converges significantly faster than first-order gradient descent for
+multi-soliton relaxation problems.
+
+The framework emphasizes:
 
 - Explicit finite-difference discretizations
 - Direct GPU kernel implementations
@@ -178,7 +216,6 @@ including scalar, vector, and gauge fields. The framework emphasizes:
 
 Intended research domains include:
 
-- Gauge-field dynamics
 - Topological defects and vortices
 - Skyrmion systems
 - Multi-component Ginzburg–Landau models
