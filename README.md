@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/imgs/logo.svg" alt="soliton_solver logo" width="300">
+  <img src="assets/soliton_solver_logo.png" width="300">
 </p>
 
 <h4 align="center">
@@ -30,10 +30,6 @@ via Numba CUDA and CUDA–OpenGL interoperability.
   <a href="#architecture">Architecture</a> •
   <a href="#background">Background</a> •
   <a href="#license">License</a>
-</p>
-
-<p align="center">
-  <img src="soliton_solver/assets/soliton_solver_logo.png" width="300">
 </p>
 
 `soliton_solver` is a modern scientific computing framework for nonlinear field
