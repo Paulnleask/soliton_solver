@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/soliton_solver_logo.png" width="300">
+  <img src="soliton_solver/assets/soliton_solver_logo.png" width="300">
 </p>
 
 <h4 align="center">
