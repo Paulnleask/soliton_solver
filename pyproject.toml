@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "soliton_solver"
+version = "0.1.0"
+description = "Numba-CUDA port of soliton solver."
+requires-python = ">=3.9"
+dependencies = ["numba", "numpy"]
