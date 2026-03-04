@@ -31,13 +31,65 @@ GPU-based finite-difference PDE solver for topological solitons in 2D nonlinear 
   <a href="#license">License</a>
 </p>
 
-`soliton_solver` is a modern scientific computing framework for nonlinear field
-theories with topological solitons. It targets GPU-first workflows: Numba CUDA
-kernels for evolution, and CUDA–OpenGL interoperability for low-latency,
-zero-copy visualization. The API is object-oriented, dependency-injection
-friendly, and designed for rapid experimentation.
+`soliton_solver` is a GPU-accelerated scientific computing framework for nonlinear
+partial differential equations describing topological solitons in two-dimensional
+field theories.
+
+The solver is designed around a theory-agnostic numerical core implemented with
+Numba CUDA kernels. Physical models are introduced as modular components using a
+dependency injection (DI) architecture, allowing new theories to be added
+without modifying the numerical engine.
+
+The framework supports a wide range of models spanning condensed matter physics,
+topological magnetism, and high-energy gauge field theories.
+
+Real-time visualization is provided via CUDA–OpenGL interoperability, enabling
+interactive exploration of nonlinear field dynamics directly on the GPU.
+
+The project follows modern software engineering practices including continuous
+integration via GitHub Actions and continuous deployment to PyPI.
 
 ---
+
+## Pre-installation
+
+Before installing `soliton_solver`, a few system-level dependencies must be
+available. These provide the OpenGL context and CUDA bindings required for
+GPU computation and real-time visualization.
+
+Install the Python interface packages:
+
+```bash
+pip install glfw PyOpenGL cuda-python
+```
+
+These packages provide:
+
+- **glfw** – window creation and input handling for the OpenGL viewer  
+- **PyOpenGL** – Python bindings for OpenGL rendering  
+- **cuda-python** – low-level CUDA driver bindings used for CUDA–OpenGL interoperability  
+
+### System requirements
+
+In addition to the Python packages above, the following system software must be installed:
+
+- **NVIDIA GPU with CUDA support**
+- **CUDA Toolkit** compatible with your GPU
+- **OpenGL drivers** (normally included with NVIDIA drivers)
+
+You can verify CUDA installation with:
+
+```bash
+nvidia-smi
+```
+
+and
+
+```bash
+nvcc --version
+```
+
+Once these dependencies are available, the `soliton_solver` package itself can be installed.
 
 ## Installation
 
@@ -99,32 +151,34 @@ CUDA memory into OpenGL buffers using zero-copy CUDA–OpenGL interop.
 
 ---
 
-## Currently supported built-in models
+## Currently Supported Built-In Theories
 
-| Model | Fields | Energy functional |
+| Theory | Fields | Energy functional |
 |--------|--------|--------|
-| Abelian Higgs (Ginzburg-Landau) | $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^2$ | $E_{\textup{AH}}[\psi, \vec{A}] = \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2}\|\vec{D}\psi\|^2 + \frac{1}{2}\|\vec{\nabla}\times\vec{A}\|^2 + \frac{\lambda}{8} \left( u^2 - \|\psi\|^2 \right)^2\right\}$ |
-| Baby Skyrme | $\vec{m} \in \mathbb{R}^3$ | $E[\vec{m}] = \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2} \|\nabla \vec{m}\|^2 + \frac{\kappa^2}{4} \left( \partial_i \vec{m} \times \partial_j \vec{m} \right)^2+ V(\vec{m}) \right\}$ |
-| Chiral Magnet | $\vec{n} \in \mathbb{R}^3$, $\psi \in \mathbb{R}$ | $E_{\textup{CM}}[\vec{n}] = \int_{\mathbb{R}^2}\textup{d}^2x \left\{ \frac{J}{2}\|\textup{d}\vec{n}\|^2 + \mathcal{D} \sum_{i=1}^3 \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + M_sV(\vec{n}) + \frac{1}{2\mu_0}  \|\bm{\nabla}\psi\|^2 \right\}, \quad \Delta \psi = -\mu_0\,\bm{\nabla}\cdot(M_s\vec{n})$ |
-| Ferromagnetic Superconductor | $\vec{m} \in \mathbb{R}^3$, $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | $E_{\textup{FS}}[\vec{m}, \psi, \vec{A}] = \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2}\|\vec{D}\psi\|^2 + \frac{1}{2}\|\vec{\nabla}\times\vec{A}\|^2 + \frac{b}{4} \left( u^2 - \|\psi\|^2 \right)^2 + \frac{1}{2}\|\nabla\vec{m}\|^2 - \vec{m}\cdot(\vec{\nabla}\times\vec{A})\right\}$ |
-| Liquid Crystal (GL-type) | $\vec{n} \in \mathbb{R}^3$, $\phi \in \mathbb{R}$ | $E_{\textup{LC}}[\vec{n}] = \int_{\mathbb{R}^2} \textup{d}^2x \, \left\{ \frac{K}{2} \|\nabla \vec{n}\|^2 + K q_0 \vec{n}\cdot(\bm{\nabla} \times \vec{n}) + V(\vec{n}) + \frac{\varepsilon_0}{2} \|\bm{\nabla} \Phi\|^2 \right\}, \quad \Delta \Phi = -\frac{1}{\varepsilon_0}\bm{\nabla} \cdot \vec{P}[\vec{n}]$ |
-| Maxwell-Chern-Simons-Higgs | $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | $E_{\textup{CSLG}}[\psi,\vec{A}] = E_{\textup{AH}}[\psi,\vec{A}] + \int_{\mathbb{R}^2} \textup{d}^2x \, \left\{ \frac{1}{2}\|\bm{\nabla} A_0\|^2 + \frac{1}{2}q^2\|\psi\|^2 A_0^2 \right\}, \quad \left(-\nabla^2+q^2\|\psi\|^2\right)A_0 = -\kappa B[\vec{A}]$ |
+| Abelian Higgs (Ginzburg-Landau) | $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^2$ | $E_{\textup{AH}}[\psi, \vec{A}] = \int_{\mathbb{R}^2} \textup{d}^2x \big\{ \frac{1}{2}\|\vec{D}\psi\|^2 + \frac{1}{2}\|\vec{\nabla}\times\vec{A}\|^2 + \frac{\lambda}{8} \left( u^2 - \|\psi\|^2 \right)^2\big\}$ |
+| Baby Skyrme | $\vec{m} \in \mathbb{R}^3$ | $E[\vec{m}] = \int_{\mathbb{R}^2} \textup{d}^2x \big\{ \frac{1}{2} \|\nabla \vec{m}\|^2 + \frac{\kappa^2}{4} \left( \partial_i \vec{m} \times \partial_j \vec{m} \right)^2+ V(\vec{m}) \big\}$ |
+| Chiral Magnet | $\vec{n} \in \mathbb{R}^3$, $\psi \in \mathbb{R}$ | $E_{\textup{CM}}[\vec{n}] = \int_{\mathbb{R}^2}\textup{d}^2x \big\{ \frac{J}{2}\|\textup{d}\vec{n}\|^2 + \mathcal{D} \sum_{i=1}^3 \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + M_sV(\vec{n}) + \frac{1}{2\mu_0}  \|\bm{\nabla}\psi\|^2 \big\}, \quad \Delta \psi = -\mu_0\,\bm{\nabla}\cdot(M_s\vec{n})$ |
+| Ferromagnetic Superconductor | $\vec{m} \in \mathbb{R}^3$, $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | $E_{\textup{FS}}[\vec{m}, \psi, \vec{A}] = \int_{\mathbb{R}^2} \textup{d}^2x \big\{ \frac{1}{2}\|\vec{D}\psi\|^2 + \frac{1}{2}\|\vec{\nabla}\times\vec{A}\|^2 + \frac{b}{4} \left( u^2 - \|\psi\|^2 \right)^2 + \frac{1}{2}\|\nabla\vec{m}\|^2 - \vec{m}\cdot(\vec{\nabla}\times\vec{A})\big\}$ |
+| Liquid Crystal (GL-type) | $\vec{n} \in \mathbb{R}^3$, $\phi \in \mathbb{R}$ | $E_{\textup{LC}}[\vec{n}] = \int_{\mathbb{R}^2} \textup{d}^2x \, \big\{ \frac{K}{2} \|\nabla \vec{n}\|^2 + K q_0 \vec{n}\cdot(\bm{\nabla} \times \vec{n}) + V(\vec{n}) + \frac{\varepsilon_0}{2} \|\bm{\nabla} \Phi\|^2 \big\}, \quad \Delta \Phi = -\frac{1}{\varepsilon_0}\bm{\nabla} \cdot \vec{P}[\vec{n}]$ |
+| Maxwell-Chern-Simons-Higgs | $\psi \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | $E_{\textup{CSLG}}[\psi,\vec{A}] = E_{\textup{AH}}[\psi,\vec{A}] + \int_{\mathbb{R}^2} \textup{d}^2x \, \big\{ \frac{1}{2}\|\bm{\nabla} A_0\|^2 + \frac{1}{2}q^2\|\psi\|^2 A_0^2 \big\}, \quad \left(-\nabla^2+q^2\|\psi\|^2\right)A_0 = -\kappa B[\vec{A}]$ |
 | Spin-Triplet Superconducting Magnet | $\vec{m} \in \mathbb{R}^3$, $\psi_1, \psi_2 \in \mathbb{C}$, $\vec{A} \in \mathbb{R}^3$ | TBD |
 
-All models are GPU-accelerated and compatible with real-time rendering.
+All models are GPU-accelerated and compatible with real-time rendering. New theories can be added by implementing a theory module and registering it
+with the **theory registry**.
 
 ---
 
 ## Features
 
-- Numba CUDA GPU kernels
-- CUDA–OpenGL zero-copy rendering
-- Real-time visualization and interactive steering
-- Object-oriented simulation components
-- Dependency injection architecture
-- Clear separation of physics and numerics
-- Pluggable theory modules
-- Minimal boilerplate API
+- GPU-accelerated nonlinear PDE solver
+- Numba CUDA kernels for high-performance finite-difference evolution
+- Real-time visualization via CUDA–OpenGL interoperability
+- Object-oriented simulation architecture
+- Plug-and-play theory registry
+- Theory-agnostic numerical core
+- Dependency injection design
+- Continuous integration via GitHub Actions
+- Continuous deployment to PyPI
 
 ---
 
@@ -132,80 +186,71 @@ All models are GPU-accelerated and compatible with real-time rendering.
 
 ```text
 soliton_solver/
-├── core/            numerical engine (GPU kernels, integrators)
-├── theories/        pluggable physics modules
-├── visualization/   OpenGL backend (CUDA interop)
-├── examples/        runnable scripts
+├── core/            GPU numerical engine
+├── theories/        modular physics models
+├── visualization/   OpenGL rendering backend
+├── examples/        runnable demonstrations
 ├── version.py
 └── pyproject.toml
 ```
 
 ### Core
 
-- Finite-difference operators (GPU)
-- Time integration schemes
-- Simulation driver
-- Parameter management
-- IO utilities
+The numerical core implements the GPU PDE solver:
 
-Physics-agnostic and reusable.
+- finite-difference operators
+- time-stepping integrators
+- simulation driver
+- GPU memory management
+
+These components are independent of any specific physical theory.
 
 ### Theories
 
-Each theory provides:
-- Parameter definitions
-- Initial configuration
-- Evolution kernels (Numba CUDA)
-- Observables
-- Optional rendering hooks
+Each theory defines:
 
-Components are composed via dependency injection. The numerical engine
-remains independent of specific physical models.
+- energy functional
+- field variables
+- parameter set
+- initialization routines
+- optional visualization helpers
+
+Theories are injected into the solver via **dependency injection**, allowing
+the numerical infrastructure to remain completely **theory agnostic**.
 
 ---
 
-## Background
+## Numerical Method
 
-To compute topological solitons using `soliton_solver`, it relaxes the field $\phi$ toward a local
-minimizer of the discrete energy $E_h[\phi]$, equivalently a stationary point
-of the nonlinear field equations.
+Topological solitons are obtained by relaxing the field configuration toward a
+local minimum of the discrete energy functional.
+Given a discretized energy $E_h[\phi]$, we evolve the field using arrested Newton flow
 
-A simple gradient descent in $\phi$ is robust but often inefficient. Soliton
-energy landscapes are typically stiff: short-wavelength modes relax rapidly,
-while long-wavelength modes and collective coordinates (such as soliton
-separation or internal phases) relax slowly. This leads to very slow
-convergence for multi-soliton configurations.
+$$
+\ddot{\phi} = - \nabla_\phi E_h[\phi].
+$$
 
-To accelerate minimization, we use **arrested Newton flow**. This introduces a
-fictitious second-order dynamics in an artificial time variable $t$:
-$$
-\ddot{\phi}(t) = - \nabla_\phi E_h[\phi(t)].
-$$
-The initial condition is taken from rest,
-$\dot{\phi}(0) = 0$, with $\phi(0)$ chosen to encode the desired topology.
-The system is rewritten as a first-order system in $(\phi, \dot{\phi})$ and
-integrated numerically using a standard explicit scheme, e.g. fourth-order
-Runge–Kutta with time step $\delta t$.
+The system is integrated numerically using explicit time-stepping schemes such
+as Runge–Kutta methods implemented on the GPU.
 
-The key feature is the **flow arrest condition**. After each time step we
-compare the discrete energies:
-$$
-E_h[\phi^{n+1}] \quad \text{and} \quad E_h[\phi^{n}].
-$$
-If the energy increases,
+A flow arrest condition ensures stability: If the energy increases,
+
 $$
 E_h[\phi^{n+1}] > E_h[\phi^{n}],
 $$
-the velocity is reset to zero:
+
+the velocity is reset
+
 $$
-\dot{\phi}^{\,n+1} \leftarrow 0.
+\dot{\phi}^{n+1} = 0.
 $$
 
-Intuitively, the second-order dynamics accelerates motion along shallow
-directions of the energy landscape, while the arrest criterion prevents
-overshooting and oscillations near a minimum. In practice, this approach
-converges significantly faster than first-order gradient descent for
-multi-soliton relaxation problems.
+This second-order relaxation scheme accelerates convergence along shallow
+directions of the energy landscape while preventing oscillations near the
+minimum.
+
+In practice this method converges significantly faster than gradient descent
+for multi-soliton configurations.
 
 The framework emphasizes:
 
