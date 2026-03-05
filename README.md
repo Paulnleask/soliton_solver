@@ -51,27 +51,11 @@ integration via GitHub Actions and continuous deployment to PyPI.
 
 ---
 
-## Pre-installation
+### System requirements
 
 Before installing `soliton_solver`, a few system-level dependencies must be
 available. These provide the OpenGL context and CUDA bindings required for
-GPU computation and real-time visualization.
-
-Install the Python interface packages:
-
-```bash
-pip install glfw PyOpenGL cuda-python
-```
-
-These packages provide:
-
-- **glfw** – window creation and input handling for the OpenGL viewer  
-- **PyOpenGL** – Python bindings for OpenGL rendering  
-- **cuda-python** – low-level CUDA driver bindings used for CUDA–OpenGL interoperability  
-
-### System requirements
-
-In addition to the Python packages above, the following system software must be installed:
+GPU computation and real-time visualization. The following system software must be installed:
 
 - **NVIDIA GPU with CUDA support**
 - **CUDA Toolkit** compatible with your GPU
@@ -93,7 +77,7 @@ Once these dependencies are available, the `soliton_solver` package itself can b
 
 ## Installation
 
-Install from PyPI (in progress, not currently implemented):
+Install from PyPI (https://pypi.org/project/soliton-solver/):
 
 ```bash
 pip install soliton-solver
@@ -106,6 +90,12 @@ git clone https://github.com/paulnleask/soliton_solver.git
 cd soliton_solver
 pip install -e .
 ```
+
+The `soliton_solver` package also installs the following dependencies:
+
+- **glfw** – window creation and input handling for the OpenGL viewer  
+- **PyOpenGL** – Python bindings for OpenGL rendering  
+- **cuda-python** – low-level CUDA driver bindings used for CUDA–OpenGL interoperability  
 
 **Requirements**
 
