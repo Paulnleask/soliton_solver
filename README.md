@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="soliton_solver/assets/soliton_solver_logo.png" width="500">
+  <img <img src="https://raw.githubusercontent.com/Paulnleask/soliton_solver/main/soliton_solver/assets/soliton_solver_logo.png" width="500">
 </p>
 
 <h4 align="center">
@@ -8,7 +8,7 @@ GPU-based finite-difference PDE solver for topological solitons in 2D nonlinear 
 
 <p align="center">
 <a href="https://pypi.org/project/soliton_solver/">
-  <img src="https://img.shields.io/pypi/v/soliton_solver.png" alt="PyPI">
+  <img src="https://img.shields.io/pypi/v/soliton_solver.svg" alt="PyPI">
 </a>
 <a href="https://github.com/paulnleask/soliton_solver/actions/workflows/tests.yml">
   <img src="https://github.com/paulnleask/soliton_solver/actions/workflows/tests.yml/badge.svg" alt="Tests">
@@ -158,7 +158,7 @@ python -m soliton_solver.theories.chiral_magnet.results.plotting
 ```
 
 <p align="center">
-  <img src="soliton_solver/assets/Plot_Densities.png" width="800">
+  <img <img src="https://raw.githubusercontent.com/Paulnleask/soliton_solver/main/soliton_solver/assets/Plot_Densities.png" width="800">
 </p>
 
 ---
