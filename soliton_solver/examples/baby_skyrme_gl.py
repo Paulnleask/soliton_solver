@@ -21,6 +21,7 @@ def run_gl_simulation():
         )
     sim = Simulation(params, theory)
     sim.initialize({"mode": "ground"})
+    sim.print_instructions()
     theory.render_gl.run_viewer(sim, sim.rp, steps_per_frame=5)
 
 if __name__ == "__main__":

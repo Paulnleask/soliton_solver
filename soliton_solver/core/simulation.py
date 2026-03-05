@@ -568,3 +568,12 @@ class Simulation:
         filtered_kwargs = {k: v for k, v in kwargs.items() if k in accepted}
 
         self.theory.io.output_data_bundle(**filtered_kwargs)
+
+    def print_instructions(self):
+        """
+        Print usage instructions for the currently loaded theory.
+        """
+        if hasattr(self.theory, "print_instructions"):
+            self.theory.print_instructions()
+        else:
+            print("No specific instructions available for this theory.")

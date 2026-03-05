@@ -20,7 +20,8 @@ def run_gl_simulation():
         unit_magnetization=True                     # Required flag for magnetization
         )
     sim = Simulation(params, theory)
-    sim.initialize({"mode": "ground"})  # or {"mode": "initial", "ansatz": "bloch", "skyrmion_rotation": 0.0, "vortex_number": 1.0}
+    sim.initialize({"mode": "ground"})
+    sim.print_instructions()
     theory.render_gl.run_viewer(sim, sim.rp, steps_per_frame=5)
 
 if __name__ == "__main__":
