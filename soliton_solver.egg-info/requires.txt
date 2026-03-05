@@ -1,0 +1,12 @@
+numpy
+numba
+moderngl
+glfw
+PyOpenGL
+cuda-python
+
+[dev]
+pytest
+ruff
+build
+twine
