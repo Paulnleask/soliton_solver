@@ -17,26 +17,26 @@ def output_data_bundle(
     output_dir: str,
     h_Field: np.ndarray,
     h_EnergyDensity: np.ndarray,
-    h_MagneticFluxDensity: np.ndarray,
     h_BaryonDensity: np.ndarray,
-    h_Supercurrent: np.ndarray,
+    h_ElectricChargeDensity: np.ndarray,
     h_grid: np.ndarray,
     xlen: int,
     ylen: int,
     number_coordinates: int = 2,
-    number_total_fields: int = 8,
+    number_total_fields: int = 4,
     precision: int = 32,
 ) -> None:
-    arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "BaryonDensity": h_BaryonDensity}
+    arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "BaryonDensity": h_BaryonDensity, "ElectricChargeDensity": h_ElectricChargeDensity}
 
     bundle_spec = [
-        ("grid", 0, "Higgs_xGrid.dat"),
-        ("grid", 1, "Higgs_yGrid.dat"),
-        ("Field", 0, "Magnet_Field1.dat"),
-        ("Field", 1, "Magnet_Field2.dat"),
-        ("Field", 2, "Magnet_Field3.dat"),
-        ("BaryonDensity", 0, "Magnet_ChargeDensity.dat"),
-        ("EnergyDensity", 0, "Higgs_EnergyDensity.dat"),
+        ("grid", 0, "xGrid.dat"),
+        ("grid", 1, "yGrid.dat"),
+        ("Field", 0, "MagnetField1.dat"),
+        ("Field", 1, "MagnetField2.dat"),
+        ("Field", 2, "MagnetField3.dat"),
+        ("BaryonDensity", 0, "SkyrmionChargeDensity.dat"),
+        ("EnergyDensity", 0, "EnergyDensity.dat"),
+        ("ElectricChargeDensity", 0, "ElectricChargeDensity.dat")
     ]
 
     output_data_bundle_core(
@@ -50,7 +50,7 @@ def output_data_bundle(
         precision=precision,
         bundle_spec=bundle_spec,
         arrays=arrays,
-        lattice_points_name="Higgs_LatticePoints.dat",
-        lattice_vectors_name="Higgs_LatticeVectors.dat",
-        field_dump_name="d_Field.dat",
+        lattice_points_name="LatticePoints.dat",
+        lattice_vectors_name="LatticeVectors.dat",
+        field_dump_name="Field.dat",
     )

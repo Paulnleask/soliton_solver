@@ -1,5 +1,5 @@
 # =========================
-# soliton_solver/theories/maxwell_chern_simons_higgs/io.py
+# soliton_solver/theories/ginzburg_landau_superconductor/io.py
 # =========================
 """
 Superferro theory-specific output bundle.
@@ -17,37 +17,33 @@ def output_data_bundle(
     output_dir: str,
     h_Field: np.ndarray,
     h_EnergyDensity: np.ndarray,
-    h_MagneticFluxDensity: np.ndarray,
-    h_BaryonDensity: np.ndarray,
+    h_VortexDensity: np.ndarray,
     h_Supercurrent: np.ndarray,
+    h_NoetherChargeDensity: np.ndarray,
+    h_ElectricChargeDensity: np.ndarray,
     h_grid: np.ndarray,
     xlen: int,
     ylen: int,
     number_coordinates: int = 2,
-    number_total_fields: int = 8,
+    number_total_fields: int = 5,
     precision: int = 32,
 ) -> None:
-    arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "MagneticFluxDensity": h_MagneticFluxDensity, "BaryonDensity": h_BaryonDensity, "Supercurrent": h_Supercurrent}
+    arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "VortexDensity": h_VortexDensity, "Supercurrent": h_Supercurrent, "NoetherChargeDensity": h_NoetherChargeDensity, "ElectricChargeDensity": h_ElectricChargeDensity}
 
     bundle_spec = [
-        ("grid", 0, "Higgs_xGrid.dat"),
-        ("grid", 1, "Higgs_yGrid.dat"),
-        ("Field", 0, "Magnet_Field1.dat"),
-        ("Field", 1, "Magnet_Field2.dat"),
-        ("Field", 2, "Magnet_Field3.dat"),
-        ("Field", 3, "Gauge_Field1.dat"),
-        ("Field", 4, "Gauge_Field2.dat"),
-        ("Field", 5, "Gauge_Field3.dat"),
-        ("Field", 6, "Higgs_Field1.dat"),
-        ("Field", 7, "Higgs_Field2.dat"),
-        ("BaryonDensity", 0, "Magnet_ChargeDensity.dat"),
-        ("EnergyDensity", 0, "Higgs_EnergyDensity.dat"),
-        ("MagneticFluxDensity", 0, "Higgs_ChargeDensityX.dat"),
-        ("MagneticFluxDensity", 1, "Higgs_ChargeDensityY.dat"),
-        ("MagneticFluxDensity", 2, "Higgs_ChargeDensity.dat"),
-        ("Supercurrent", 0, "J_Supercurrent1.dat"),
-        ("Supercurrent", 1, "J_Supercurrent2.dat"),
-        ("Supercurrent", 2, "J_Supercurrent3.dat"),
+        ("grid", 0, "xGrid.dat"),
+        ("grid", 1, "yGrid.dat"),
+        ("Field", 0, "GaugeField1.dat"),
+        ("Field", 1, "GaugeField2.dat"),
+        ("Field", 2, "HiggsField1.dat"),
+        ("Field", 3, "HiggsField2.dat"),
+        ("Field", 4, "GaugeField0.dat"),
+        ("EnergyDensity", 0, "EnergyDensity.dat"),
+        ("VortexDensity", 0, "VortexDensity.dat"),
+        ("Supercurrent", 0, "Supercurrent1.dat"),
+        ("Supercurrent", 1, "Supercurrent2.dat"),
+        ("NoetherChargeDensity", 0, "NoetherChargeDensity.dat"),
+        ("ElectricChargeDensity", 0, "ElectricChargeDensity.dat")
     ]
 
     output_data_bundle_core(
@@ -61,7 +57,7 @@ def output_data_bundle(
         precision=precision,
         bundle_spec=bundle_spec,
         arrays=arrays,
-        lattice_points_name="Higgs_LatticePoints.dat",
-        lattice_vectors_name="Higgs_LatticeVectors.dat",
-        field_dump_name="d_Field.dat",
+        lattice_points_name="LatticePoints.dat",
+        lattice_vectors_name="LatticeVectors.dat",
+        field_dump_name="Field.dat",
     )

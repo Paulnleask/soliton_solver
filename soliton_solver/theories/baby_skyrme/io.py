@@ -31,10 +31,10 @@ def output_data_bundle(
     bundle_spec = [
         ("grid", 0, "xGrid.dat"),
         ("grid", 1, "yGrid.dat"),
-        ("Field", 0, "Magnet_Field1.dat"),
-        ("Field", 1, "Magnet_Field2.dat"),
-        ("Field", 2, "Magnet_Field3.dat"),
-        ("BaryonDensity", 0, "BaryonDensity.dat"),
+        ("Field", 0, "MagnetField1.dat"),
+        ("Field", 1, "MagnetField2.dat"),
+        ("Field", 2, "MagnetField3.dat"),
+        ("BaryonDensity", 0, "SkyrmionChargeDensity.dat"),
         ("EnergyDensity", 0, "EnergyDensity.dat"),
     ]
 
@@ -51,5 +51,5 @@ def output_data_bundle(
         arrays=arrays,
         lattice_points_name="LatticePoints.dat",
         lattice_vectors_name="LatticeVectors.dat",
-        field_dump_name="d_Field.dat",
+        field_dump_name="Field.dat",
     )

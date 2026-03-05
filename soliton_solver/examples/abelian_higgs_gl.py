@@ -12,7 +12,7 @@ theory = load_theory("Ginzburg-Landau superconductor")
 def run_gl_simulation():
     params = theory.params.default_params(
         xlen=320, ylen=320, xsize=50.0, ysize=50.0,     # Grid params 
-        q=1.0, Lambda=1.0, u1=1.0,                      # Abelian Higgs parameters
+        q=1.0, Lambda=0.5, u1=1.0,                      # Abelian Higgs parameters
         newtonflow=False,                               # Start simulation with flow on/off (True/False)
         unit_magnetization=False                        # Required flag for magnetization (False if no magnetization)
         )

@@ -12,7 +12,7 @@ Usage:
     sim = Simulation(params, theory)
     sim.initialize()
     result = sim.minimize(tol=1e-4)
-    sim.save_output("output")
+    sim.save_output()
 
 Outputs:
     - Allocates and manages core device arrays (Field, Velocity, derivatives, RK buffers).
@@ -23,6 +23,8 @@ Outputs:
 from __future__ import annotations
 import numpy as np
 from numba import cuda
+from pathlib import Path
+import inspect
 from soliton_solver.core.params import Params
 from soliton_solver.core.utils import launch_2d, set_field_zero_kernel
 from soliton_solver.core.integrator import do_arrested_newton_flow, do_rk4_kernel_no_constraint
@@ -42,7 +44,7 @@ class Simulation:
         sim.initialize()
         obs = sim.observables()
         result = sim.minimize(tol=1e-4)
-        sim.save_output("output")
+        sim.save_output()
 
     Parameters:
         params: Params or ResolvedParams-like object used to configure grid and solver.
@@ -451,7 +453,7 @@ class Simulation:
 
         return {"final_energy": e, "final_skyrmion": s, "final_vortex": v, "final_err": err, "steps": step + 1, "history": history}
 
-    def save_output(self, output_dir: str = "output", precision: int = 32):
+    def save_output(self, output_dir: str | None = None, precision: int = 32):
         """
         Compute selected densities/fields, copy buffers to host, and write theory output bundle.
 
@@ -468,26 +470,101 @@ class Simulation:
             - Copies Field, grid, and any computed densities/fields back to host.
             - Calls theory.io.output_data_bundle(...) to write the output files.
         """
+        # Default output directory: <theory_folder>/results
+        if output_dir is None:
+            theory_dir = Path(self.theory.io.__file__).resolve().parent  # folder containing io.py
+            output_dir = str(theory_dir / "results")
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+        # Field and grid
+        h_Field = self.Field.copy_to_host()
+        h_grid = self.grid.copy_to_host()
+        
+        # Launch grid
         grid2d, block2d = launch_2d(self.p_i_h, threads=self.threads2d)
+        
+        # Energy density
         if hasattr(self.kernels, "compute_energy_kernel"):
             self.kernels.compute_energy_kernel[grid2d, block2d](self.en, self.Field, self.d1fd1x, self.p_i_d, self.p_f_d)
+        # Skyrmion number density
         if hasattr(self.kernels, "compute_skyrmion_number_kernel"):
             self.kernels.compute_skyrmion_number_kernel[grid2d, block2d](self.entmp, self.Field, self.d1fd1x, self.p_i_d, self.p_f_d)
         cuda.synchronize()
+        h_EnergyDensity = self.en.copy_to_host() if hasattr(self, "en") else None
+        h_BaryonDensity = self.entmp.copy_to_host() if hasattr(self, "entmp") else None
+
+        # Order parameter density
+        if hasattr(self.kernels, "compute_norm_higgs_kernel"):
+            self.kernels.compute_norm_higgs_kernel[grid2d, block2d](self.en, self.Field, self.p_i_d)
+        # Magnetic charge density
+        if hasattr(self.kernels, "compute_magnetic_charge_kernel"):
+            self.kernels.compute_magnetic_charge_kernel[grid2d, block2d](self.Field, self.d1fd1x, self.entmp, self.p_i_d, self.p_f_d)
+        cuda.synchronize()
+        h_HiggsDensity = self.en.copy_to_host() if hasattr(self, "en") else None
+        h_MagneticChargeDensity = self.entmp.copy_to_host() if hasattr(self, "entmp") else None
+
+        # Electric charge density
+        if hasattr(self.kernels, "compute_electric_charge_kernel"):
+            self.kernels.compute_electric_charge_kernel[grid2d, block2d](self.Field, self.d1fd1x, self.d2fd2x, self.en, self.p_i_d, self.p_f_d)
+        # Noether charge density
+        if hasattr(self.kernels, "compute_noether_charge_kernel"):
+            self.kernels.compute_noether_charge_kernel[grid2d, block2d](self.Field, self.entmp, self.p_i_d, self.p_f_d)
+        cuda.synchronize()
+        h_ElectricChargeDensity = self.en.copy_to_host() if hasattr(self, "en") else None
+        h_NoetherChargeDensity = self.entmp.copy_to_host() if hasattr(self, "entmp") else None
+
+        # Higgs 1 density
+        if hasattr(self.kernels, "compute_norm_higgs1_kernel"):
+            self.kernels.compute_norm_higgs1_kernel[grid2d, block2d](self.en, self.Field, self.p_i_d)
+        # Higgs 2 density
+        if hasattr(self.kernels, "compute_norm_higgs2_kernel"):
+            self.kernels.compute_norm_higgs2_kernel[grid2d, block2d](self.entmp, self.Field, self.p_i_d)
+        cuda.synchronize()
+        h_Higgs1Density = self.en.copy_to_host() if hasattr(self, "en") else None
+        h_Higgs2Density = self.entmp.copy_to_host() if hasattr(self, "entmp") else None
+
+        # Vortex number density
+        if hasattr(self.kernels, "compute_vortex_number_kernel"):
+            self.kernels.compute_vortex_number_kernel[grid2d, block2d](self.en, self.Field, self.d1fd1x, 2, self.p_i_d, self.p_f_d)
+        cuda.synchronize()
+        h_VortexDensity = self.en.copy_to_host() if hasattr(self, "en") else None
+
         if hasattr(self, "magnetic_field") and callable(getattr(self, "magnetic_field")):
             try:
                 self.magnetic_field()
             except Exception:
                 pass
+        h_MagneticFluxDensity = self.MagneticFluxDensity.copy_to_host() if hasattr(self, "MagneticFluxDensity") else None
+
         if hasattr(self, "supercurrent") and callable(getattr(self, "supercurrent")):
             try:
                 self.supercurrent()
             except Exception:
                 pass
-        h_Field = self.Field.copy_to_host()
-        h_grid = self.grid.copy_to_host()
-        h_EnergyDensity = self.en.copy_to_host() if hasattr(self, "en") else None
-        h_BaryonDensity = self.entmp.copy_to_host() if hasattr(self, "entmp") else None
-        h_MagneticFluxDensity = self.MagneticFluxDensity.copy_to_host() if hasattr(self, "MagneticFluxDensity") else None
         h_Supercurrent = self.Supercurrent.copy_to_host() if hasattr(self, "Supercurrent") else None
-        self.theory.io.output_data_bundle(output_dir=output_dir, h_Field=h_Field, h_EnergyDensity=h_EnergyDensity, h_MagneticFluxDensity=h_MagneticFluxDensity, h_BaryonDensity=h_BaryonDensity, h_Supercurrent=h_Supercurrent, h_grid=h_grid, xlen=int(self.p_i_h[0]), ylen=int(self.p_i_h[1]), number_coordinates=int(self.p_i_h[3]), number_total_fields=int(self.p_i_h[4]), precision=precision)
+
+        kwargs = dict(output_dir=output_dir,
+                      h_Field=h_Field,
+                      h_EnergyDensity=h_EnergyDensity,
+                      h_MagneticFluxDensity=h_MagneticFluxDensity,
+                      h_BaryonDensity=h_BaryonDensity,
+                      h_VortexDensity=h_VortexDensity,
+                      h_Supercurrent=h_Supercurrent,
+                      h_HiggsDensity=h_HiggsDensity,
+                      h_MagneticChargeDensity=h_MagneticChargeDensity,
+                      h_ElectricChargeDensity=h_ElectricChargeDensity,
+                      h_NoetherChargeDensity=h_NoetherChargeDensity,
+                      h_Higgs1Density=h_Higgs1Density,
+                      h_Higgs2Density=h_Higgs2Density,
+                      h_grid=h_grid,
+                      xlen=int(self.p_i_h[0]),
+                      ylen=int(self.p_i_h[1]),
+                      number_coordinates=int(self.p_i_h[3]),
+                      number_total_fields=int(self.p_i_h[4]),
+                      precision=precision)
+
+        sig = inspect.signature(self.theory.io.output_data_bundle)
+        accepted = set(sig.parameters.keys())
+        filtered_kwargs = {k: v for k, v in kwargs.items() if k in accepted}
+
+        self.theory.io.output_data_bundle(**filtered_kwargs)

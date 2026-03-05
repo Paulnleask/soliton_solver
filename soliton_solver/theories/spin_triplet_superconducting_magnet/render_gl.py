@@ -669,7 +669,7 @@ def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 
             if renderer.request_save_output:
                 renderer.request_save_output = False
                 if hasattr(sim, "save_output"):
-                    sim.save_output("output", precision=32)
+                    sim.save_output(precision=32)
                 else:
                     print("Warning: sim has no save_output(...) method.")
 

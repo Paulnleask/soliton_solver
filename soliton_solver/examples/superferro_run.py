@@ -1,6 +1,9 @@
 # =========================
 # superferro_run.py
 # =========================
+"""
+To run: python -m soliton_solver.examples.superferro_run
+"""
 from soliton_solver.theories import load_theory
 from soliton_solver.core.simulation import Simulation
 
