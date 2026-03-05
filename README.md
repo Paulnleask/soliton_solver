@@ -10,13 +10,13 @@ GPU-based finite-difference PDE solver for topological solitons in 2D nonlinear 
 <a href="https://pypi.org/project/soliton-solver/">
   <img src="https://img.shields.io/pypi/v/soliton-solver.svg" alt="PyPI">
 </a>
-<a href="https://github.com/yourusername/soliton_solver/actions/workflows/tests.yml">
-  <img src="https://github.com/yourusername/soliton_solver/actions/workflows/tests.yml/badge.svg" alt="Tests">
+<a href="https://github.com/paulnleask/soliton_solver/actions/workflows/tests.yml">
+  <img src="https://github.com/paulnleask/soliton_solver/actions/workflows/tests.yml/badge.svg" alt="Tests">
 </a>
-<a href="https://github.com/yourusername/soliton_solver/releases">
-  <img src="https://img.shields.io/github/v/release/yourusername/soliton_solver?include_prereleases&label=changelog" alt="Changelog">
+<a href="https://github.com/paulnleask/soliton_solver/releases">
+  <img src="https://img.shields.io/github/v/release/paulnleask/soliton_solver?include_prereleases&label=changelog" alt="Changelog">
 </a>
-<a href="https://github.com/yourusername/soliton_solver/blob/main/LICENSE">
+<a href="https://github.com/paulnleask/soliton_solver/blob/main/LICENSE">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
 </a>
 </p>
