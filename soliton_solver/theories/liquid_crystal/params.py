@@ -1,89 +1,262 @@
-# =========================
-# soliton_solver/theories/liquid_crystal/params.py
-# =========================
 """
-Liquid crystal / chiral-magnet theory-specific parameters.
+Liquid crystal theory-specific parameters, parameter resolution, device packing, and terminal parameter documentation.
 
-This module extends the core Params/ResolvedParams and appends entries to p_i/p_f so that
-the existing CUDA ABI indices are unchanged.
+This module extends the core Params and ResolvedParams classes with the theory-specific parameters required by the liquid crystal model.
+It preserves the existing CUDA ABI layout by appending theory-specific entries to the core integer and floating-point device parameter arrays.
+The module also provides a describe() function so that the liquid crystal theory can print readable parameter information through theory.describe().
 
-Core prefix (from soliton_solver.core.params.pack_device_params):
-- p_i[0..12], p_f[0..23]  (whatever your core currently defines)
+Core prefix
+-----------
+From soliton_solver.core.params.pack_device_params:
+- p_i[0..9]
+- p_f[0..5]
 
-liquid_crystal appends (example):
-- p_i[10] number_magnetization_fields
-- p_i[11,12] DMI flags (0/1) [dmi_dresselhaus,dmi_rashba]
-- p_i[13] depol flag (0/1)
+Liquid crystal appended entries
+-------------------------------
+- p_i[10]    number_magnetization_fields
+- p_i[11]    dmi_dresselhaus
+- p_i[12]    dmi_rashba
+- p_i[13]    depol
 
-- p_f[6..] theory scalars (coup_PotE, coup_Potw0, coup_eps, e1, e3, skyrmion controls, ansatz flags)
+- p_f[6]     coup_PotE
+- p_f[7]     coup_Potw0
+- p_f[8]     coup_eps
+- p_f[9]     e1
+- p_f[10]    e3
+- p_f[11]    skyrmion_number
+- p_f[12]    skyrmion_rotation
+- p_f[13]    ansatz_bloch
+- p_f[14]    ansatz_neel
+- p_f[15]    ansatz_anti
+- p_f[16]    ansatz_uniform
+
+Examples
+--------
+>>> from soliton_solver.theories.liquid_crystal.params import Params, default_params
+>>> p = default_params(deformation="twist", ansatz="bloch")
+>>> rp = p.resolved()
+>>> p_i, p_f = pack_device_params(rp)
+>>> describe()
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass, replace
 from typing import Iterable
-import numpy as np
 import math
 
-from soliton_solver.core.params import Params as CoreParams, ResolvedParams as CoreResolvedParams, pack_device_params as pack_core_device_params
+import numpy as np
+
+from soliton_solver.core.params import Params as CoreParams
+from soliton_solver.core.params import ResolvedParams as CoreResolvedParams
+from soliton_solver.core.params import pack_device_params as pack_core_device_params
 
 
 @dataclass(frozen=True)
 class Params(CoreParams):
     """
-    Liquid crystal user-facing params: core + theory specifics.
+    User-facing liquid crystal parameters.
+
+    This class extends the core solver parameters with liquid crystal elastic constants, flexoelectric coefficients, deformation controls, and initial-condition controls.
+
+    Parameters
+    ----------
+    number_total_fields : int, optional
+        Total number of fields stored by the solver.
+        For the liquid crystal model this defaults to 4.
+    number_magnetization_fields : int, optional
+        Number of director or magnetization-like field components.
+        This defaults to 3.
+    K : float, optional
+        Elastic constant in the one-constant approximation.
+    P : float, optional
+        Cholesteric pitch.
+    d : float, optional
+        Sample thickness.
+    e1 : float, optional
+        Flexoelectric splay coefficient.
+    e3 : float, optional
+        Flexoelectric bend coefficient.
+    w0 : float, optional
+        Homeotropic anchoring strength.
+    eps0 : float, optional
+        Vacuum permittivity.
+    voltage : float, optional
+        Applied voltage across the sample.
+    delta_eps : float, optional
+        Dielectric anisotropy.
+    E : float | None, optional
+        Electric field magnitude.
+        If None, it is derived from voltage and thickness.
+    q0 : float | None, optional
+        Chiral wave number.
+        If None, it is derived from the pitch.
+    coup_eps : float | None, optional
+        Dimensionless dielectric or flexoelectric coupling.
+        If None, it is derived from K, eps0, and e1 when possible.
+    coup_Pot : float | None, optional
+        Dimensionless potential prefactor.
+        If None, it is derived from q0 and K when possible.
+    dmi_dresselhaus : bool, optional
+        Enable the twist-favoured deformation sector.
+    dmi_rashba : bool, optional
+        Enable the splay-bend-favoured deformation sector.
+    depol : bool, optional
+        Enable flexoelectric depolarization effects.
+    deformation : str | Iterable[str] | None, optional
+        Convenience selector for deformation type.
+        If provided, it overrides the individual dmi_* booleans.
+        It may be a single string, an iterable of strings, or None.
+    skyrmion_number : float, optional
+        Topological charge used by the initial-condition ansatz.
+    skyrmion_rotation : float, optional
+        Rotation angle applied in the initial-condition ansatz.
+    ansatz : str, optional
+        Initial-condition ansatz.
+        Supported values are "bloch", "neel", "anti", and "uniform".
+
+    Examples
+    --------
+    >>> p = Params()
+    >>> p = Params(K=10e-12, P=7e-6, voltage=4.0, deformation="twist", ansatz="neel")
+    >>> rp = p.resolved()
     """
-    # Override default for this theory
+
     number_total_fields: int = 4
 
-    # Model params (theory-specific)
     number_magnetization_fields: int = 3
-    K: float = 10e-12      # Elastic constant (one-constant approximation)
-    P: float = 7.0e-6      # Cholesteric pitch
-    d: float = 4e-6        # Thickness
-    e1: float = 2e-12      # Flexoelectric coefficient splay
-    e3: float = 4e-12      # Flexoelectric coefficient bend
-    w0: float = 1.0        # Homeotropic anchoring
+    K: float = 10e-12
+    P: float = 7.0e-6
+    d: float = 4e-6
+    e1: float = 2e-12
+    e3: float = 4e-12
+    w0: float = 1.0
     eps0: float = 8.854e-12
     voltage: float = 4.0
     delta_eps: float = 3.7
 
-    # Optional derived controls
     E: float | None = None
     q0: float | None = None
     coup_eps: float | None = None
     coup_Pot: float | None = None
 
-    # DMI terms (raw flags, still supported)
     dmi_dresselhaus: bool = True
     dmi_rashba: bool = False
 
-    # Depolarization flag
     depol: bool = False
 
-    # Convenience selector (theory-only)
     deformation: str | Iterable[str] | None = None
 
-    # Initial condition controls (theory-specific)
     skyrmion_number: float = 1.0
     skyrmion_rotation: float = 0.0
-    ansatz: str = "bloch"  # "bloch" | "neel" | "anti" | "uniform"
+    ansatz: str = "bloch"
 
     def with_(self, **kwargs) -> "Params":
+        """
+        Return a copy of the parameter object with selected fields replaced.
+
+        Parameters
+        ----------
+        **kwargs
+            Dataclass field values to replace.
+
+        Returns
+        -------
+        Params
+            New parameter object with the requested updates applied.
+
+        Examples
+        --------
+        >>> p = Params()
+        >>> p2 = p.with_(voltage=5.0, ansatz="neel")
+        """
         return replace(self, **kwargs)
 
     def resolved(self) -> "ResolvedParams":
+        """
+        Convert user-facing parameters into fully resolved liquid crystal parameters.
+
+        Returns
+        -------
+        ResolvedParams
+            Resolved parameter object containing both core derived quantities and liquid crystal theory-specific derived quantities.
+
+        Examples
+        --------
+        >>> p = Params(deformation="twist", voltage=4.0)
+        >>> rp = p.resolved()
+        """
         return ResolvedParams.from_params(self)
 
 
 @dataclass(frozen=True)
 class ResolvedParams(CoreResolvedParams):
     """
-    Liquid crystal resolved params: core derived + theory derived.
+    Fully resolved liquid crystal parameters.
+
+    This class contains the full set of core resolved parameters together with liquid crystal theory-specific flags and coefficients needed by the CPU and GPU solver code.
+
+    Parameters
+    ----------
+    number_magnetization_fields : int
+        Number of director or magnetization-like field components.
+    K : float
+        Elastic constant in the one-constant approximation.
+    P : float
+        Cholesteric pitch.
+    d : float
+        Sample thickness.
+    e1 : float
+        Flexoelectric splay coefficient.
+    e3 : float
+        Flexoelectric bend coefficient.
+    w0 : float
+        Homeotropic anchoring strength.
+    eps0 : float
+        Vacuum permittivity.
+    voltage : float
+        Applied voltage across the sample.
+    delta_eps : float
+        Dielectric anisotropy.
+    E : float
+        Electric field magnitude.
+    q0 : float
+        Chiral wave number.
+    coup_eps : float
+        Dimensionless dielectric or flexoelectric coupling.
+    coup_Pot : float
+        Dimensionless potential prefactor.
+    coup_PotE : float
+        Electric-field contribution to the potential prefactor.
+    coup_Potw0 : float
+        Anchoring contribution to the potential prefactor.
+    skyrmion_number : float
+        Topological charge used in the initial ansatz.
+    skyrmion_rotation : float
+        Rotation angle used in the initial ansatz.
+    ansatz_bloch : bool
+        Whether the Bloch ansatz is enabled.
+    ansatz_neel : bool
+        Whether the Neel ansatz is enabled.
+    ansatz_anti : bool
+        Whether the anti-skyrmion ansatz is enabled.
+    ansatz_uniform : bool
+        Whether the uniform initial configuration is enabled.
+    dmi_dresselhaus : bool
+        Whether the twist-favoured sector is enabled.
+    dmi_rashba : bool
+        Whether the splay-bend-favoured sector is enabled.
+    depol : bool
+        Whether depolarization effects are enabled.
+
+    Examples
+    --------
+    >>> p = Params(deformation="splay-bend", depol=True)
+    >>> rp = ResolvedParams.from_params(p)
     """
-    # ints (appended to p_i)
+
     number_magnetization_fields: int
 
-    # physical/theory floats
     K: float
     P: float
     d: float
@@ -100,7 +273,6 @@ class ResolvedParams(CoreResolvedParams):
     coup_PotE: float
     coup_Potw0: float
 
-    # initial config controls
     skyrmion_number: float
     skyrmion_rotation: float
     ansatz_bloch: bool
@@ -108,13 +280,37 @@ class ResolvedParams(CoreResolvedParams):
     ansatz_anti: bool
     ansatz_uniform: bool
 
-    # DMI + depol flags
     dmi_dresselhaus: bool
     dmi_rashba: bool
     depol: bool
 
     @staticmethod
     def from_params(p: Params) -> "ResolvedParams":
+        """
+        Build resolved liquid crystal parameters from user-facing parameters.
+
+        This method computes derived electric-field and chiral scales, constructs dimensionless couplings, resolves ansatz flags, and converts the convenience deformation selector into the explicit dmi_* boolean fields expected by the rest of the code.
+
+        Parameters
+        ----------
+        p : Params
+            User-facing liquid crystal parameters.
+
+        Returns
+        -------
+        ResolvedParams
+            Fully resolved liquid crystal parameters.
+
+        Raises
+        ------
+        ValueError
+            If an unknown deformation name is supplied, or if the deformation selector is provided but resolves to no active deformation sector.
+
+        Examples
+        --------
+        >>> p = Params(deformation="twist", depol=True, voltage=4.0)
+        >>> rp = ResolvedParams.from_params(p)
+        """
         core = CoreResolvedParams.from_params(p)
 
         ans = (p.ansatz or "bloch").lower()
@@ -139,21 +335,39 @@ class ResolvedParams(CoreResolvedParams):
         coup_PotE = float(coup_Pot * p.eps0 * p.delta_eps * E * E)
         coup_Potw0 = float(coup_Pot * p.w0)
 
-        # Start from explicit booleans
         dresselhaus = bool(p.dmi_dresselhaus)
         rashba = bool(p.dmi_rashba)
 
-        # Optional override selector
         if p.deformation is not None:
             dresselhaus = False
             rashba = False
 
             def _norm(s: str) -> str:
+                """
+                Normalize a deformation name for case-insensitive matching.
+
+                Parameters
+                ----------
+                s : str
+                    Raw deformation name.
+
+                Returns
+                -------
+                str
+                    Normalized deformation name.
+
+                Examples
+                --------
+                >>> _norm("splay-bend")
+                'splay bend'
+                """
                 return (s or "").strip().lower().replace("_", " ").replace("-", " ")
 
             items = [p.deformation] if isinstance(p.deformation, str) else list(p.deformation)
+
             for item in items:
                 key = _norm(str(item))
+
                 if key in ("dresselhaus", "twist"):
                     dresselhaus = True
                 elif key in ("rashba", "splay bend", "splaybend", "splay-bend"):
@@ -165,59 +379,166 @@ class ResolvedParams(CoreResolvedParams):
                 raise ValueError("p.deformation was provided but no valid DMIs were selected.")
 
         return ResolvedParams(
-            # core fields
             xlen=core.xlen, ylen=core.ylen, halo=core.halo, number_coordinates=core.number_coordinates, number_total_fields=core.number_total_fields,
             dim_grid=core.dim_grid, dim_fields=core.dim_fields, killkinen=core.killkinen, newtonflow=core.newtonflow, unit_magnetization=core.unit_magnetization,
             xsize=core.xsize, ysize=core.ysize, lsx=core.lsx, lsy=core.lsy, grid_volume=core.grid_volume, time_step=core.time_step,
-            # theory ints
             number_magnetization_fields=int(p.number_magnetization_fields),
-            # theory floats (all declared fields provided)
             K=float(p.K), P=float(p.P), d=float(p.d), e1=float(p.e1), e3=float(p.e3), w0=float(p.w0), eps0=float(p.eps0),
             voltage=float(p.voltage), delta_eps=float(p.delta_eps), E=float(E), q0=float(q0),
             coup_eps=float(coup_eps), coup_Pot=float(coup_Pot), coup_PotE=float(coup_PotE), coup_Potw0=float(coup_Potw0),
-            # init config
             skyrmion_number=float(p.skyrmion_number), skyrmion_rotation=float(p.skyrmion_rotation),
             ansatz_bloch=ansatz_bloch, ansatz_neel=ansatz_neel, ansatz_anti=ansatz_anti, ansatz_uniform=ansatz_uniform,
-            # flags
             dmi_dresselhaus=dresselhaus, dmi_rashba=rashba, depol=bool(p.depol),
         )
 
 
 def default_params(**overrides) -> Params:
+    """
+    Construct liquid crystal parameters using defaults plus user overrides.
+
+    Parameters
+    ----------
+    **overrides
+        Keyword arguments forwarded to Params.with_().
+
+    Returns
+    -------
+    Params
+        Parameter object with the requested overrides applied.
+
+    Examples
+    --------
+    >>> p = default_params(voltage=5.0, deformation="twist", depol=True)
+    """
     return Params().with_(**overrides)
 
 
 def pack_device_params(rp: ResolvedParams):
     """
-    Pack (p_i, p_f) for liquid_crystal by:
-      1) building the core prefix arrays
-      2) appending theory-specific entries
+    Pack resolved liquid crystal parameters into device ABI arrays.
 
-    Preserves ABI indices expected by the liquid_crystal kernels.
+    The core integer and floating-point parameter arrays are created first and the liquid crystal theory-specific entries are then appended.
+    This preserves the ABI indices expected by the liquid crystal kernels.
+
+    Parameters
+    ----------
+    rp : ResolvedParams
+        Fully resolved liquid crystal parameters.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        Tuple (p_i, p_f) containing the integer and floating-point device parameter arrays.
+
+    Examples
+    --------
+    >>> rp = default_params().resolved()
+    >>> p_i, p_f = pack_device_params(rp)
     """
     p_i_core, p_f_core = pack_core_device_params(rp)
 
     p_i_theory = np.array([
-        rp.number_magnetization_fields,         # 10
-        1 if rp.dmi_dresselhaus else 0,         # 11
-        1 if rp.dmi_rashba else 0,              # 12
-        1 if rp.depol else 0,                   # 13
+        rp.number_magnetization_fields,
+        1 if rp.dmi_dresselhaus else 0,
+        1 if rp.dmi_rashba else 0,
+        1 if rp.depol else 0,
     ], dtype=np.int32)
 
     p_f_theory = np.array([
-        rp.coup_PotE,                           # 6
-        rp.coup_Potw0,                          # 7
-        rp.coup_eps,                            # 8
-        rp.e1,                                  # 9
-        rp.e3,                                  # 10
-        rp.skyrmion_number,                     # 11
-        rp.skyrmion_rotation,                   # 12
-        1.0 if rp.ansatz_bloch else 0.0,        # 13
-        1.0 if rp.ansatz_neel else 0.0,         # 14
-        1.0 if rp.ansatz_anti else 0.0,         # 15
-        1.0 if rp.ansatz_uniform else 0.0,      # 16
+        rp.coup_PotE,
+        rp.coup_Potw0,
+        rp.coup_eps,
+        rp.e1,
+        rp.e3,
+        rp.skyrmion_number,
+        rp.skyrmion_rotation,
+        1.0 if rp.ansatz_bloch else 0.0,
+        1.0 if rp.ansatz_neel else 0.0,
+        1.0 if rp.ansatz_anti else 0.0,
+        1.0 if rp.ansatz_uniform else 0.0,
     ], dtype=np.float64)
 
     p_i = np.concatenate((p_i_core, p_i_theory))
     p_f = np.concatenate((p_f_core, p_f_theory))
     return p_i, p_f
+
+
+def describe() -> None:
+    """
+    Print a readable description of the liquid crystal parameter set.
+
+    The printed output is intended for interactive terminal use through theory.describe().
+    It summarizes the field content, material and flexoelectric parameters, deformation selection controls, depolarization settings, initial-condition controls, and the meaning of the packed device arrays.
+
+    Returns
+    -------
+    None
+        This function prints parameter information to the terminal.
+
+    Examples
+    --------
+    >>> from soliton_solver.theories.liquid_crystal import params
+    >>> params.describe()
+    """
+    print("Field content:")
+    print("  The liquid crystal model uses 3 director fields and 1 electrostatic potential by default.")
+    print()
+
+    print("Grid content:")
+    print("  xlen : number of grid points in x-direction")
+    print("  ylen : number of grid points in y-direction")
+    print("  xsize : dimensionless grid size in x-direction")
+    print("  ysize : dimensionless grid size in y-direction")
+    print()
+
+    print("Material and elastic parameters:")
+    print("  K : elastic constant in the one-constant approximation.")
+    print("  P : cholesteric pitch.")
+    print("  d : sample thickness.")
+    print("  e1 : flexoelectric splay coefficient.")
+    print("  e3 : flexoelectric bend coefficient.")
+    print("  w0 : homeotropic anchoring strength.")
+    print("  eps0 : vacuum permittivity.")
+    print("  voltage : applied voltage across the sample.")
+    print("  delta_eps : dielectric anisotropy.")
+    print()
+
+    print("Derived quantities and couplings:")
+    print("  E : electric field magnitude.")
+    print("  q0 : chiral wave number.")
+    print("  coup_eps : dimensionless dielectric or flexoelectric coupling.")
+    print("  coup_Pot : dimensionless potential prefactor.")
+    print("  coup_PotE : electric-field contribution to the potential prefactor.")
+    print("  coup_Potw0 : anchoring contribution to the potential prefactor.")
+    print("  If E is left as None, it is derived as voltage / d.")
+    print("  If q0 is left as None, it is derived as 2 pi / P.")
+    print("  If coup_eps is left as None, it is derived from K, eps0, and e1 when e1 is non-zero.")
+    print("  If coup_Pot is left as None, it is derived from q0 and K when both are non-zero.")
+    print()
+
+    print("Deformation selection:")
+    print("  dmi_dresselhaus : enable the twist-favoured deformation sector.")
+    print("  dmi_rashba : enable the splay-bend-favoured deformation sector.")
+    print("  deformation : convenience selector that overrides the individual dmi_* flags.")
+    print("  Valid convenience names:")
+    print("    twist")
+    print("    dresselhaus")
+    print("    splay-bend")
+    print("    rashba")
+    print("  The convenience selector may be a single string or an iterable of strings.")
+    print()
+
+    print("Depolarization:")
+    print("  depol : enables or disables flexoelectric depolarization effects.")
+    print()
+
+    print("Initial condition controls:")
+    print("  skyrmion_number : topological charge used by the initial-condition ansatz.")
+    print("  skyrmion_rotation : in-plane rotation angle used in the ansatz.")
+    print("  ansatz : initial-condition type.")
+    print("  Supported ansatz values:")
+    print("    bloch")
+    print("    neel")
+    print("    anti")
+    print("    uniform")
+    print()

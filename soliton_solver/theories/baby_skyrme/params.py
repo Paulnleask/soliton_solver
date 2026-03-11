@@ -1,49 +1,123 @@
-# =========================
-# soliton_solver/theories/baby_skyrme/params.py
-# =========================
 """
-Baby skyrmion theory-specific parameters.
+Baby Skyrme theory-specific parameters, parameter resolution, device packing, and terminal parameter documentation.
 
-This module extends the core Params/ResolvedParams and appends entries to p_i/p_f so that
-the existing CUDA ABI indices are unchanged.
+This module extends the core Params and ResolvedParams classes with the theory-specific parameters required by the Baby Skyrme model.
+It preserves the existing CUDA ABI layout by appending theory-specific entries to the core integer and floating-point device parameter arrays.
 
-Core prefix (from soliton_solver.core.params.pack_device_params):
-- p_i[0..9], p_f[0..5]
+The module also provides a describe() function so that the Baby Skyrme theory can print readable parameter information through theory.describe().
 
-BabySkyrme appends:
-- p_i[10] number_magnetization_fields
-- p_i[11..18] potential flags (0/1)
-- p_i[19] N (broken potential exponent)
+Core prefix
+-----------
+From soliton_solver.core.params.pack_device_params:
+- p_i[0..9]
+- p_f[0..5]
 
-- p_f[6] mpi
-- p_f[7] kappa
-- p_f[8] skyrmion_number
-- p_f[9] skyrmion_rotation
-- p_f[10..13] ansatz flags (bloch/neel/anti/uniform) as 0/1
+Baby Skyrme appended entries
+----------------------------
+- p_i[10]    number_magnetization_fields
+- p_i[11]    Potential_Standard
+- p_i[12]    Potential_Holomorphic
+- p_i[13]    Potential_EasyPlane
+- p_i[14]    Potential_Dihedral2
+- p_i[15]    Potential_Aloof
+- p_i[16]    Potential_Dihedral3
+- p_i[17]    Potential_Broken
+- p_i[18]    Potential_DoubleVacua
+- p_i[19]    N
+
+- p_f[6]     mpi
+- p_f[7]     kappa
+- p_f[8]     skyrmion_number
+- p_f[9]     skyrmion_rotation
+- p_f[10]    ansatz_bloch
+- p_f[11]    ansatz_neel
+- p_f[12]    ansatz_anti
+- p_f[13]    ansatz_uniform
+
+Examples
+--------
+>>> from soliton_solver.theories.baby_skyrme.params import Params, default_params
+>>> p = default_params(mpi=2.0, potential="Standard", ansatz="bloch")
+>>> rp = p.resolved()
+>>> p_i, p_f = pack_device_params(rp)
+>>> describe()
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Iterable
+
 import numpy as np
-from soliton_solver.core.params import Params as CoreParams, ResolvedParams as CoreResolvedParams, pack_device_params as pack_core_device_params
+
+from soliton_solver.core.params import Params as CoreParams
+from soliton_solver.core.params import ResolvedParams as CoreResolvedParams
+from soliton_solver.core.params import pack_device_params as pack_core_device_params
 
 
 @dataclass(frozen=True)
 class Params(CoreParams):
     """
-    BabySkyrme user-facing params: core + theory specifics.
+    User-facing Baby Skyrme parameters.
+
+    This class extends the core solver parameters with Baby Skyrme model
+    couplings, potential selection flags, and initial-condition controls.
+
+    Parameters
+    ----------
+    number_total_fields : int, optional
+        Total number of fields in the theory. For the Baby Skyrme model this
+        defaults to 3.
+    number_magnetization_fields : int, optional
+        Number of magnetization field components. This defaults to 3.
+    mpi : float, optional
+        Coefficient controlling the potential strength.
+    kappa : float, optional
+        Coefficient controlling the Skyrme term strength.
+    N : int, optional
+        Integer exponent used by the broken potential.
+    Potential_Standard : bool, optional
+        Enable the standard potential.
+    Potential_Holomorphic : bool, optional
+        Enable the holomorphic potential.
+    Potential_EasyPlane : bool, optional
+        Enable the easy-plane potential.
+    Potential_Dihedral2 : bool, optional
+        Enable the dihedral-2 potential.
+    Potential_Aloof : bool, optional
+        Enable the aloof potential.
+    Potential_Dihedral3 : bool, optional
+        Enable the dihedral-3 potential.
+    Potential_Broken : bool, optional
+        Enable the broken potential.
+    Potential_DoubleVacua : bool, optional
+        Enable the double-vacua potential.
+    potential : str | Iterable[str] | None, optional
+        Convenience selector for potential choice. If provided, it overrides the
+        individual Potential_* booleans. It may be a single string, an iterable
+        of strings, or None.
+    skyrmion_number : float, optional
+        Topological charge used by the initial-condition ansatz.
+    skyrmion_rotation : float, optional
+        Rotation angle applied in the initial-condition ansatz.
+    ansatz : str, optional
+        Initial-condition ansatz. Supported values are "bloch", "neel", "anti",
+        and "uniform".
+
+    Examples
+    --------
+    >>> p = Params()
+    >>> p = Params(mpi=2.0, kappa=0.5, potential="Easy plane", ansatz="neel")
+    >>> rp = p.resolved()
     """
-    # Override default for this theory
+
     number_total_fields: int = 3
 
-    # Model params (theory-specific)
     number_magnetization_fields: int = 3
     mpi: float = 1.0
     kappa: float = 1.0
     N: int = 1
 
-    # Potential terms (raw flags, still supported)
     Potential_Standard: bool = True
     Potential_Holomorphic: bool = False
     Potential_EasyPlane: bool = False
@@ -53,43 +127,97 @@ class Params(CoreParams):
     Potential_Broken: bool = False
     Potential_DoubleVacua: bool = False
 
-    # New convenience selector (theory-only):
-    # - None: keep explicit Potential_* booleans as provided
-    # - "Standard": enables only that potential
-    # - {"Standard","Easy plane"}: enables multiple
     potential: str | Iterable[str] | None = None
 
-    # Initial condition controls (theory-specific)
     skyrmion_number: float = 1.0
     skyrmion_rotation: float = 0.0
-    ansatz: str = "bloch"  # "bloch" | "neel" | "anti" | "uniform"
+    ansatz: str = "bloch"
 
     def resolved(self) -> "ResolvedParams":
+        """
+        Convert user-facing parameters into fully resolved Baby Skyrme parameters.
+
+        Returns
+        -------
+        ResolvedParams
+            Resolved parameter object containing both core derived quantities and
+            Baby Skyrme theory-specific derived quantities.
+
+        Examples
+        --------
+        >>> p = Params(mpi=2.0, potential="Standard")
+        >>> rp = p.resolved()
+        """
         return ResolvedParams.from_params(self)
 
 
 @dataclass(frozen=True)
 class ResolvedParams(CoreResolvedParams):
     """
-    BabySkyrme resolved params: core derived + theory derived.
+    Fully resolved Baby Skyrme parameters.
+
+    This class contains the full set of core resolved parameters together with
+    Baby Skyrme theory-specific flags and coefficients needed by the CPU and GPU
+    solver code.
+
+    Parameters
+    ----------
+    number_magnetization_fields : int
+        Number of magnetization field components.
+    N : int
+        Integer exponent for the broken potential.
+    mpi : float
+        Potential strength coefficient.
+    kappa : float
+        Skyrme term coefficient.
+    skyrmion_number : float
+        Topological charge used in the initial ansatz.
+    skyrmion_rotation : float
+        Rotation angle used in the initial ansatz.
+    ansatz_bloch : bool
+        Whether the Bloch ansatz is enabled.
+    ansatz_neel : bool
+        Whether the Neel ansatz is enabled.
+    ansatz_anti : bool
+        Whether the anti-skyrmion ansatz is enabled.
+    ansatz_uniform : bool
+        Whether the uniform initial configuration is enabled.
+    Potential_Standard : bool
+        Whether the standard potential is enabled.
+    Potential_Holomorphic : bool
+        Whether the holomorphic potential is enabled.
+    Potential_EasyPlane : bool
+        Whether the easy-plane potential is enabled.
+    Potential_Dihedral2 : bool
+        Whether the dihedral-2 potential is enabled.
+    Potential_Aloof : bool
+        Whether the aloof potential is enabled.
+    Potential_Dihedral3 : bool
+        Whether the dihedral-3 potential is enabled.
+    Potential_Broken : bool
+        Whether the broken potential is enabled.
+    Potential_DoubleVacua : bool
+        Whether the double-vacua potential is enabled.
+
+    Examples
+    --------
+    >>> p = Params(potential="Aloof")
+    >>> rp = ResolvedParams.from_params(p)
     """
-    # ints (appended to p_i)
+
     number_magnetization_fields: int
     N: int
 
-    # floats (appended to p_f)
     mpi: float
     kappa: float
     skyrmion_number: float
 
-    # initial config (stored in p_f as flags/controls)
     skyrmion_rotation: float
     ansatz_bloch: bool
     ansatz_neel: bool
     ansatz_anti: bool
     ansatz_uniform: bool
 
-    # potential terms
     Potential_Standard: bool
     Potential_Holomorphic: bool
     Potential_EasyPlane: bool
@@ -101,6 +229,34 @@ class ResolvedParams(CoreResolvedParams):
 
     @staticmethod
     def from_params(p: Params) -> "ResolvedParams":
+        """
+        Build resolved Baby Skyrme parameters from user-facing parameters.
+
+        This method resolves ansatz strings into explicit boolean flags and
+        converts the convenience potential selector into the explicit
+        Potential_* boolean fields expected by the rest of the code.
+
+        Parameters
+        ----------
+        p : Params
+            User-facing Baby Skyrme parameters.
+
+        Returns
+        -------
+        ResolvedParams
+            Fully resolved Baby Skyrme parameters.
+
+        Raises
+        ------
+        ValueError
+            If an unknown potential name is supplied, or if the potential
+            selector is provided but resolves to no active potential.
+
+        Examples
+        --------
+        >>> p = Params(potential=["Standard", "Broken"], N=2)
+        >>> rp = ResolvedParams.from_params(p)
+        """
         core = CoreResolvedParams.from_params(p)
 
         ans = (p.ansatz or "bloch").lower()
@@ -109,7 +265,6 @@ class ResolvedParams(CoreResolvedParams):
         ansatz_anti = ans == "anti"
         ansatz_uniform = ans == "uniform"
 
-        # Start from explicit booleans
         pot_standard = bool(p.Potential_Standard)
         pot_holomorphic = bool(p.Potential_Holomorphic)
         pot_easyplane = bool(p.Potential_EasyPlane)
@@ -119,7 +274,6 @@ class ResolvedParams(CoreResolvedParams):
         pot_broken = bool(p.Potential_Broken)
         pot_doublevacua = bool(p.Potential_DoubleVacua)
 
-        # If p.potential is provided, it overrides the individual Potential_* booleans.
         if p.potential is not None:
             pot_standard = False
             pot_holomorphic = False
@@ -131,6 +285,19 @@ class ResolvedParams(CoreResolvedParams):
             pot_doublevacua = False
 
             def _norm(s: str) -> str:
+                """
+                Normalize a potential name for case-insensitive matching.
+
+                Parameters
+                ----------
+                s : str
+                    Raw potential name.
+
+                Returns
+                -------
+                str
+                    Normalized potential name.
+                """
                 return (s or "").strip().lower().replace("_", " ").replace("-", " ")
 
             if isinstance(p.potential, str):
@@ -140,6 +307,7 @@ class ResolvedParams(CoreResolvedParams):
 
             for item in items:
                 key = _norm(str(item))
+
                 if key in ("standard",):
                     pot_standard = True
                 elif key in ("holomorphic", "holomorhpic"):
@@ -178,43 +346,147 @@ class ResolvedParams(CoreResolvedParams):
 
 
 def default_params(**overrides) -> Params:
+    """
+    Construct Baby Skyrme parameters using defaults plus user overrides.
+
+    Parameters
+    ----------
+    **overrides
+        Keyword arguments forwarded to Params.with_().
+
+    Returns
+    -------
+    Params
+        Parameter object with the requested overrides applied.
+
+    Examples
+    --------
+    >>> p = default_params(mpi=2.0, ansatz="neel")
+    """
     return Params().with_(**overrides)
 
 
 def pack_device_params(rp: ResolvedParams):
     """
-    Pack (p_i, p_f) for BabySkyrme by:
-      1) building the core prefix arrays
-      2) appending theory-specific entries
+    Pack resolved Baby Skyrme parameters into device ABI arrays.
 
-    This preserves the original ABI indices expected by BabySkyrme kernels.
+    The core integer and floating-point parameter arrays are created first and
+    the Baby Skyrme theory-specific entries are then appended. This preserves
+    the ABI indices expected by the Baby Skyrme kernels.
+
+    Parameters
+    ----------
+    rp : ResolvedParams
+        Fully resolved Baby Skyrme parameters.
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        Tuple (p_i, p_f) containing the integer and floating-point device
+        parameter arrays.
+
+    Examples
+    --------
+    >>> rp = default_params().resolved()
+    >>> p_i, p_f = pack_device_params(rp)
     """
     p_i_core, p_f_core = pack_core_device_params(rp)
 
     p_i_theory = np.array([
-        rp.number_magnetization_fields,         # 10
-        1 if rp.Potential_Standard else 0,      # 11
-        1 if rp.Potential_Holomorphic else 0,   # 12
-        1 if rp.Potential_EasyPlane else 0,     # 13
-        1 if rp.Potential_Dihedral2 else 0,     # 14
-        1 if rp.Potential_Aloof else 0,         # 15
-        1 if rp.Potential_Dihedral3 else 0,     # 16
-        1 if rp.Potential_Broken else 0,        # 17
-        1 if rp.Potential_DoubleVacua else 0,   # 18
-        int(rp.N),                              # 19
+        rp.number_magnetization_fields,
+        1 if rp.Potential_Standard else 0,
+        1 if rp.Potential_Holomorphic else 0,
+        1 if rp.Potential_EasyPlane else 0,
+        1 if rp.Potential_Dihedral2 else 0,
+        1 if rp.Potential_Aloof else 0,
+        1 if rp.Potential_Dihedral3 else 0,
+        1 if rp.Potential_Broken else 0,
+        1 if rp.Potential_DoubleVacua else 0,
+        int(rp.N),
     ], dtype=np.int32)
 
     p_f_theory = np.array([
-        rp.mpi,                                 # 6
-        rp.kappa,                               # 7
-        rp.skyrmion_number,                     # 8
-        rp.skyrmion_rotation,                   # 9
-        1.0 if rp.ansatz_bloch else 0.0,        # 10
-        1.0 if rp.ansatz_neel else 0.0,         # 11
-        1.0 if rp.ansatz_anti else 0.0,         # 12
-        1.0 if rp.ansatz_uniform else 0.0,      # 13
+        rp.mpi,
+        rp.kappa,
+        rp.skyrmion_number,
+        rp.skyrmion_rotation,
+        1.0 if rp.ansatz_bloch else 0.0,
+        1.0 if rp.ansatz_neel else 0.0,
+        1.0 if rp.ansatz_anti else 0.0,
+        1.0 if rp.ansatz_uniform else 0.0,
     ], dtype=np.float64)
 
     p_i = np.concatenate((p_i_core, p_i_theory))
     p_f = np.concatenate((p_f_core, p_f_theory))
+
     return p_i, p_f
+
+
+def describe() -> None:
+    """
+    Print a readable description of the Baby Skyrme parameter set.
+
+    The printed output is intended for interactive terminal use through
+    theory.describe(). It summarizes the field content, theory-specific model
+    parameters, potential selection controls, initial-condition controls, and
+    the meaning of the packed device arrays.
+
+    Returns
+    -------
+    None
+        This function prints parameter information to the terminal.
+
+    Examples
+    --------
+    >>> from soliton_solver.theories.baby_skyrme import params
+    >>> params.describe()
+    """
+    print("Field content:")
+    print("  The Baby Skyrme model uses 3 field components by default.")
+    print()
+
+    print("Grid content:")
+    print("  xlen : number of grid points in x-direction")
+    print("  ylen : number of grid points in y-direction")
+    print("  xsize : dimensionless grid size in x-direction")
+    print("  ysize : dimensionless grid size in y-direction")
+    print()
+
+    print("Model couplings:")
+    print("  mpi : coefficient controlling the potential strength")
+    print("  kappa : coefficient controlling the Skyrme term strength")
+    print("  N : integer exponent used by the broken potential")
+    print()
+
+    print("Potential selection:")
+    print("  Potential_Standard : enable the standard potential")
+    print("  Potential_Holomorphic : enable the holomorphic potential")
+    print("  Potential_EasyPlane : enable the easy-plane potential")
+    print("  Potential_Dihedral2 : enable the dihedral-2 potential")
+    print("  Potential_Aloof : enable the aloof potential")
+    print("  Potential_Dihedral3 : enable the dihedral-3 potential")
+    print("  Potential_Broken : enable the broken potential")
+    print("  Potential_DoubleVacua : enable the double-vacua potential")
+    print("  potential : convenience selector that overrides the individual Potential_* flags")
+    print("  Valid convenience names:")
+    print("    Standard")
+    print("    Holomorphic")
+    print("    Easy plane")
+    print("    Dihedral2")
+    print("    Aloof")
+    print("    Dihedral3")
+    print("    Broken")
+    print("    DoubleVacua")
+    print("  The convenience selector may be a single string or an iterable of strings.")
+    print()
+
+    print("Initial condition controls:")
+    print("  skyrmion_number : topological charge used by the initial-condition ansatz")
+    print("  skyrmion_rotation : in-plane rotation angle used in the ansatz")
+    print("  ansatz : initial-condition type")
+    print("  Supported ansatz values:")
+    print("    bloch")
+    print("    neel")
+    print("    anti")
+    print("    uniform")
+    print()
