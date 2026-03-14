@@ -1,25 +1,12 @@
 """
 Registry utilities for theory discovery, registration, loading, and description.
 
-This module implements the central registry used to manage available theories
-within the soliton_solver framework. It allows theory packages to register
-metadata describing the theory, supports dynamic importing of theory packages,
-validates that required theory submodules exist, and enables automatic
-discovery of theory packages placed inside the soliton_solver.theories
-namespace.
-
-The registry supports both canonical theory names and aliases. Canonical names
-are used for listing and display, while aliases remain available for lookup.
-
 Examples
 --------
->>> from soliton_solver.theories.registry import list_theories, print_theory_table
->>> list_theories()
-('Baby Skyrme model',)
->>> print_theory_table()
-Theory             Version  Description                                         Aliases
----------------------------------------------------------------------------------------
-Baby Skyrme model  1.0      Solver for the baby Skyrme model, with numerous...  Baby Skyrme, Baby skyrmion, Planar skyrmion
+Use ``list_theories`` to return the canonical names of all registered theories.
+Use ``load_theory`` to import a theory package from the registry.
+Use ``print_theory_table`` to print a table of registered theories.
+Use ``discover_theories`` to find and register theory subpackages automatically.
 """
 
 from __future__ import annotations
@@ -36,9 +23,6 @@ class TheorySpec:
     """
     Immutable metadata describing a theory implementation.
 
-    This structure defines the information required for the registry to locate
-    and validate a theory package.
-
     Parameters
     ----------
     name : str
@@ -46,21 +30,22 @@ class TheorySpec:
     import_path : str
         Full Python import path for the theory package.
     description : str, optional
-        Short human-readable description of the theory.
+        Short description of the theory.
     version : str, optional
         Version identifier for the theory implementation.
     aliases : tuple[str, ...], optional
-        Alternative names that may also refer to the same theory.
+        Alternative names for the same theory.
     required_submodules : tuple[str, ...], optional
         Names of submodules that must exist inside the theory package.
 
+    Returns
+    -------
+    None
+        The dataclass stores the theory metadata.
+
     Examples
     --------
-    >>> spec = TheorySpec(
-    ...     name="Baby Skyrme model",
-    ...     import_path="soliton_solver.theories.baby_skyrme",
-    ...     description="Solver for the baby Skyrme model",
-    ... )
+    Use ``TheorySpec(name="Baby Skyrme model", import_path="soliton_solver.theories.baby_skyrme", description="Solver for the baby Skyrme model")`` to define a theory specification.
     """
 
     name: str
@@ -76,24 +61,26 @@ _REGISTRY: Dict[str, TheorySpec] = {}
 
 def register_theory(spec: TheorySpec) -> None:
     """
-    Register a theory specification and all of its aliases.
-
-    The theory is registered using its canonical name and each alias.
-    All keys are normalized to lowercase.
+    Register a theory specification and its aliases.
 
     Parameters
     ----------
     spec : TheorySpec
-        Theory specification object describing the theory.
+        Theory specification to register.
+
+    Returns
+    -------
+    None
+        The theory specification is added to the registry.
 
     Raises
     ------
     ValueError
-        If a name or alias is empty or already registered.
+        Raised if a name or alias is empty or already registered.
 
     Examples
     --------
-    >>> register_theory(spec)
+    Use ``register_theory(spec)`` to add a theory specification to the registry.
     """
     keys = [spec.name, *spec.aliases]
 
@@ -113,9 +100,6 @@ def list_theories() -> tuple[str, ...]:
     """
     Return the canonical names of all registered theories.
 
-    Aliases are not included in this listing. This function is intended for
-    user-facing display of the available theories.
-
     Returns
     -------
     tuple[str, ...]
@@ -123,8 +107,7 @@ def list_theories() -> tuple[str, ...]:
 
     Examples
     --------
-    >>> list_theories()
-    ('Baby Skyrme model',)
+    Use ``list_theories()`` to list the registered theories.
     """
     canonical_names = {spec.name for spec in _REGISTRY.values()}
     return tuple(sorted(canonical_names))
@@ -133,9 +116,6 @@ def list_theories() -> tuple[str, ...]:
 def get_theory_spec(name: str) -> TheorySpec:
     """
     Retrieve the metadata specification for a registered theory.
-
-    The lookup may be performed using either the canonical theory name or any
-    registered alias.
 
     Parameters
     ----------
@@ -150,13 +130,11 @@ def get_theory_spec(name: str) -> TheorySpec:
     Raises
     ------
     KeyError
-        If the theory name is not registered.
+        Raised if the theory name is not registered.
 
     Examples
     --------
-    >>> spec = get_theory_spec("Baby Skyrme")
-    >>> spec.name
-    'Baby Skyrme model'
+    Use ``spec = get_theory_spec("Baby Skyrme")`` to retrieve a registered theory specification.
     """
     key = (name or "").strip().lower()
 
@@ -175,15 +153,19 @@ def _validate_theory_package(spec: TheorySpec) -> None:
     spec : TheorySpec
         Specification describing the theory.
 
+    Returns
+    -------
+    None
+        The required submodules are imported for validation.
+
     Raises
     ------
     ImportError
-        If any required submodule cannot be imported.
+        Raised if a required submodule cannot be imported.
 
     Examples
     --------
-    >>> spec = get_theory_spec("Baby Skyrme model")
-    >>> _validate_theory_package(spec)
+    Use ``_validate_theory_package(spec)`` to check that a theory package provides its required submodules.
     """
     pkg = spec.import_path
 
@@ -194,9 +176,6 @@ def _validate_theory_package(spec: TheorySpec) -> None:
 def load_theory(name: str) -> ModuleType:
     """
     Import and return a theory package from the registry.
-
-    The theory package is imported dynamically and validated to ensure that
-    required submodules exist.
 
     Parameters
     ----------
@@ -211,14 +190,13 @@ def load_theory(name: str) -> ModuleType:
     Raises
     ------
     KeyError
-        If the theory name is not registered.
+        Raised if the theory name is not registered.
     ImportError
-        If the theory package or required submodules fail to import.
+        Raised if the theory package or a required submodule cannot be imported.
 
     Examples
     --------
-    >>> theory = load_theory("Baby Skyrme")
-    >>> theory.describe()
+    Use ``theory = load_theory("Baby Skyrme")`` to import a registered theory package.
     """
     spec = get_theory_spec(name)
     mod = importlib.import_module(spec.import_path)
@@ -228,19 +206,21 @@ def load_theory(name: str) -> ModuleType:
 
 def describe_theory(name: str) -> None:
     """
-    Print a description of a theory to the terminal.
-
-    If the theory package defines a callable describe() function, that
-    function is used. Otherwise the registry metadata is printed.
+    Print a description of a registered theory.
 
     Parameters
     ----------
     name : str
         Canonical name or alias of the theory.
 
+    Returns
+    -------
+    None
+        The theory description is printed to the terminal.
+
     Examples
     --------
-    >>> describe_theory("Baby Skyrme model")
+    Use ``describe_theory("Baby Skyrme model")`` to print the theory description.
     """
     spec = get_theory_spec(name)
 
@@ -257,15 +237,16 @@ def describe_theory(name: str) -> None:
 
 def print_theory_table() -> None:
     """
-    Print a CLI-style table of registered theories.
+    Print a table of registered theories.
 
-    The table displays canonical theory names only, with aliases grouped into a
-    separate column. This makes it easier to distinguish the primary theory
-    names from alternative lookup names.
+    Returns
+    -------
+    None
+        The table is printed to the terminal.
 
     Examples
     --------
-    >>> print_theory_table()
+    Use ``print_theory_table()`` to print a table of registered theories.
     """
     specs = sorted({spec for spec in _REGISTRY.values()}, key=lambda spec: spec.name.lower())
 
@@ -304,17 +285,19 @@ def discover_theories(package: str = "soliton_solver.theories") -> None:
     """
     Discover and register theory subpackages automatically.
 
-    A subpackage is registered if it defines a THEORY_SPEC object that is an
-    instance of TheorySpec.
-
     Parameters
     ----------
     package : str, optional
         Import path of the parent package containing theory subpackages.
 
+    Returns
+    -------
+    None
+        Any discovered theory specifications are added to the registry.
+
     Examples
     --------
-    >>> discover_theories()
+    Use ``discover_theories()`` to scan the default theory package and register available theories.
     """
     pkg = importlib.import_module(package)
 

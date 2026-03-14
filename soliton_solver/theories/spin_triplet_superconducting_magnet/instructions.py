@@ -1,7 +1,19 @@
-# =====================================================================================
-# soliton_solver/theories/spin_triplet_superconducting_magnet/instructions.py
-# =====================================================================================
+"""
+Print terminal instructions for the spin triplet superconducting ferromagnet simulation.
+
+Examples
+--------
+>>> print_instructions()
+"""
+
 def print_instructions():
+    """
+    Print the interactive controls for the simulation.
+
+    Examples
+    --------
+    >>> print_instructions()
+    """
     print(
         "\nControls:\n"
         "   Energy density display:                 F1\n"
@@ -15,6 +27,7 @@ def print_instructions():
         "   Enter vortex placement mode:            v\n"
         "   Switch vortex type:                     a\n"
         "   Choose skyrmion/vortex number:          1,...,9\n"
+        "   Choose skyrmionium:                     0\n"
         "   Place skyrmion/vortex:                  Left-click\n"
         "   Isorotate skyrmion:                     Drag & release left-click\n"
         "   Leave skyrmion/vortex placement mode:   q\n"

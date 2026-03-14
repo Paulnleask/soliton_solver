@@ -1,7 +1,24 @@
-# =====================================================================================
-# soliton_solver/theories/ginzburg_landau_superconductor/instructions.py
-# =====================================================================================
+"""
+Print terminal control instructions for the Ginzburg-Landau superconductor simulation.
+
+Examples
+--------
+>>> print_instructions()
+"""
+
 def print_instructions():
+    """
+    Print the keyboard controls used by the interactive simulation.
+
+    Returns
+    -------
+    None
+        The control instructions are printed to the terminal.
+
+    Examples
+    --------
+    >>> print_instructions()
+    """
     print(
         "\nControls:\n"
         "   Energy density display:                 F1\n"

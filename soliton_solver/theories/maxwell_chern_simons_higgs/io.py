@@ -1,17 +1,13 @@
-# =========================
-# soliton_solver/theories/ginzburg_landau_superconductor/io.py
-# =========================
 """
-Superferro theory-specific output bundle.
+Output bundle for the Ginzburg-Landau superconductor theory.
 
-This preserves the exact filenames expected by the existing plotting.py workflow, while
-keeping the core I/O implementation theory-agnostic.
+Examples
+--------
+>>> output_data_bundle("out", h_Field, h_EnergyDensity, h_VortexDensity, h_Supercurrent, h_NoetherChargeDensity, h_ElectricChargeDensity, h_grid, xlen, ylen)
 """
-
 from __future__ import annotations
 import numpy as np
 from soliton_solver.core.io import output_data_bundle_core
-
 
 def output_data_bundle(
     output_dir: str,
@@ -28,6 +24,46 @@ def output_data_bundle(
     number_total_fields: int = 5,
     precision: int = 32,
 ) -> None:
+    """
+    Write the simulation output bundle using the filenames expected by the plotting workflow.
+
+    Parameters
+    ----------
+    output_dir : str
+        Output directory.
+    h_Field : ndarray
+        Flattened field array.
+    h_EnergyDensity : ndarray
+        Energy density grid.
+    h_VortexDensity : ndarray
+        Vortex density grid.
+    h_Supercurrent : ndarray
+        Supercurrent grid.
+    h_NoetherChargeDensity : ndarray
+        Noether charge density grid.
+    h_ElectricChargeDensity : ndarray
+        Electric charge density grid.
+    h_grid : ndarray
+        Coordinate grid array.
+    xlen : int
+        Number of lattice points in x.
+    ylen : int
+        Number of lattice points in y.
+    number_coordinates : int, optional
+        Number of coordinate components.
+    number_total_fields : int, optional
+        Number of field components.
+    precision : int, optional
+        Output precision.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> output_data_bundle("out", h_Field, h_EnergyDensity, h_VortexDensity, h_Supercurrent, h_NoetherChargeDensity, h_ElectricChargeDensity, h_grid, xlen, ylen)
+    """
     arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "VortexDensity": h_VortexDensity, "Supercurrent": h_Supercurrent, "NoetherChargeDensity": h_NoetherChargeDensity, "ElectricChargeDensity": h_ElectricChargeDensity}
 
     bundle_spec = [

@@ -1,34 +1,13 @@
-# =====================================================================================
-# soliton_solver/visualization/gl_backend.py
-# =====================================================================================
 """
-CUDA-OpenGL interoperability backend for soliton_solver.
+CUDA OpenGL interoperability backend for soliton_solver.
 
-Usage overview:
-- Create a window + GL resources:
-    backend = GLBackend(width, height, title="...")
-- Each frame:
-    backend.begin_frame()
-    mapped = backend.map_pbo()
-    # Wrap mapped.ptr as a Numba device array and run CUDA kernels that write RGBA
-    # (typically width*height*4 bytes) into the PBO memory.
-    backend.unmap_pbo()
-    backend.upload_and_draw()
-    backend.end_frame()
-- Optional: backend.set_hud_text(top="...", bottom="...") to draw simple HUD bars.
-
-This module is theory-agnostic:
-- GLFW window + OpenGL texture rendering
-- PBO management + CUDA graphics interop
-- HUD drawing utilities (legacy fixed-function; disabled by default on macOS core profile)
-- Shader compile/link helpers
-- Device pointer -> Numba device array view (cuda_array_interface)
-
-Theory logic (what to render, how to compute densities, user interactions)
-lives elsewhere.
+Examples
+--------
+Use ``GLBackend(width, height, title="...")`` to create a window and rendering backend.
+Use ``map_pbo`` and ``unmap_pbo`` to expose the PBO to CUDA kernels.
+Use ``upload_and_draw`` to display the rendered RGBA buffer.
 """
 
-# ---------------- Imports ----------------
 from __future__ import annotations
 import ctypes
 import platform
@@ -40,42 +19,45 @@ from OpenGL import GL
 from OpenGL import GLUT
 from numba import cuda
 try:
-    from cuda.bindings import runtime as cudart  # cuda-python / cuda-bindings >= 13
+    from cuda.bindings import runtime as cudart
 except Exception:
-    from cuda import cudart  # older trampoline style
+    from cuda import cudart
 
-# ---------------- CUDA err to int ----------------
 def _cuda_err_to_int(err) -> int:
     """
-    Normalize a CUDA error value to an integer error code.
+    Convert a CUDA error value to an integer error code.
 
-    Usage:
-        code = _cuda_err_to_int(err)
+    Parameters
+    ----------
+    err
+        CUDA error value returned by the runtime bindings.
 
-    Parameters:
-        err: CUDA error value (enum/int/ctypes-like), as returned by cudart bindings.
+    Returns
+    -------
+    int
+        Integer error code.
 
-    Outputs:
-        - Returns an int suitable for comparison against the cudaSuccess value.
+    Examples
+    --------
+    Use ``code = _cuda_err_to_int(err)`` before comparing against the success code.
     """
     try:
         return int(err)
     except Exception:
         return 1
 
-# ---------------- CUDA success value ----------------
 def _cuda_success_value() -> int:
     """
-    Get the integer value corresponding to cudaSuccess for the active cudart binding.
+    Return the integer value corresponding to ``cudaSuccess``.
 
-    Usage:
-        ok = (_cuda_err_to_int(err) == _cuda_success_value())
+    Returns
+    -------
+    int
+        Integer success code for the active CUDA runtime binding.
 
-    Parameters:
-        None
-
-    Outputs:
-        - Returns the cudaSuccess integer code (best-effort across cudart binding variants).
+    Examples
+    --------
+    Use ``_cuda_err_to_int(err) == _cuda_success_value()`` to test whether a CUDA call succeeded.
     """
     if hasattr(cudart, "cudaError_t") and hasattr(cudart.cudaError_t, "cudaSuccess"):
         try:
@@ -84,42 +66,48 @@ def _cuda_success_value() -> int:
             return 0
     return 0
 
-# ---------------- CUDA checker ----------------
 def _cuda_check(err, where: str = "CUDA call"):
     """
-    Raise RuntimeError if a CUDA runtime call did not return success.
+    Raise an error if a CUDA runtime call did not succeed.
 
-    Usage:
-        out = cudart.someCall(...)
-        _cuda_check(out, "someCall")
+    Parameters
+    ----------
+    err
+        CUDA return value or tuple containing the return value.
+    where : str, optional
+        Description of the CUDA call.
 
-    Parameters:
-        err: CUDA return value or (err, ...) tuple from cudart.
-        where: Context string included in the raised error.
+    Returns
+    -------
+    None
+        The function returns normally when the CUDA call succeeded.
 
-    Outputs:
-        - Raises RuntimeError on failure.
-        - Returns None on success.
+    Raises
+    ------
+    RuntimeError
+        Raised if the CUDA runtime call failed.
+
+    Examples
+    --------
+    Use ``_cuda_check(out, "cudaGraphicsMapResources")`` after a CUDA runtime call.
     """
     if isinstance(err, tuple) and len(err) >= 1:
         err = err[0]
     if _cuda_err_to_int(err) != _cuda_success_value():
         raise RuntimeError(f"{where} failed with error={err!r}")
 
-# ---------------- CUDA GL write, discard, flag ----------------
 def _cuda_gl_write_discard_flag() -> int:
     """
-    Get the enum value for registering a GL buffer with CUDA as write-discard.
+    Return the CUDA OpenGL registration flag for write discard access.
 
-    Usage:
-        flags = _cuda_gl_write_discard_flag()
-        res = _cuda_register_gl_buffer(pbo_id, flags)
+    Returns
+    -------
+    int
+        Integer flag value used with ``cudaGraphicsGLRegisterBuffer``.
 
-    Parameters:
-        None
-
-    Outputs:
-        - Returns an int flag value used with cudaGraphicsGLRegisterBuffer.
+    Examples
+    --------
+    Use ``flags = _cuda_gl_write_discard_flag()`` before registering a PBO with CUDA.
     """
     if hasattr(cudart, "cudaGraphicsRegisterFlagsWriteDiscard"):
         try:
@@ -136,40 +124,51 @@ def _cuda_gl_write_discard_flag() -> int:
                     pass
     return 2
 
-# ---------------- Check if is ctype instance ----------------
 def _is_ctypes_instance(x) -> bool:
     """
-    Check whether a value is a ctypes scalar/structure instance.
+    Check whether an object is a ctypes scalar or structure instance.
 
-    Usage:
-        if _is_ctypes_instance(resource):
-            ...
+    Parameters
+    ----------
+    x
+        Object to test.
 
-    Parameters:
-        x: Object to test.
+    Returns
+    -------
+    bool
+        ``True`` if the object is a ctypes scalar or structure instance and ``False`` otherwise.
 
-    Outputs:
-        - Returns True if x is a ctypes scalar or ctypes.Structure instance, else False.
+    Examples
+    --------
+    Use ``_is_ctypes_instance(resource)`` to decide whether a ctypes fallback path is available.
     """
     return isinstance(x, (ctypes._SimpleCData, ctypes.Structure))
 
-# ---------------- Register GL buffers ----------------
 def _cuda_register_gl_buffer(pbo_id: int, flags: int):
     """
-    Register an OpenGL buffer object (PBO) with CUDA and return a graphics resource handle.
+    Register an OpenGL buffer object with CUDA.
 
-    Usage:
-        resource = _cuda_register_gl_buffer(pbo_id, flags)
+    Parameters
+    ----------
+    pbo_id : int
+        OpenGL buffer object identifier.
+    flags : int
+        CUDA registration flags.
 
-    Parameters:
-        pbo_id: OpenGL buffer object id (GLuint).
-        flags: CUDA registration flags (e.g. write-discard).
+    Returns
+    -------
+    object
+        CUDA graphics resource handle for the registered buffer.
 
-    Outputs:
-        - Registers the GL buffer with CUDA.
-        - Returns a CUDA graphics resource handle usable with map/unmap calls.
+    Raises
+    ------
+    RuntimeError
+        Raised if the CUDA registration call failed.
+
+    Examples
+    --------
+    Use ``resource = _cuda_register_gl_buffer(pbo_id, flags)`` to register a PBO with CUDA.
     """
-    # runtime-style first: (err, resource) = cudaGraphicsGLRegisterBuffer(pbo, flags)
     try:
         out = cudart.cudaGraphicsGLRegisterBuffer(int(pbo_id), int(flags))
         if isinstance(out, tuple) and len(out) >= 2:
@@ -179,46 +178,61 @@ def _cuda_register_gl_buffer(pbo_id: int, flags: int):
     except TypeError:
         pass
 
-    # ctypes out-param fallback
     resource = ctypes.c_void_p()
     out = cudart.cudaGraphicsGLRegisterBuffer(ctypes.byref(resource), int(pbo_id), int(flags))
     _cuda_check(out, "cudaGraphicsGLRegisterBuffer")
     return resource
 
-# ---------------- CUDA unregister resource ----------------
 def _cuda_unregister_resource(resource):
     """
-    Unregister a CUDA graphics resource created from an OpenGL buffer.
+    Unregister a CUDA graphics resource.
 
-    Usage:
-        _cuda_unregister_resource(resource)
+    Parameters
+    ----------
+    resource
+        CUDA graphics resource handle.
 
-    Parameters:
-        resource: CUDA graphics resource handle returned by _cuda_register_gl_buffer.
+    Returns
+    -------
+    None
+        The resource is unregistered from CUDA.
 
-    Outputs:
-        - Releases the CUDA-side registration for the GL resource.
+    Raises
+    ------
+    RuntimeError
+        Raised if the CUDA unregister call failed.
+
+    Examples
+    --------
+    Use ``_cuda_unregister_resource(resource)`` during cleanup.
     """
     out = cudart.cudaGraphicsUnregisterResource(resource)
     _cuda_check(out, "cudaGraphicsUnregisterResource")
 
-# ---------------- CUDA map resource ----------------
 def _cuda_map_resource(resource):
     """
-    Map a CUDA graphics resource and return (device_ptr, nbytes) for the mapped region.
+    Map a CUDA graphics resource and return its device pointer and size.
 
-    Usage:
-        ptr, nbytes = _cuda_map_resource(resource)
+    Parameters
+    ----------
+    resource
+        CUDA graphics resource handle.
 
-    Parameters:
-        resource: CUDA graphics resource handle registered from a GL buffer.
+    Returns
+    -------
+    tuple
+        Pair ``(ptr, nbytes)`` containing the mapped device pointer and the mapped size in bytes.
 
-    Outputs:
-        - Maps the resource for CUDA access.
-        - Returns:
-            ptr: integer device pointer to the mapped storage.
-            nbytes: size of the mapped storage in bytes.
-        - Raises TypeError if all binding-specific call signatures fail.
+    Raises
+    ------
+    RuntimeError
+        Raised if a CUDA mapping call failed.
+    TypeError
+        Raised if all supported binding signatures fail.
+
+    Examples
+    --------
+    Use ``ptr, nbytes = _cuda_map_resource(resource)`` before wrapping the mapped storage as a CUDA array.
     """
     map_attempts = [
         lambda: cudart.cudaGraphicsMapResources(1, [resource], 0),
@@ -239,7 +253,6 @@ def _cuda_map_resource(resource):
         except TypeError:
             continue
 
-    # ctypes fallback
     if not _is_ctypes_instance(resource):
         raise TypeError(
             "CUDA-OpenGL interop map(): runtime-style cudaGraphicsMapResources calls all failed for a "
@@ -255,20 +268,30 @@ def _cuda_map_resource(resource):
     _cuda_check(out2, "cudaGraphicsResourceGetMappedPointer")
     return int(dev_ptr.value), int(size.value)
 
-# ---------------- CUDA unmap resource ----------------
 def _cuda_unmap_resource(resource):
     """
     Unmap a previously mapped CUDA graphics resource.
 
-    Usage:
-        _cuda_unmap_resource(resource)
+    Parameters
+    ----------
+    resource
+        CUDA graphics resource handle.
 
-    Parameters:
-        resource: CUDA graphics resource handle that is currently mapped.
+    Returns
+    -------
+    None
+        The resource is unmapped and returned to OpenGL access.
 
-    Outputs:
-        - Unmaps the resource, allowing OpenGL to access the buffer again.
-        - Raises TypeError if binding-specific unmap signatures fail for non-ctypes handles.
+    Raises
+    ------
+    RuntimeError
+        Raised if a CUDA unmap call failed.
+    TypeError
+        Raised if all supported binding signatures fail.
+
+    Examples
+    --------
+    Use ``_cuda_unmap_resource(resource)`` after CUDA writes to the mapped PBO have finished.
     """
     unmap_attempts = [
         lambda: cudart.cudaGraphicsUnmapResources(1, [resource], 0),
@@ -293,21 +316,30 @@ def _cuda_unmap_resource(resource):
     out = cudart.cudaGraphicsUnmapResources(1, ctypes.byref(resource), 0)
     _cuda_check(out, "cudaGraphicsUnmapResources")
 
-# ---------------- OpenGL shader compiler ----------------
 def _compile_shader(src: str, shader_type):
     """
-    Compile a single GLSL shader stage.
+    Compile a GLSL shader stage.
 
-    Usage:
-        shader = _compile_shader(src, GL.GL_VERTEX_SHADER)
+    Parameters
+    ----------
+    src : str
+        GLSL source code.
+    shader_type
+        OpenGL shader type enum.
 
-    Parameters:
-        src: GLSL source code string.
-        shader_type: OpenGL shader type enum (e.g. GL.GL_VERTEX_SHADER).
+    Returns
+    -------
+    int
+        OpenGL shader object identifier.
 
-    Outputs:
-        - Returns the compiled shader object id.
-        - Raises RuntimeError with the compiler log on compilation failure.
+    Raises
+    ------
+    RuntimeError
+        Raised if shader compilation failed.
+
+    Examples
+    --------
+    Use ``shader = _compile_shader(src, GL.GL_VERTEX_SHADER)`` to compile a shader stage.
     """
     shader = GL.glCreateShader(shader_type)
     GL.glShaderSource(shader, src)
@@ -319,22 +351,30 @@ def _compile_shader(src: str, shader_type):
         raise RuntimeError(f"Shader compile failed:\n{log}")
     return shader
 
-# ---------------- Link program to OpenGL ----------------
 def _link_program(vs_src: str, fs_src: str):
     """
-    Compile vertex/fragment shaders and link them into an OpenGL program.
+    Compile vertex and fragment shaders and link them into an OpenGL program.
 
-    Usage:
-        prog = _link_program(vs_src, fs_src)
+    Parameters
+    ----------
+    vs_src : str
+        Vertex shader source code.
+    fs_src : str
+        Fragment shader source code.
 
-    Parameters:
-        vs_src: Vertex shader GLSL source.
-        fs_src: Fragment shader GLSL source.
+    Returns
+    -------
+    int
+        Linked OpenGL program identifier.
 
-    Outputs:
-        - Returns the linked OpenGL program id.
-        - Deletes intermediate shader objects after linking.
-        - Raises RuntimeError with the linker log on link failure.
+    Raises
+    ------
+    RuntimeError
+        Raised if program linking failed.
+
+    Examples
+    --------
+    Use ``prog = _link_program(vs_src, fs_src)`` to create a shader program.
     """
     vs = _compile_shader(vs_src, GL.GL_VERTEX_SHADER)
     fs = _compile_shader(fs_src, GL.GL_FRAGMENT_SHADER)
@@ -353,22 +393,27 @@ def _link_program(vs_src: str, fs_src: str):
     GL.glDeleteShader(fs)
     return prog
 
-# ---------------- Wrap pointer as Numba array on device ----------------
 def cuda_array_from_ptr(ptr_int: int, shape, dtype):
     """
-    Wrap an existing device pointer as a Numba CUDA device array view (no allocation, no copy).
+    Wrap an existing device pointer as a Numba CUDA array view.
 
-    Usage:
-        mapped = backend.map_pbo()
-        rgba = cuda_array_from_ptr(mapped.ptr, (H, W, 4), np.uint8)
+    Parameters
+    ----------
+    ptr_int : int
+        Integer device pointer address.
+    shape
+        Shape used to interpret the raw buffer.
+    dtype
+        NumPy data type of the array view.
 
-    Parameters:
-        ptr_int: Integer device pointer address.
-        shape: Array shape tuple to interpret the raw buffer.
-        dtype: Numpy dtype for the view (e.g. np.uint8).
+    Returns
+    -------
+    DeviceNDArray
+        Numba CUDA array view over the existing device memory.
 
-    Outputs:
-        - Returns a Numba device array view over the given pointer using __cuda_array_interface__.
+    Examples
+    --------
+    Use ``rgba = cuda_array_from_ptr(mapped.ptr, (H, W, 4), np.uint8)`` to interpret a mapped PBO as an RGBA array.
     """
     iface = {
         "data": (int(ptr_int), False),
@@ -389,66 +434,72 @@ def cuda_array_from_ptr(ptr_int: int, shape, dtype):
 @dataclass
 class MappedPBO:
     """
-    Container describing a mapped CUDA-registered PBO region.
+    Container describing a mapped CUDA registered PBO region.
 
-    Usage:
-        mapped = backend.map_pbo()
-        ptr = mapped.ptr
-        nbytes = mapped.nbytes
+    Parameters
+    ----------
+    ptr : int
+        Integer device pointer to the mapped buffer.
+    nbytes : int
+        Size of the mapped region in bytes.
 
-    Parameters:
-        ptr: Integer device pointer to the mapped buffer storage.
-        nbytes: Size of the mapped region in bytes.
+    Returns
+    -------
+    None
+        The dataclass stores the mapped pointer and size.
 
-    Outputs:
-        - Provides a simple typed return object for map_pbo().
+    Examples
+    --------
+    Use ``mapped = backend.map_pbo()`` and access ``mapped.ptr`` and ``mapped.nbytes``.
     """
     ptr: int
     nbytes: int
 
 class GLBackend:
     """
-    GLFW window + OpenGL texture quad renderer backed by a CUDA-mapped PBO.
+    GLFW window and OpenGL renderer backed by a CUDA mapped PBO.
 
-    Usage:
-        backend = GLBackend(width, height, title="CUDA-OpenGL")
-        while not backend.should_close():
-            backend.begin_frame()
-            mapped = backend.map_pbo()
-            rgba = cuda_array_from_ptr(mapped.ptr, (backend.height, backend.width, 4), np.uint8)
-            launch CUDA kernels writing RGBA into `rgba`
-            backend.unmap_pbo()
-            backend.upload_and_draw()
-            backend.end_frame()
-        backend.close()
+    Parameters
+    ----------
+    width : int
+        Window width in pixels.
+    height : int
+        Window height in pixels.
+    title : str, optional
+        Initial window title.
 
-    Parameters:
-        width, height: Window and framebuffer dimensions (pixels).
-        title: Initial window title.
-
-    Outputs:
-        - Creates a window, GL texture, fullscreen quad, and a PBO registered with CUDA.
-        - Provides per-frame map/unmap and draw calls for CUDA-driven rendering.
+    Examples
+    --------
+    Use ``backend = GLBackend(width, height, title="CUDA-OpenGL")`` to create the rendering backend.
+    Use ``backend.map_pbo()`` and ``backend.unmap_pbo()`` to expose the PBO to CUDA.
+    Use ``backend.upload_and_draw()`` to display the current frame.
     """
     def __init__(self, width: int, height: int, title: str = "CUDA-OpenGL"):
         """
-        Create the window, allocate GL resources, and register the PBO with CUDA.
+        Create the window, allocate OpenGL resources, and register the PBO with CUDA.
 
-        Usage:
-            backend = GLBackend(width, height, title="...")
+        Parameters
+        ----------
+        width : int
+            Window width in pixels.
+        height : int
+            Window height in pixels.
+        title : str, optional
+            Initial window title.
 
-        Parameters:
-            width, height: Window dimensions in pixels.
-            title: Initial window title.
+        Returns
+        -------
+        None
+            The backend is initialized with a window, texture, buffers, shaders, and CUDA interop state.
 
-        Outputs:
-            - Initializes GLFW and creates an OpenGL context.
-            - Allocates:
-                - PBO sized width*height*4 bytes (RGBA8).
-                - 2D texture for display.
-                - Shader program and fullscreen quad VAO/VBO/EBO.
-            - Registers the PBO with CUDA and stores the CUDA graphics resource handle.
-            - Enables/disables HUD drawing depending on platform (disabled by default on macOS core profile).
+        Raises
+        ------
+        RuntimeError
+            Raised if GLFW initialization or window creation failed.
+
+        Examples
+        --------
+        Use ``backend = GLBackend(width, height, title="...")`` to create the rendering backend.
         """
         self.width = int(width)
         self.height = int(height)
@@ -459,7 +510,6 @@ class GLBackend:
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
         glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 
-        # On macOS, glfw only exposes a core profile; legacy HUD requires compat profile.
         if platform.system() == "Darwin":
             glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
         else:
@@ -473,7 +523,6 @@ class GLBackend:
         glfw.make_context_current(self.window)
         glfw.swap_interval(1)
 
-        # GLUT only for bitmap-font HUD text (no GLUT window)
         try:
             GLUT.glutInit()
         except Exception:
@@ -486,13 +535,11 @@ class GLBackend:
         self.hud_top_text = ""
         self.hud_bottom_text = ""
 
-        # PBO
         self.pbo = GL.glGenBuffers(1)
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, self.pbo)
         GL.glBufferData(GL.GL_PIXEL_UNPACK_BUFFER, self.width * self.height * 4, None, GL.GL_STREAM_DRAW)
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, 0)
 
-        # Texture
         self.tex = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.tex)
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST)
@@ -503,7 +550,6 @@ class GLBackend:
         )
         GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
 
-        # Shader + fullscreen quad
         vs_src = r"""
         #version 330 core
         layout (location = 0) in vec2 pos;
@@ -563,39 +609,36 @@ class GLBackend:
         GL.glUniform1i(loc, 0)
         GL.glUseProgram(0)
 
-        # Register PBO with CUDA
         flags = _cuda_gl_write_discard_flag()
         self.cuda_res = _cuda_register_gl_buffer(int(self.pbo), int(flags))
 
-    # ---------------- Window lifecycle ----------------
     def should_close(self) -> bool:
         """
-        Check whether the window has been requested to close.
+        Return whether the window has been requested to close.
 
-        Usage:
-            while not backend.should_close():
-                ...
+        Returns
+        -------
+        bool
+            ``True`` if the window should close and ``False`` otherwise.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Returns True if the GLFW window should close, else False.
+        Examples
+        --------
+        Use ``while not backend.should_close():`` to drive the render loop.
         """
         return glfw.window_should_close(self.window)
 
     def begin_frame(self):
         """
-        Perform start-of-frame event processing.
+        Perform start of frame event processing.
 
-        Usage:
-            backend.begin_frame()
+        Returns
+        -------
+        None
+            GLFW events are polled.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Polls GLFW events (keyboard/mouse/window).
+        Examples
+        --------
+        Use ``backend.begin_frame()`` at the start of each frame.
         """
         glfw.poll_events()
 
@@ -603,14 +646,14 @@ class GLBackend:
         """
         Present the rendered frame.
 
-        Usage:
-            backend.end_frame()
+        Returns
+        -------
+        None
+            The front and back buffers are swapped.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Swaps GLFW buffers to display the current rendered quad.
+        Examples
+        --------
+        Use ``backend.end_frame()`` after drawing the current frame.
         """
         glfw.swap_buffers(self.window)
 
@@ -618,31 +661,34 @@ class GLBackend:
         """
         Set the window title.
 
-        Usage:
-            backend.set_window_title(f"t={t:.3f}")
+        Parameters
+        ----------
+        title : str
+            New window title.
 
-        Parameters:
-            title: New window title string.
+        Returns
+        -------
+        None
+            The window title is updated.
 
-        Outputs:
-            - Updates the OS window title via GLFW.
+        Examples
+        --------
+        Use ``backend.set_window_title(f"t={t:.3f}")`` to update the title during rendering.
         """
         glfw.set_window_title(self.window, str(title))
 
     def close(self):
         """
-        Release CUDA/GL resources and destroy the window.
+        Release CUDA and OpenGL resources and destroy the window.
 
-        Usage:
-            backend.close()
+        Returns
+        -------
+        None
+            Registered resources, buffers, textures, and the window are released.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Unregisters the CUDA graphics resource (best-effort).
-            - Deletes GL program, buffers, and textures (best-effort).
-            - Destroys the GLFW window and terminates GLFW.
+        Examples
+        --------
+        Use ``backend.close()`` when the render loop finishes.
         """
         if getattr(self, "cuda_res", None) is not None:
             try:
@@ -673,23 +719,18 @@ class GLBackend:
         finally:
             glfw.terminate()
 
-    # ---------------- CUDA map/unmap ----------------
     def map_pbo(self) -> MappedPBO:
         """
-        Map the CUDA-registered PBO and return its device pointer and size.
+        Map the CUDA registered PBO and return its device pointer and size.
 
-        Usage:
-            mapped = backend.map_pbo()
-            rgba = cuda_array_from_ptr(mapped.ptr, (H, W, 4), np.uint8)
+        Returns
+        -------
+        MappedPBO
+            Object containing the mapped device pointer and mapped size in bytes.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Maps the PBO for CUDA access.
-            - Returns a MappedPBO with:
-                ptr: integer device pointer to the PBO storage.
-                nbytes: mapped size in bytes.
+        Examples
+        --------
+        Use ``mapped = backend.map_pbo()`` before writing RGBA data from CUDA.
         """
         ptr, nbytes = _cuda_map_resource(self.cuda_res)
         return MappedPBO(ptr=int(ptr), nbytes=int(nbytes))
@@ -698,31 +739,29 @@ class GLBackend:
         """
         Unmap the PBO after CUDA writes complete.
 
-        Usage:
-            backend.unmap_pbo()
+        Returns
+        -------
+        None
+            The PBO is returned to OpenGL access.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Unmaps the CUDA graphics resource so OpenGL can read the PBO again.
+        Examples
+        --------
+        Use ``backend.unmap_pbo()`` after CUDA kernels finish writing to the mapped PBO.
         """
         _cuda_unmap_resource(self.cuda_res)
 
-    # ---------------- PBO -> texture upload + draw ----------------
     def _upload_pbo_to_texture(self):
         """
         Upload the current PBO contents into the OpenGL texture.
 
-        Usage:
-            backend._upload_pbo_to_texture()  # internal, called by upload_and_draw()
+        Returns
+        -------
+        None
+            The texture contents are updated from the PBO.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Performs glTexSubImage2D from the PBO into the 2D texture.
-            - Assumes the PBO is not currently mapped by CUDA.
+        Examples
+        --------
+        Use ``backend._upload_pbo_to_texture()`` internally before drawing the textured quad.
         """
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, self.pbo)
         GL.glBindTexture(GL.GL_TEXTURE_2D, self.tex)
@@ -734,17 +773,16 @@ class GLBackend:
 
     def _draw_fullscreen_quad(self):
         """
-        Draw the texture to the window using a fullscreen quad.
+        Draw the current texture to the window using a fullscreen quad.
 
-        Usage:
-            backend._draw_fullscreen_quad()  # internal, called by upload_and_draw()
+        Returns
+        -------
+        None
+            The framebuffer is cleared and the textured quad is drawn.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Clears the framebuffer and draws a textured quad using the shader program.
-            - Calls _draw_hud() after drawing the quad.
+        Examples
+        --------
+        Use ``backend._draw_fullscreen_quad()`` internally after updating the texture.
         """
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glViewport(0, 0, self.width, self.height)
@@ -764,53 +802,64 @@ class GLBackend:
 
     def upload_and_draw(self):
         """
-        Upload the PBO to the texture and draw it to the window.
+        Upload the PBO to the texture and draw the frame.
 
-        Usage:
-            backend.unmap_pbo()
-            backend.upload_and_draw()
+        Returns
+        -------
+        None
+            The current PBO contents are displayed in the window.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Uploads the PBO contents into the GL texture.
-            - Draws the fullscreen quad displaying the updated texture.
+        Examples
+        --------
+        Use ``backend.upload_and_draw()`` after unmapping the PBO.
         """
         self._upload_pbo_to_texture()
         self._draw_fullscreen_quad()
 
-    # ---------------- HUD ----------------
     def set_hud_text(self, *, top: str = "", bottom: str = ""):
         """
-        Set HUD overlay text for the top and/or bottom bars.
+        Set the top and bottom HUD text.
 
-        Usage:
-            backend.set_hud_text(top="E=...", bottom="err=...")
+        Parameters
+        ----------
+        top : str, optional
+            Text for the top HUD bar.
+        bottom : str, optional
+            Text for the bottom HUD bar.
 
-        Parameters:
-            top: Text for the top HUD bar (empty to clear).
-            bottom: Text for the bottom HUD bar (empty to clear).
+        Returns
+        -------
+        None
+            The HUD text strings are stored for later drawing.
 
-        Outputs:
-            - Stores HUD strings used by _draw_hud().
+        Examples
+        --------
+        Use ``backend.set_hud_text(top="E=...", bottom="err=...")`` to update the HUD text.
         """
         self.hud_top_text = str(top or "")
         self.hud_bottom_text = str(bottom or "")
 
     def _draw_text(self, x: int, y: int, s: str):
         """
-        Draw a text string using a GLUT bitmap font at pixel coordinates.
+        Draw a text string using a GLUT bitmap font.
 
-        Usage:
-            backend._draw_text(x, y, "text")  # internal
+        Parameters
+        ----------
+        x : int
+            Pixel x coordinate.
+        y : int
+            Pixel y coordinate.
+        s : str
+            Text string to draw.
 
-        Parameters:
-            x, y: Pixel coordinates in HUD orthographic space.
-            s: Text string to draw.
+        Returns
+        -------
+        None
+            The text is drawn using GLUT bitmap characters.
 
-        Outputs:
-            - Issues GLUT bitmap character calls to draw the string (best-effort).
+        Examples
+        --------
+        Use ``backend._draw_text(x, y, "text")`` internally when drawing HUD text.
         """
         GL.glRasterPos2i(int(x), int(y))
         for ch in (s or ""):
@@ -821,20 +870,27 @@ class GLBackend:
 
     def _draw_hud_bar(self, *, y0: int, height: int, text_y: int, text: str):
         """
-        Draw a translucent HUD bar with text using legacy fixed-function OpenGL.
+        Draw a translucent HUD bar with text.
 
-        Usage:
-            backend._draw_hud_bar(y0=0, height=18, text_y=13, text="...")  # internal
+        Parameters
+        ----------
+        y0 : int
+            Top edge of the bar in pixels.
+        height : int
+            Height of the bar in pixels.
+        text_y : int
+            Baseline y coordinate for the text.
+        text : str
+            Text to draw inside the bar.
 
-        Parameters:
-            y0: Top edge of the bar in pixels.
-            height: Bar height in pixels.
-            text_y: Baseline y coordinate for text.
-            text: Text string to draw.
+        Returns
+        -------
+        None
+            The HUD bar and its text are drawn when the height is positive.
 
-        Outputs:
-            - Draws a blended quad and renders text over it.
-            - No-ops if height <= 0.
+        Examples
+        --------
+        Use ``backend._draw_hud_bar(y0=0, height=18, text_y=13, text="...")`` internally when drawing the HUD.
         """
         if height <= 0:
             return
@@ -873,18 +929,16 @@ class GLBackend:
 
     def _draw_hud(self):
         """
-        Draw top/bottom HUD overlays if enabled.
+        Draw the top and bottom HUD overlays if enabled.
 
-        Usage:
-            backend._draw_hud()  # internal, called by _draw_fullscreen_quad()
+        Returns
+        -------
+        None
+            The HUD overlays are drawn when enabled and text is present.
 
-        Parameters:
-            None
-
-        Outputs:
-            - Draws a top bar if hud_top_text is non-empty.
-            - Draws a bottom bar if hud_bottom_text is non-empty.
-            - No-ops if HUD is disabled or both strings are empty.
+        Examples
+        --------
+        Use ``backend._draw_hud()`` internally after drawing the fullscreen quad.
         """
         if not self.hud_enabled:
             return

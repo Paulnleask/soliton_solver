@@ -1,44 +1,12 @@
 """
-Liquid crystal theory-specific parameters, parameter resolution, device packing, and terminal parameter documentation.
-
-This module extends the core Params and ResolvedParams classes with the theory-specific parameters required by the liquid crystal model.
-It preserves the existing CUDA ABI layout by appending theory-specific entries to the core integer and floating-point device parameter arrays.
-The module also provides a describe() function so that the liquid crystal theory can print readable parameter information through theory.describe().
-
-Core prefix
------------
-From soliton_solver.core.params.pack_device_params:
-- p_i[0..9]
-- p_f[0..5]
-
-Liquid crystal appended entries
--------------------------------
-- p_i[10]    number_magnetization_fields
-- p_i[11]    dmi_dresselhaus
-- p_i[12]    dmi_rashba
-- p_i[13]    depol
-
-- p_f[6]     coup_PotE
-- p_f[7]     coup_Potw0
-- p_f[8]     coup_eps
-- p_f[9]     e1
-- p_f[10]    e3
-- p_f[11]    skyrmion_number
-- p_f[12]    skyrmion_rotation
-- p_f[13]    ansatz_bloch
-- p_f[14]    ansatz_neel
-- p_f[15]    ansatz_anti
-- p_f[16]    ansatz_uniform
+Liquid crystal theory parameters and device packing.
 
 Examples
 --------
->>> from soliton_solver.theories.liquid_crystal.params import Params, default_params
 >>> p = default_params(deformation="twist", ansatz="bloch")
 >>> rp = p.resolved()
 >>> p_i, p_f = pack_device_params(rp)
->>> describe()
 """
-
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
@@ -51,22 +19,17 @@ from soliton_solver.core.params import Params as CoreParams
 from soliton_solver.core.params import ResolvedParams as CoreResolvedParams
 from soliton_solver.core.params import pack_device_params as pack_core_device_params
 
-
 @dataclass(frozen=True)
 class Params(CoreParams):
     """
-    User-facing liquid crystal parameters.
-
-    This class extends the core solver parameters with liquid crystal elastic constants, flexoelectric coefficients, deformation controls, and initial-condition controls.
+    User facing liquid crystal parameters.
 
     Parameters
     ----------
     number_total_fields : int, optional
         Total number of fields stored by the solver.
-        For the liquid crystal model this defaults to 4.
     number_magnetization_fields : int, optional
         Number of director or magnetization-like field components.
-        This defaults to 3.
     K : float, optional
         Elastic constant in the one-constant approximation.
     P : float, optional
@@ -87,16 +50,12 @@ class Params(CoreParams):
         Dielectric anisotropy.
     E : float | None, optional
         Electric field magnitude.
-        If None, it is derived from voltage and thickness.
     q0 : float | None, optional
         Chiral wave number.
-        If None, it is derived from the pitch.
     coup_eps : float | None, optional
         Dimensionless dielectric or flexoelectric coupling.
-        If None, it is derived from K, eps0, and e1 when possible.
     coup_Pot : float | None, optional
         Dimensionless potential prefactor.
-        If None, it is derived from q0 and K when possible.
     dmi_dresselhaus : bool, optional
         Enable the twist-favoured deformation sector.
     dmi_rashba : bool, optional
@@ -104,20 +63,16 @@ class Params(CoreParams):
     depol : bool, optional
         Enable flexoelectric depolarization effects.
     deformation : str | Iterable[str] | None, optional
-        Convenience selector for deformation type.
-        If provided, it overrides the individual dmi_* booleans.
-        It may be a single string, an iterable of strings, or None.
+        Convenience selector for the deformation sector.
     skyrmion_number : float, optional
-        Topological charge used by the initial-condition ansatz.
+        Topological charge used by the initial ansatz.
     skyrmion_rotation : float, optional
-        Rotation angle applied in the initial-condition ansatz.
+        Rotation angle used by the initial ansatz.
     ansatz : str, optional
         Initial-condition ansatz.
-        Supported values are "bloch", "neel", "anti", and "uniform".
 
     Examples
     --------
-    >>> p = Params()
     >>> p = Params(K=10e-12, P=7e-6, voltage=4.0, deformation="twist", ansatz="neel")
     >>> rp = p.resolved()
     """
@@ -153,7 +108,7 @@ class Params(CoreParams):
 
     def with_(self, **kwargs) -> "Params":
         """
-        Return a copy of the parameter object with selected fields replaced.
+        Return a copy with selected fields replaced.
 
         Parameters
         ----------
@@ -163,7 +118,7 @@ class Params(CoreParams):
         Returns
         -------
         Params
-            New parameter object with the requested updates applied.
+            Updated parameter object.
 
         Examples
         --------
@@ -174,12 +129,12 @@ class Params(CoreParams):
 
     def resolved(self) -> "ResolvedParams":
         """
-        Convert user-facing parameters into fully resolved liquid crystal parameters.
+        Resolve the liquid crystal parameters.
 
         Returns
         -------
         ResolvedParams
-            Resolved parameter object containing both core derived quantities and liquid crystal theory-specific derived quantities.
+            Fully resolved parameter object.
 
         Examples
         --------
@@ -188,13 +143,10 @@ class Params(CoreParams):
         """
         return ResolvedParams.from_params(self)
 
-
 @dataclass(frozen=True)
 class ResolvedParams(CoreResolvedParams):
     """
     Fully resolved liquid crystal parameters.
-
-    This class contains the full set of core resolved parameters together with liquid crystal theory-specific flags and coefficients needed by the CPU and GPU solver code.
 
     Parameters
     ----------
@@ -241,7 +193,7 @@ class ResolvedParams(CoreResolvedParams):
     ansatz_anti : bool
         Whether the anti-skyrmion ansatz is enabled.
     ansatz_uniform : bool
-        Whether the uniform initial configuration is enabled.
+        Whether the uniform ansatz is enabled.
     dmi_dresselhaus : bool
         Whether the twist-favoured sector is enabled.
     dmi_rashba : bool
@@ -287,9 +239,7 @@ class ResolvedParams(CoreResolvedParams):
     @staticmethod
     def from_params(p: Params) -> "ResolvedParams":
         """
-        Build resolved liquid crystal parameters from user-facing parameters.
-
-        This method computes derived electric-field and chiral scales, constructs dimensionless couplings, resolves ansatz flags, and converts the convenience deformation selector into the explicit dmi_* boolean fields expected by the rest of the code.
+        Build resolved parameters from user parameters.
 
         Parameters
         ----------
@@ -304,7 +254,9 @@ class ResolvedParams(CoreResolvedParams):
         Raises
         ------
         ValueError
-            If an unknown deformation name is supplied, or if the deformation selector is provided but resolves to no active deformation sector.
+            Raised if the deformation selector contains an unknown name.
+        ValueError
+            Raised if the deformation selector is provided but enables no deformation sector.
 
         Examples
         --------
@@ -344,7 +296,7 @@ class ResolvedParams(CoreResolvedParams):
 
             def _norm(s: str) -> str:
                 """
-                Normalize a deformation name for case-insensitive matching.
+                Normalize a deformation name for matching.
 
                 Parameters
                 ----------
@@ -391,20 +343,19 @@ class ResolvedParams(CoreResolvedParams):
             dmi_dresselhaus=dresselhaus, dmi_rashba=rashba, depol=bool(p.depol),
         )
 
-
 def default_params(**overrides) -> Params:
     """
-    Construct liquid crystal parameters using defaults plus user overrides.
+    Construct default liquid crystal parameters with overrides.
 
     Parameters
     ----------
     **overrides
-        Keyword arguments forwarded to Params.with_().
+        Keyword arguments forwarded to ``Params.with_()``.
 
     Returns
     -------
     Params
-        Parameter object with the requested overrides applied.
+        Parameter object with overrides applied.
 
     Examples
     --------
@@ -412,13 +363,9 @@ def default_params(**overrides) -> Params:
     """
     return Params().with_(**overrides)
 
-
 def pack_device_params(rp: ResolvedParams):
     """
-    Pack resolved liquid crystal parameters into device ABI arrays.
-
-    The core integer and floating-point parameter arrays are created first and the liquid crystal theory-specific entries are then appended.
-    This preserves the ABI indices expected by the liquid crystal kernels.
+    Pack resolved parameters into device arrays.
 
     Parameters
     ----------
@@ -428,7 +375,7 @@ def pack_device_params(rp: ResolvedParams):
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Tuple (p_i, p_f) containing the integer and floating-point device parameter arrays.
+        Integer and floating-point device parameter arrays.
 
     Examples
     --------
@@ -462,18 +409,9 @@ def pack_device_params(rp: ResolvedParams):
     p_f = np.concatenate((p_f_core, p_f_theory))
     return p_i, p_f
 
-
 def describe() -> None:
     """
-    Print a readable description of the liquid crystal parameter set.
-
-    The printed output is intended for interactive terminal use through theory.describe().
-    It summarizes the field content, material and flexoelectric parameters, deformation selection controls, depolarization settings, initial-condition controls, and the meaning of the packed device arrays.
-
-    Returns
-    -------
-    None
-        This function prints parameter information to the terminal.
+    Print the liquid crystal parameter description.
 
     Examples
     --------

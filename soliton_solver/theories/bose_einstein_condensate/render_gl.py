@@ -1,9 +1,9 @@
 """
-Render the Ginzburg-Landau superconductor simulation with the OpenGL viewer.
+OpenGL rendering for the Bose-Einstein condensate viewer.
 
 Examples
 --------
-Use ``run_viewer(sim, params)`` to start the interactive viewer.
+Use ``run_viewer`` to launch the interactive viewer.
 """
 from __future__ import annotations
 import numpy as np
@@ -12,7 +12,7 @@ from numba import cuda
 from soliton_solver.visualization.gl_backend import GLBackend, cuda_array_from_ptr
 from soliton_solver.core.utils import compute_min, compute_max
 from soliton_solver.core.utils import launch_2d
-from soliton_solver.theories.ginzburg_landau_superconductor.initial_config import create_vortex_kernel
+from soliton_solver.theories.bose_einstein_condensate.initial_config import create_vortex_kernel
 from soliton_solver.core.colormaps import render_jet_density_to_rgba, render_gray_density_to_rgba
 
 DISPLAY_ENERGY = 1
@@ -21,40 +21,43 @@ DISPLAY_MAGNETIC_FLUX = 3
 
 DISPLAY_TITLES = {
     DISPLAY_ENERGY: "En",
-    DISPLAY_HIGGS: "|psi|^2",
-    DISPLAY_MAGNETIC_FLUX: "B"
+    DISPLAY_HIGGS: "|psi|^2"
 }
 
 class GLRenderer:
     """
-    Manage interactive rendering for the Ginzburg-Landau superconductor simulation.
+    Interactive OpenGL renderer for the Bose-Einstein condensate simulation.
+
+    Parameters
+    ----------
+    width : int
+        Window width in pixels.
+    height : int
+        Window height in pixels.
+    title : str, optional
+        Window title.
 
     Examples
     --------
-    Use ``renderer = GLRenderer(width, height)`` to create the viewer.
+    Use ``renderer = GLRenderer(width=xlen, height=ylen)`` to create the viewer renderer.
     """
 
-    def __init__(self, width: int, height: int, title: str = "ginzburg_landau_superconductor (CUDA-OpenGL)"):
+    def __init__(self, width: int, height: int, title: str = "bose_einstein_condensate (CUDA-OpenGL)"):
         """
         Create the renderer and its OpenGL backend.
 
         Parameters
         ----------
         width : int
-            Viewport width in pixels.
+            Window width in pixels.
         height : int
-            Viewport height in pixels.
+            Window height in pixels.
         title : str, optional
             Window title.
 
-        Returns
-        -------
-        None
-            The renderer is initialized in place.
-
         Examples
         --------
-        Use ``renderer = GLRenderer(params.xlen, params.ylen)`` to create the viewer.
+        Use ``renderer = GLRenderer(params.xlen, params.ylen)`` to create the renderer.
         """
         self.backend = GLBackend(width, height, title=title)
 
@@ -80,12 +83,12 @@ class GLRenderer:
 
     def bind_sim(self, sim):
         """
-        Bind a simulation instance to the renderer.
+        Bind a simulation object to the renderer.
 
         Parameters
         ----------
         sim
-            Simulation instance used for rendering and interaction.
+            Simulation object used for rendering and interaction.
 
         Returns
         -------
@@ -94,7 +97,7 @@ class GLRenderer:
 
         Examples
         --------
-        Use ``renderer.bind_sim(sim)`` to attach a simulation to the viewer.
+        Use ``renderer.bind_sim(sim)`` to attach a simulation to the renderer.
         """
         self._sim = sim
 
@@ -105,9 +108,9 @@ class GLRenderer:
         Parameters
         ----------
         x : float
-            Window x coordinate in pixels.
+            Window x coordinate.
         y : float
-            Window y coordinate in pixels.
+            Window y coordinate.
 
         Returns
         -------
@@ -116,15 +119,17 @@ class GLRenderer:
 
         Examples
         --------
-        Use ``sim_x, sim_y = self._window_to_sim(x, y)`` to map cursor position to the lattice.
+        Use ``sim_x, sim_y = self._window_to_sim(x, y)`` to map a cursor position to the lattice.
         """
         sim = self._sim
         if sim is None:
             return 0, 0
 
         win_w, win_h = glfw.get_window_size(self.backend.window)
-        if win_w < 1: win_w = 1
-        if win_h < 1: win_h = 1
+        if win_w < 1:
+            win_w = 1
+        if win_h < 1:
+            win_h = 1
 
         xlen = int(sim.p_i_h[0])
         ylen = int(sim.p_i_h[1])
@@ -142,7 +147,7 @@ class GLRenderer:
 
     def _on_key(self, window, key, scancode, action, mods):
         """
-        Handle keyboard input.
+        Handle GLFW key press events.
 
         Parameters
         ----------
@@ -151,20 +156,20 @@ class GLRenderer:
         key : int
             GLFW key code.
         scancode : int
-            Platform-specific scan code.
+            Platform specific scan code.
         action : int
-            GLFW key action.
+            GLFW action code.
         mods : int
             GLFW modifier flags.
 
         Returns
         -------
         None
-            Renderer state is updated in place.
+            The renderer state is updated in response to the key event.
 
         Examples
         --------
-        This method is used as the GLFW key callback.
+        Use ``glfw.set_key_callback(self.backend.window, self._on_key)`` to register the key handler.
         """
         if action != glfw.PRESS:
             return
@@ -204,17 +209,17 @@ class GLRenderer:
 
     def _set_topological_number(self, n: float):
         """
-        Update the vortex number in the simulation parameters.
+        Update the vortex number in the bound simulation parameters.
 
         Parameters
         ----------
         n : float
-            New vortex number.
+            Vortex number to write into the parameter array.
 
         Returns
         -------
         None
-            The device parameter array is updated in place.
+            The updated parameter array is uploaded to the device.
 
         Examples
         --------
@@ -233,7 +238,7 @@ class GLRenderer:
 
     def _on_mouse_button(self, window, button, action, mods):
         """
-        Handle mouse button input.
+        Handle GLFW mouse button events.
 
         Parameters
         ----------
@@ -242,18 +247,18 @@ class GLRenderer:
         button : int
             GLFW mouse button code.
         action : int
-            GLFW mouse action.
+            GLFW action code.
         mods : int
             GLFW modifier flags.
 
         Returns
         -------
         None
-            Simulation fields may be updated in place.
+            The selected soliton action is applied to the simulation.
 
         Examples
         --------
-        This method is used as the GLFW mouse callback.
+        Use ``glfw.set_mouse_button_callback(self.backend.window, self._on_mouse_button)`` to register the mouse handler.
         """
         if self._sim is None:
             return
@@ -275,7 +280,7 @@ class GLRenderer:
 
     def set_display_mode(self, mode: int):
         """
-        Set the active display mode.
+        Set the display mode.
 
         Parameters
         ----------
@@ -285,11 +290,11 @@ class GLRenderer:
         Returns
         -------
         None
-            The display mode and window title are updated in place.
+            The display mode and window title are updated.
 
         Examples
         --------
-        Use ``renderer.set_display_mode(DISPLAY_HIGGS)`` to show the Higgs density.
+        Use ``renderer.set_display_mode(DISPLAY_HIGGS)`` to switch the displayed quantity.
         """
         if mode not in DISPLAY_TITLES:
             return
@@ -298,18 +303,18 @@ class GLRenderer:
 
     def _update_window_title(self):
         """
-        Update the window title for the active display mode.
+        Update the window title.
 
         Returns
         -------
         None
-            The window title is updated in place.
+            The backend window title is updated.
 
         Examples
         --------
         Use ``self._update_window_title()`` after changing the display mode.
         """
-        self.backend.set_window_title(DISPLAY_TITLES.get(self.display_mode, "ginzburg_landau_superconductor"))
+        self.backend.set_window_title(DISPLAY_TITLES.get(self.display_mode, "bose_einstein_condensate"))
 
     def close(self):
         """
@@ -318,7 +323,7 @@ class GLRenderer:
         Returns
         -------
         None
-            The backend is closed.
+            The backend resources are released.
 
         Examples
         --------
@@ -333,17 +338,17 @@ class GLRenderer:
         Returns
         -------
         bool
-            True if the window should close.
+            ``True`` if the window should close.
 
         Examples
         --------
-        Use ``while not renderer.should_close():`` to run the viewer loop.
+        Use ``renderer.should_close()`` in the viewer loop condition.
         """
         return self.backend.should_close()
 
     def begin_frame(self):
         """
-        Begin a render frame.
+        Begin a new frame.
 
         Returns
         -------
@@ -352,22 +357,22 @@ class GLRenderer:
 
         Examples
         --------
-        Use ``renderer.begin_frame()`` at the start of each frame.
+        Use ``renderer.begin_frame()`` at the start of each render loop iteration.
         """
         self.backend.begin_frame()
 
     def end_frame(self):
         """
-        End a render frame.
+        End the current frame.
 
         Returns
         -------
         None
-            Buffers are swapped for the current frame.
+            The frame is presented to the window.
 
         Examples
         --------
-        Use ``renderer.end_frame()`` at the end of each frame.
+        Use ``renderer.end_frame()`` at the end of each render loop iteration.
         """
         self.backend.end_frame()
 
@@ -378,18 +383,18 @@ class GLRenderer:
         Parameters
         ----------
         top : str, optional
-            Top HUD line.
+            Top HUD text line.
         bottom : str, optional
-            Bottom HUD line.
+            Bottom HUD text line.
 
         Returns
         -------
         None
-            The HUD text is updated in place.
+            The HUD text is passed to the backend.
 
         Examples
         --------
-        Use ``renderer.set_hud_text(top="t=1.0", bottom="E=0.1")`` to update the HUD.
+        Use ``renderer.set_hud_text(top="...", bottom="...")`` to update the HUD.
         """
         self.backend.set_hud_text(top=top, bottom=bottom)
 
@@ -402,28 +407,28 @@ class GLRenderer:
         Field
             Simulation field array.
         density_flat
-            Flattened scalar field to visualize.
+            Flattened scalar density to display.
         xlen : int
-            Number of lattice points in the x direction.
+            Number of lattice points along the x direction.
         ylen : int
-            Number of lattice points in the y direction.
+            Number of lattice points along the y direction.
         p_i
-            Device integer parameter array.
+            Integer parameter array.
         vmin : float
-            Lower bound of the scalar color range.
+            Lower bound of the display range.
         vmax : float
-            Upper bound of the scalar color range.
+            Upper bound of the display range.
         use_jet : bool
             Flag selecting the jet colormap instead of grayscale.
 
         Returns
         -------
         None
-            The frame is rendered to the current OpenGL window.
+            The frame is rendered into the OpenGL window.
 
         Examples
         --------
-        Use ``renderer.render(Field=sim.Field, density_flat=sim.en, xlen=params.xlen, ylen=params.ylen, p_i=sim.p_i_d, vmin=vmin, vmax=vmax, use_jet=True)`` to draw a frame.
+        Use ``renderer.render(Field=sim.Field, density_flat=sim.en, xlen=params.xlen, ylen=params.ylen, p_i=sim.p_i_d, vmin=vmin, vmax=vmax, use_jet=True)`` to draw one frame.
         """
         mapped = self.backend.map_pbo()
         try:
@@ -445,16 +450,16 @@ class GLRenderer:
 
 def advance_solver(sim, steps_per_frame: int, state: dict):
     """
-    Advance the simulation by a fixed number of solver steps.
+    Advance the solver by a fixed number of steps.
 
     Parameters
     ----------
     sim
-        Simulation instance.
+        Simulation object.
     steps_per_frame : int
-        Number of solver steps to take.
+        Number of solver steps to perform.
     state : dict
-        Mutable state dictionary storing energy, error, and epoch counters.
+        Mutable state dictionary holding energy, error, and epoch count.
 
     Returns
     -------
@@ -463,7 +468,7 @@ def advance_solver(sim, steps_per_frame: int, state: dict):
 
     Examples
     --------
-    Use ``advance_solver(sim, steps_per_frame, state)`` once per rendered frame.
+    Use ``advance_solver(sim, steps_per_frame, state)`` once per frame to step the simulation.
     """
     if state.get("energy") is None:
         obs = sim.observables()
@@ -475,19 +480,19 @@ def advance_solver(sim, steps_per_frame: int, state: dict):
 
 def _compute_density_for_mode(sim, mode: int):
     """
-    Compute the scalar density for the active display mode.
+    Compute the density field for the active display mode.
 
     Parameters
     ----------
     sim
-        Simulation instance.
+        Simulation object.
     mode : int
         Display mode identifier.
 
     Returns
     -------
     None
-        The density field is written into ``sim.en``.
+        The selected density is written into ``sim.en``.
 
     Examples
     --------
@@ -501,10 +506,6 @@ def _compute_density_for_mode(sim, mode: int):
         if hasattr(sim, "compute_higgs_density"):
             sim.compute_higgs_density()
             return
-    if mode == DISPLAY_MAGNETIC_FLUX:
-        if hasattr(sim, "compute_magnetic_flux_density"):
-            sim.compute_magnetic_flux_density(which=2)
-            return
 
 def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 120):
     """
@@ -513,13 +514,13 @@ def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 
     Parameters
     ----------
     sim
-        Simulation instance.
+        Simulation object.
     params
         Parameter object containing the lattice dimensions.
     steps_per_frame : int, optional
         Number of solver steps per rendered frame.
     fps_print_every : int, optional
-        Number of frames between FPS prints.
+        Frame interval for FPS printing.
 
     Returns
     -------
@@ -528,7 +529,7 @@ def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 
 
     Examples
     --------
-    Use ``run_viewer(sim, sim.rp, steps_per_frame=5)`` to start the interactive viewer.
+    Use ``run_viewer(sim, sim.rp, steps_per_frame=5)`` to launch the interactive viewer.
     """
     renderer = GLRenderer(params.xlen, params.ylen)
     renderer.bind_sim(sim)
@@ -557,8 +558,6 @@ def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 
             try:
                 obs = sim.observables()
                 state["energy"] = float(obs["energy"])
-                if "vortex_number" in obs:
-                    state["vort"] = float(obs["vortex_number"])
             except Exception:
                 pass
 
@@ -588,10 +587,6 @@ def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 
             bottom_parts = []
             if state.get("energy") is not None:
                 bottom_parts.append(f"E={float(state['energy']):.4f}")
-            if state.get("vort") is not None:
-                bottom_parts.append(f"V={float(state['vort']):.4f}")
-            if state.get("rho") is not None:
-                bottom_parts.append(f"rho={float(state['rho']):.4f}")
             bottom_text = ", ".join(bottom_parts)
 
             renderer.set_hud_text(top=top_text, bottom=bottom_text)

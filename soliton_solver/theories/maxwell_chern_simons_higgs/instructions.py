@@ -1,7 +1,19 @@
-# =====================================================================================
-# soliton_solver/theories/maxwell_chern_simons_higgs/instructions.py
-# =====================================================================================
+"""
+Print terminal instructions for the Maxwell-Chern-Simons-Higgs simulation controls.
+
+Examples
+--------
+>>> print_instructions()
+"""
+
 def print_instructions():
+    """
+    Print the interactive controls for the simulation.
+
+    Examples
+    --------
+    >>> print_instructions()
+    """
     print(
         "\nControls:\n"
         "   Energy density display:                 F1\n"

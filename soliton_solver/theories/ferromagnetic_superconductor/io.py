@@ -1,17 +1,14 @@
-# =========================
-# soliton_solver/theories/ferromagnetic_superconductor/io.py
-# =========================
 """
-Superferro theory-specific output bundle.
+Write the ferromagnetic superconductor data bundle using the core output utilities.
 
-This preserves the exact filenames expected by the existing plotting.py workflow, while
-keeping the core I/O implementation theory-agnostic.
+Examples
+--------
+>>> output_data_bundle("output", h_Field, h_EnergyDensity, h_MagneticFluxDensity, h_BaryonDensity, h_Supercurrent, h_grid, 256, 256)
 """
 
 from __future__ import annotations
 import numpy as np
 from soliton_solver.core.io import output_data_bundle_core
-
 
 def output_data_bundle(
     output_dir: str,
@@ -27,6 +24,45 @@ def output_data_bundle(
     number_total_fields: int = 8,
     precision: int = 32,
 ) -> None:
+    """
+    Write the ferromagnetic superconductor simulation output bundle.
+
+    Parameters
+    ----------
+    output_dir : str
+        Directory where output files are written.
+    h_Field : ndarray
+        Host array containing the field configuration.
+    h_EnergyDensity : ndarray
+        Host array containing the energy density.
+    h_MagneticFluxDensity : ndarray
+        Host array containing the magnetic flux density.
+    h_BaryonDensity : ndarray
+        Host array containing the magnetization charge density.
+    h_Supercurrent : ndarray
+        Host array containing the supercurrent density.
+    h_grid : ndarray
+        Host array containing the coordinate grid.
+    xlen : int
+        Number of lattice points along the x direction.
+    ylen : int
+        Number of lattice points along the y direction.
+    number_coordinates : int, optional
+        Number of coordinate components stored in the grid.
+    number_total_fields : int, optional
+        Number of field components.
+    precision : int, optional
+        Output precision for text files.
+
+    Returns
+    -------
+    None
+        The output files are written to the specified directory.
+
+    Examples
+    --------
+    >>> output_data_bundle("output", h_Field, h_EnergyDensity, h_MagneticFluxDensity, h_BaryonDensity, h_Supercurrent, h_grid, 256, 256)
+    """
     arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "MagneticFluxDensity": h_MagneticFluxDensity, "BaryonDensity": h_BaryonDensity, "Supercurrent": h_Supercurrent}
 
     bundle_spec = [

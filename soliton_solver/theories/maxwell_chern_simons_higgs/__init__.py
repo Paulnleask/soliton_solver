@@ -1,9 +1,5 @@
 """
-Anyon superconductor theory package registration and user-facing theory description.
-
-This module defines the registry metadata for the anyon superconductor model.
-It also provides a user-facing describe() function that prints a structured summary of the theory to the terminal.
-The printed summary includes the theory name, version, description, aliases, available submodules, parameter information, and additional usage instructions.
+Anyon superconductor theory package registration and terminal description.
 
 Examples
 --------
@@ -11,7 +7,6 @@ Examples
 >>> theory = load_theory("Anyon superconductor")
 >>> theory.describe()
 """
-
 from __future__ import annotations
 
 from soliton_solver.theories.registry import TheorySpec
@@ -24,7 +19,6 @@ from . import io
 from . import render_gl
 from .instructions import print_instructions
 
-
 THEORY_SPEC = TheorySpec(
     name="Anyon superconductor",
     aliases=("Maxwell Chern-Simons Higgs", "Chern-Simons-Landau-Ginzburg", "Abelian Chern-Simons Higgs"),
@@ -33,20 +27,19 @@ THEORY_SPEC = TheorySpec(
     version="1.0"
 )
 
-
 def _print_section(title: str) -> None:
     """
-    Print a section heading for terminal-based theory descriptions.
+    Print a section heading.
 
     Parameters
     ----------
     title : str
-        Section title to print.
+        Section title.
 
     Returns
     -------
     None
-        This function prints a formatted section heading to the terminal.
+        The section heading is printed to the terminal.
 
     Examples
     --------
@@ -55,17 +48,14 @@ def _print_section(title: str) -> None:
     print(title)
     print("-" * len(title))
 
-
 def _print_metadata() -> None:
     """
-    Print the core registry metadata for the anyon superconductor theory.
-
-    The printed metadata includes the canonical theory name, version, short description, import path, and aliases.
+    Print the theory metadata.
 
     Returns
     -------
     None
-        This function prints theory metadata to the terminal.
+        The metadata are printed to the terminal.
 
     Examples
     --------
@@ -88,15 +78,14 @@ def _print_metadata() -> None:
 
     print()
 
-
 def _print_submodules() -> None:
     """
-    Print the main anyon superconductor theory submodules available to the user.
+    Print the main theory submodules.
 
     Returns
     -------
     None
-        This function prints the main theory submodules to the terminal.
+        The submodule names are printed to the terminal.
 
     Examples
     --------
@@ -111,18 +100,14 @@ def _print_submodules() -> None:
     print("render_gl")
     print()
 
-
 def _print_parameter_information() -> None:
     """
-    Print detailed parameter information for the anyon superconductor theory.
-
-    If the params module defines a callable describe() function, that function is used to print detailed parameter information.
-    Otherwise, a fallback message is printed.
+    Print the parameter information.
 
     Returns
     -------
     None
-        This function prints parameter information to the terminal.
+        The parameter information is printed to the terminal.
 
     Examples
     --------
@@ -139,17 +124,14 @@ def _print_parameter_information() -> None:
 
     print()
 
-
 def _print_notes() -> None:
     """
-    Print a short high-level summary of the anyon superconductor model contents.
-
-    This section is intended to give the user immediate orientation when inspecting the theory from the terminal.
+    Print summary notes for the theory.
 
     Returns
     -------
     None
-        This function prints explanatory notes to the terminal.
+        The summary notes are printed to the terminal.
 
     Examples
     --------
@@ -161,17 +143,14 @@ def _print_notes() -> None:
     print("The model describes coupled matter and gauge fields with Chern-Simons dynamics and vortex-like solitons.")
     print()
 
-
 def _print_instructions() -> None:
     """
-    Print additional usage instructions for the anyon superconductor theory.
-
-    If print_instructions() is available from the local instructions module, it is called directly.
+    Print the usage instructions.
 
     Returns
     -------
     None
-        This function prints usage instructions to the terminal.
+        The usage instructions are printed to the terminal.
 
     Examples
     --------
@@ -181,17 +160,14 @@ def _print_instructions() -> None:
     print_instructions()
     print()
 
-
 def describe() -> None:
     """
-    Print a structured terminal description of the anyon superconductor theory.
-
-    The printed output includes registry metadata, aliases, available submodules, notes about the package contents, parameter information, and additional usage instructions.
+    Print a structured theory description.
 
     Returns
     -------
     None
-        This function prints the anyon superconductor theory description to the terminal.
+        The theory description is printed to the terminal.
 
     Examples
     --------

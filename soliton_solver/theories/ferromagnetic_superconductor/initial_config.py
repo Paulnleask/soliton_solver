@@ -1,54 +1,44 @@
-# =====================================================================================
-# soliton_solver/theories/ferromagnetic_superconductor/initial_config.py
-# =====================================================================================
 """
-Initial condition / ansatz CUDA kernels for the ferromagnetic_superconductor simulation.
+Initial condition kernels for the ferromagnetic superconductor theory.
 
-Usage:
-- Provides small CUDA device helpers (distance/angle + profile functions) and several
-  global kernels that write an initial configuration into `Field` (and zero auxiliary arrays).
-
-Coordinate conventions:
-- `grid` is a flattened array storing the physical coordinates at each lattice point:
-    grid[idx_field(0, x, y, p_i)] -> physical x-coordinate
-    grid[idx_field(1, x, y, p_i)] -> physical y-coordinate
-- `Field` is a flattened array storing multiple physical fields per lattice point.
-  This file assumes (by convention) at least:
-    Magnetization: components 0,1,2  (m1, m2, m3)
-    Gauge fields:  components 3,4,5  (A1, A2, A3/aux depending on model)
-    Higgs fields:  components 6,7    (Re(psi), Im(psi))
-  (Any additional components are zeroed by the kernels.)
-
-Typical workflow:
-- Call `create_ground_state_kernel` to initialize a uniform ground state.
-- Call `create_initial_configuration_kernel` to initialize a combined skyrmion + vortex ansatz.
-- Use `create_vortex_kernel` and `create_skyrmion_kernel` to "paint" additional objects centered
-  at a chosen pixel (pxi, pxj).
-
-Boundary handling:
-- All global kernels use `in_bounds(x, y, p_i)` and return early out-of-domain.
+Examples
+--------
+Use ``create_ground_state_kernel`` to initialize the uniform ground state.
+Use ``create_initial_configuration_kernel`` to initialize a mixed skyrmion-vortex state.
 """
-
-# ---------------- Imports ----------------
 import math
 from numba import cuda
 from soliton_solver.core.utils import idx_field, in_bounds
 from soliton_solver.theories.ferromagnetic_superconductor.kernels import compute_norm_magnetization
 
-# ---------------- Initial configuration functions ----------------
 @cuda.jit(device=True, inline=True)
 def position(xcent, ycent, x, y, grid, p_i):
     """
-    Compute radial distance r from a physical-space center to lattice point (x, y).
+    Compute the radial distance from a physical-space center to a lattice site.
 
-    Usage:
-    - Device helper for kernels building radial profiles (vortex/skyrmion).
-    - `xcent, ycent` are physical coordinates (same units as `grid`).
-    - Returns r = sqrt((x_phys-xcent)^2 + (y_phys-ycent)^2).
+    Parameters
+    ----------
+    xcent : float
+        Physical x coordinate of the center.
+    ycent : float
+        Physical y coordinate of the center.
+    x : int
+        Lattice index along the x direction.
+    y : int
+        Lattice index along the y direction.
+    grid : device array
+        Flattened coordinate array.
+    p_i : device array
+        Integer parameter array.
 
-    Parameters:
-    - grid: flattened coordinate array; grid has components 0->x, 1->y
-    - p_i: integer parameter array used by idx_field
+    Returns
+    -------
+    float
+        Radial distance from the center to the lattice site.
+
+    Examples
+    --------
+    Use ``r = position(xcent, ycent, x, y, grid, p_i)`` to evaluate radial profiles.
     """
     dx = grid[idx_field(0, x, y, p_i)]
     dy = grid[idx_field(1, x, y, p_i)]
@@ -57,17 +47,25 @@ def position(xcent, ycent, x, y, grid, p_i):
 @cuda.jit(device=True, inline=True)
 def profile_function_superconductor(r, max_r, value):
     """
-    Radial profile for the superconducting/Higgs amplitude.
+    Compute the superconducting amplitude profile.
 
-    Usage:
-    - Used to build a smooth amplitude envelope fs(r).
-    - For r > max_r: returns 1.0 (saturates to bulk value).
-    - Otherwise: returns tanh(value * r) (ramps up from 0 at the core).
+    Parameters
+    ----------
+    r : float
+        Radial distance from the center.
+    max_r : float
+        Radius beyond which the profile is fixed to its asymptotic value.
+    value : float
+        Parameter controlling the profile width.
 
-    Parameters:
-    - r: radial distance
-    - max_r: saturation radius beyond which profile is constant
-    - value: controls core size / steepness of the tanh ramp
+    Returns
+    -------
+    float
+        Superconducting profile value at radius ``r``.
+
+    Examples
+    --------
+    Use ``fs = profile_function_superconductor(r, max_r, value)`` to build the Higgs profile.
     """
     if r > max_r:
         return 1.0
@@ -76,16 +74,23 @@ def profile_function_superconductor(r, max_r, value):
 @cuda.jit(device=True, inline=True)
 def profile_function_magnetization(r, max_r):
     """
-    Radial profile for the magnetization polar angle (used in skyrmion ansätze).
+    Compute the magnetization profile used in skyrmion ansatz fields.
 
-    Usage:
-    - Returns 0 outside radius max_r (no perturbation).
-    - Inside: returns pi * exp(-(2r/max_r)^2), which is near pi at r=0 and decays
-      smoothly toward 0 with radius.
+    Parameters
+    ----------
+    r : float
+        Radial distance from the center.
+    max_r : float
+        Characteristic skyrmion radius.
 
-    Parameters:
-    - r: radial distance
-    - max_r: characteristic radius for the skyrmion profile
+    Returns
+    -------
+    float
+        Magnetization profile value at radius ``r``.
+
+    Examples
+    --------
+    Use ``fm = profile_function_magnetization(r, max_r)`` to build the skyrmion profile.
     """
     if r > max_r:
         return 0.0
@@ -95,70 +100,103 @@ def profile_function_magnetization(r, max_r):
 @cuda.jit(device=True, inline=True)
 def angle(r, xcent, ycent, orientation, x, y, grid, p_i):
     """
-    Compute the azimuthal angle theta around a physical-space center, with a rotation offset.
+    Compute the azimuthal angle around a physical-space center.
 
-    Usage:
-    - Device helper for vortex/skyrmion phase factors.
-    - `orientation` is a rotation offset (in radians) applied as -orientation.
-    - For r == 0: returns the base angle (-orientation) to avoid atan2(0,0).
+    Parameters
+    ----------
+    r : float
+        Radial distance from the center.
+    xcent : float
+        Physical x coordinate of the center.
+    ycent : float
+        Physical y coordinate of the center.
+    orientation : float
+        Angular offset in radians.
+    x : int
+        Lattice index along the x direction.
+    y : int
+        Lattice index along the y direction.
+    grid : device array
+        Flattened coordinate array.
+    p_i : device array
+        Integer parameter array.
 
-    Returns:
-    - theta = -orientation + atan2(y - ycent, x - xcent) mapped to [0, 2π) and then shifted.
+    Returns
+    -------
+    float
+        Azimuthal angle with the orientation offset applied.
 
-    Notes:
-    - atan2 range is (-π, π]; we map negatives by adding 2π.
+    Examples
+    --------
+    Use ``th = angle(r, xcent, ycent, orientation, x, y, grid, p_i)`` to build phase factors.
     """
     theta = -orientation
     if r == 0.0:
         return theta
     gx = grid[idx_field(0, x, y, p_i)] - xcent
     gy = grid[idx_field(1, x, y, p_i)] - ycent
-    ang = math.atan2(gy, gx)   # (-pi, pi]
+    ang = math.atan2(gy, gx)
     if ang < 0.0:
-        ang += 2.0 * math.pi  # -> [0, 2pi)
+        ang += 2.0 * math.pi
     return theta + ang
 
-# ---------------- Create ground state configuration kernel ----------------
 @cuda.jit
 def create_ground_state_kernel(Velocity, Field, grid, k1, k2, k3, k4, l1, l2, l3, l4, Temp, p_i, p_f):
     """
-    Initialize a uniform ground-state configuration and zero all auxiliary arrays.
+    Initialize the uniform ground state and zero the auxiliary buffers.
 
-    Usage:
-    - Launch over the full lattice (2D grid of threads).
-    - Sets:
-        * Magnetization: (m1,m2,m3) = (0, 0, M0)
-        * Gauge fields:  A = 0
-        * Higgs fields:  (Re,Im) = (u1, 0)
-      where M0 and u1 are read from p_f.
-    - Zeros per-site auxiliary arrays used by the time integrator:
-        Velocity, k1..k4, l1..l4, Temp
-      for all `a` in [0, number_total_fields).
+    Parameters
+    ----------
+    Velocity : device array
+        Velocity field buffer.
+    Field : device array
+        State field buffer.
+    grid : device array
+        Coordinate array.
+    k1 : device array
+        First RK buffer.
+    k2 : device array
+        Second RK buffer.
+    k3 : device array
+        Third RK buffer.
+    k4 : device array
+        Fourth RK buffer.
+    l1 : device array
+        First auxiliary RK buffer.
+    l2 : device array
+        Second auxiliary RK buffer.
+    l3 : device array
+        Third auxiliary RK buffer.
+    l4 : device array
+        Fourth auxiliary RK buffer.
+    Temp : device array
+        Temporary field buffer.
+    p_i : device array
+        Integer parameter array.
+    p_f : device array
+        Float parameter array.
 
-    Parameters:
-    - Velocity, k*, l*, Temp: flattened arrays with same indexing as Field
-    - Field: flattened state array (multiple components per lattice point)
-    - grid: coordinate array (unused here, but kept for signature consistency)
-    - p_i: integer params (expects p_i[4] = number_total_fields)
-    - p_f: float params (expects p_f[17]=M0, p_f[11]=u1)
+    Returns
+    -------
+    None
+        The ground state and auxiliary buffers are written in place.
+
+    Examples
+    --------
+    Launch ``create_ground_state_kernel[grid2d, block2d](Velocity, Field, grid, k1, k2, k3, k4, l1, l2, l3, l4, Temp, p_i, p_f)`` to initialize the ground state.
     """
     x, y = cuda.grid(2)
     if not in_bounds(x, y, p_i):
         return
-    # Ground state parameters
     M0 = p_f[17]; u1 = p_f[11]
-    # Magnetization
     Field[idx_field(0, x, y, p_i)] = 0.0
     Field[idx_field(1, x, y, p_i)] = 0.0
     Field[idx_field(2, x, y, p_i)] = M0
-    # Gauge fields
     Field[idx_field(3, x, y, p_i)] = 0.0
     Field[idx_field(4, x, y, p_i)] = 0.0
     Field[idx_field(5, x, y, p_i)] = 0.0
-    # Higgs fields
     Field[idx_field(6, x, y, p_i)] = u1
     Field[idx_field(7, x, y, p_i)] = 0.0
-    # Initalize the other fields
     number_total_fields = p_i[4]
     for a in range(number_total_fields):
         Velocity[idx_field(a, x, y, p_i)] = 0.0
@@ -172,40 +210,69 @@ def create_ground_state_kernel(Velocity, Field, grid, k1, k2, k3, k4, l1, l2, l3
         l4[idx_field(a, x, y, p_i)] = 0.0
         Temp[idx_field(a, x, y, p_i)] = 0.0
 
-#  ---------------- Create initial configuration kernel ----------------
 @cuda.jit
 def create_initial_configuration_kernel(Velocity, Field, grid, k1, k2, k3, k4, l1, l2, l3, l4, Temp, ansatz_bloch, ansatz_neel, ansatz_anti, skyrmion_rotation, vortex_number, p_i, p_f):
     """
-    Initialize a combined skyrmion + vortex ansatz (and zero integrator buffers).
+    Initialize a mixed skyrmion-vortex configuration and zero the auxiliary buffers.
 
-    Usage:
-    - Launch over the full lattice (2D grid of threads).
-    - Builds:
-        * Magnetization skyrmion (Bloch / Néel / anti variants) using `profile_function_magnetization`
-          and an azimuthal angle from `angle()`.
-        * Gauge field with a vortex-like 1/r angular structure scaled by `ainf` and the SC profile `fs`.
-        * Higgs field (complex order parameter) with phase winding `vortex_number`.
-    - Normalizes magnetization (if a skyrmion ansatz is used) via compute_norm_magnetization().
-    - Zeros Velocity/k*/l*/Temp for all components.
+    Parameters
+    ----------
+    Velocity : device array
+        Velocity field buffer.
+    Field : device array
+        State field buffer.
+    grid : device array
+        Coordinate array.
+    k1 : device array
+        First RK buffer.
+    k2 : device array
+        Second RK buffer.
+    k3 : device array
+        Third RK buffer.
+    k4 : device array
+        Fourth RK buffer.
+    l1 : device array
+        First auxiliary RK buffer.
+    l2 : device array
+        Second auxiliary RK buffer.
+    l3 : device array
+        Third auxiliary RK buffer.
+    l4 : device array
+        Fourth auxiliary RK buffer.
+    Temp : device array
+        Temporary field buffer.
+    ansatz_bloch : bool
+        Flag selecting the Bloch ansatz.
+    ansatz_neel : bool
+        Flag selecting the Néel ansatz.
+    ansatz_anti : bool
+        Flag selecting the anti-skyrmion ansatz.
+    skyrmion_rotation : float
+        Angular offset for the skyrmion ansatz.
+    vortex_number : float
+        Vortex winding number.
+    p_i : device array
+        Integer parameter array.
+    p_f : device array
+        Float parameter array.
 
-    Parameters / flags:
-    - ansatz_bloch, ansatz_neel, ansatz_anti: booleans selecting the skyrmion type (first match wins).
-      If none are True, magnetization defaults to (0,0,1).
-    - skyrmion_rotation: rotation offset in radians for the skyrmion angle.
-    - vortex_number: integer winding number used in the Higgs phase factor.
-    - p_f expects:
-        p_f[0]=xsize, p_f[1]=ysize, p_f[11]=u1, p_f[13]=ainf, p_f[18]=skN (skyrmion number)
+    Returns
+    -------
+    None
+        The initial field and auxiliary buffers are written in place.
+
+    Examples
+    --------
+    Launch ``create_initial_configuration_kernel[grid2d, block2d](Velocity, Field, grid, k1, k2, k3, k4, l1, l2, l3, l4, Temp, ansatz_bloch, ansatz_neel, ansatz_anti, skyrmion_rotation, vortex_number, p_i, p_f)`` to initialize the mixed ansatz.
     """
     x, y = cuda.grid(2)
     if not in_bounds(x, y, p_i):
         return
-    # Parameters
     xlen = p_i[0]; ylen = p_i[1]
     xsize = p_f[0]; ysize = p_f[1]
     skN = p_f[18]
     ainf = p_f[13]
     u1 = p_f[11]
-    # Grid and profiles
     xcent = (grid[idx_field(0, 0, 0, p_i)] + grid[idx_field(0, xlen-1, ylen-1, p_i)]) / 2.0
     ycent = (grid[idx_field(1, 0, 0, p_i)] + grid[idx_field(1, xlen-1, ylen-1, p_i)]) / 2.0
     r1 = position(xcent, ycent, x, y, grid, p_i)
@@ -213,7 +280,6 @@ def create_initial_configuration_kernel(Velocity, Field, grid, k1, k2, k3, k4, l
     th = angle(r1, xcent, ycent, skyrmion_rotation, x, y, grid, p_i)
     fm = profile_function_magnetization(r1, rmax / 10.0)
     fs = profile_function_superconductor(r1, rmax, 0.2)
-    # Magnetization
     if ansatz_bloch:
         Field[idx_field(0, x, y, p_i)] = -math.sin(fm) * math.sin(skN * th)
         Field[idx_field(1, x, y, p_i)] =  math.sin(fm) * math.cos(skN * th)
@@ -233,16 +299,13 @@ def create_initial_configuration_kernel(Velocity, Field, grid, k1, k2, k3, k4, l
         Field[idx_field(0, x, y, p_i)] = 0.0
         Field[idx_field(1, x, y, p_i)] = 0.0
         Field[idx_field(2, x, y, p_i)] = 1.0
-    # Gauge fields
     eps = 1e-12
     rr = r1 if r1 > eps else eps
     Field[idx_field(3, x, y, p_i)] = -ainf * fs * math.sin(th) / rr
     Field[idx_field(4, x, y, p_i)] =  ainf * fs * math.cos(th) / rr
     Field[idx_field(5, x, y, p_i)] = 0.0
-    # Higgs fields
     Field[idx_field(6, x, y, p_i)] = u1 * fs * math.cos(vortex_number * th)
     Field[idx_field(7, x, y, p_i)] = u1 * fs * math.sin(vortex_number * th)
-    # Initalize the other fields
     number_total_fields = p_i[4]
     for a in range(number_total_fields):
         Velocity[idx_field(a, x, y, p_i)] = 0.0
@@ -256,128 +319,160 @@ def create_initial_configuration_kernel(Velocity, Field, grid, k1, k2, k3, k4, l
         l4[idx_field(a, x, y, p_i)] = 0.0
         Temp[idx_field(a, x, y, p_i)] = 0.0
 
-#  ---------------- Create vortex kernel ----------------
 @cuda.jit
 def create_vortex_kernel(Field, grid, pxi, pxj, vortex, p_i, p_f):
     """
-    Multiply the existing Higgs field by an (anti-)vortex phase factor centered at pixel (pxi, pxj).
+    Multiply the Higgs field by a vortex or antivortex centered at a pixel.
 
-    Usage:
-    - Launch over the full lattice (2D grid of threads).
-    - `pxi, pxj` specify the vortex center in *pixel indices* (not physical coords).
-      The kernel converts that to physical center via `grid`.
-    - If `vortex` is True, uses a negative sign in the phase (anti-vortex vs vortex as coded).
-    - Applies the vortex by complex-multiplying the current Higgs field by an "internal" vortex field,
-      then dividing by u1 to keep the bulk amplitude consistent:
-        new = (old * int) / u1
+    Parameters
+    ----------
+    Field : device array
+        State field buffer.
+    grid : device array
+        Coordinate array.
+    pxi : int
+        Pixel index of the center along the x direction.
+    pxj : int
+        Pixel index of the center along the y direction.
+    vortex : bool
+        Flag selecting the phase sign.
+    p_i : device array
+        Integer parameter array.
+    p_f : device array
+        Float parameter array.
 
-    Parameters:
-    - Field: flattened state array; Higgs fields are assumed at components 6 (real) and 7 (imag)
-    - grid: coordinate array used to locate the physical center at (pxi, pxj)
-    - pxi, pxj: integer pixel indices of the vortex center
-    - vortex: boolean controlling the sign of the phase
-    - p_f expects p_f[11]=u1 and p_f[12]=vortex_number (winding)
+    Returns
+    -------
+    None
+        The Higgs field is updated in place.
+
+    Examples
+    --------
+    Launch ``create_vortex_kernel[grid2d, block2d](Field, grid, pxi, pxj, vortex, p_i, p_f)`` to add a vortex.
     """
     x, y = cuda.grid(2)
     if not in_bounds(x, y, p_i):
         return
-    # Parameters
     xlen = p_i[0]; ylen = p_i[1]
     xsize = p_f[0]; ysize = p_f[1]
     u1 = p_f[11]
     vortex_number = p_f[12]
-    # Pixel bounds check
     if pxi < 0 or pxi >= xlen or pxj < 0 or pxj >= ylen:
         return
-    # Center in physical coords
     xcent = grid[idx_field(0, pxi, pxj, p_i)]
     ycent = grid[idx_field(1, pxi, pxj, p_i)]
     r1 = position(xcent, ycent, x, y, grid, p_i)
     rmax = xsize if xsize > ysize else ysize
     th = angle(r1, xcent, ycent, 0.0, x, y, grid, p_i)
     fs = profile_function_superconductor(r1, rmax, 0.2)
-    # Old Higgs field
     old_r = Field[idx_field(6, x, y, p_i)]
     old_i = Field[idx_field(7, x, y, p_i)]
-    # New Higgs field
     phase = (-1.0 if vortex else 1.0) * th
     int_r = u1 * fs * math.cos(vortex_number * phase)
     int_i = u1 * fs * math.sin(vortex_number * phase)
-    # Complex composition: (old * int) / u1
     new_r = (old_r * int_r - old_i * int_i) / u1
     new_i = (old_r * int_i + old_i * int_r) / u1
     Field[idx_field(6, x, y, p_i)] = new_r
     Field[idx_field(7, x, y, p_i)] = new_i
 
-#  ---------------- Create skyrmion kernel ----------------
 @cuda.jit
 def create_skyrmion_kernel(Field, grid, pxi, pxj, skyrmion_rotation, ansatz_bloch, ansatz_neel, ansatz_anti, p_i, p_f):
     """
-    Add (compose) a skyrmion into the existing magnetization field, centered at pixel (pxi, pxj).
+    Compose a skyrmion into the magnetization field.
 
-    Usage:
-    - Launch over the full lattice (2D grid of threads).
-    - Builds a skyrmion magnetization (m1,m2,m3) using the chosen ansatz type and profile fm(r).
-    - Converts both the old magnetization and the skyrmion ansatz to stereographic CP1 coordinate W,
-      adds them (simple composition), then maps back to S^2.
-    - Normalizes magnetization via compute_norm_magnetization() at the end.
+    Parameters
+    ----------
+    Field : device array
+        State field buffer.
+    grid : device array
+        Coordinate array.
+    pxi : int
+        Pixel index of the center along the x direction.
+    pxj : int
+        Pixel index of the center along the y direction.
+    skyrmion_rotation : float
+        Angular offset for the skyrmion ansatz.
+    ansatz_bloch : bool
+        Flag selecting the Bloch ansatz.
+    ansatz_neel : bool
+        Flag selecting the Néel ansatz.
+    ansatz_anti : bool
+        Flag selecting the anti-skyrmion ansatz.
+    p_i : device array
+        Integer parameter array.
+    p_f : device array
+        Float parameter array.
 
-    Parameters:
-    - Field: flattened state array; magnetization is assumed at components 0,1,2
-    - grid: coordinate array used to locate the physical center at (pxi, pxj)
-    - pxi, pxj: integer pixel indices of the skyrmion center
-    - skyrmion_rotation: rotation offset in radians for the skyrmion angle
-    - ansatz_bloch / ansatz_neel / ansatz_anti: booleans selecting the skyrmion type
-    - p_f expects p_f[18]=skN (skyrmion number)
+    Returns
+    -------
+    None
+        The magnetization field is updated in place.
+
+    Examples
+    --------
+    Launch ``create_skyrmion_kernel[grid2d, block2d](Field, grid, pxi, pxj, skyrmion_rotation, ansatz_bloch, ansatz_neel, ansatz_anti, p_i, p_f)`` to add a skyrmion.
     """
     x, y = cuda.grid(2)
     if not in_bounds(x, y, p_i):
         return
-    # Parameters
     xlen = p_i[0]; ylen = p_i[1]
     xsize = p_f[0]; ysize = p_f[1]
     skN = p_f[18]
-    # Pixel bounds check
     if pxi < 0 or pxi >= xlen or pxj < 0 or pxj >= ylen:
         return
-    # Grid and profiles
     xcent = grid[idx_field(0, pxi, pxj, p_i)]
     ycent = grid[idx_field(1, pxi, pxj, p_i)]
     r1 = position(xcent, ycent, x, y, grid, p_i)
     rmax = xsize if xsize > ysize else ysize
     th = angle(r1, xcent, ycent, skyrmion_rotation, x, y, grid, p_i)
-    fm = profile_function_magnetization(r1, rmax / 10.0)
+    if skN == 0:
+        fm = profile_function_magnetization(r1, rmax / 10.0 * 2.0)
+    else:
+        fm = profile_function_magnetization(r1, rmax / 10.0 * skN)
     eps = 1e-12
     den = max(1.0 + Field[idx_field(2, x, y, p_i)], eps)
-    # Old stereographic coordinate W
     old_wr = Field[idx_field(0, x, y, p_i)] / den
     old_wi = Field[idx_field(1, x, y, p_i)] / den
-    # Skyrmion ansatz
-    if ansatz_bloch:
-        m1 = -math.sin(fm) * math.sin(skN * th)
-        m2 =  math.sin(fm) * math.cos(skN * th)
-        m3 =  math.cos(fm)
-    elif ansatz_neel:
-        m1 =  math.sin(fm) * math.cos(skN * th)
-        m2 =  math.sin(fm) * math.sin(skN * th)
-        m3 =  math.cos(fm)
-    elif ansatz_anti:
-        m1 = -math.sin(fm) * math.sin(skN * th)
-        m2 = -math.sin(fm) * math.cos(skN * th)
-        m3 =  math.cos(fm)
+    if skN == 0:
+        if ansatz_bloch:
+            m1 = -math.sin(2.0 * fm) * math.sin(th)
+            m2 =  math.sin(2.0 * fm) * math.cos(th)
+            m3 =  math.cos(2.0 * fm)
+        elif ansatz_neel:
+            m1 =  math.sin(2.0 * fm) * math.cos(th)
+            m2 =  math.sin(2.0 * fm) * math.sin(th)
+            m3 =  math.cos(2.0 * fm)
+        elif ansatz_anti:
+            m1 = -math.sin(2.0 * fm) * math.sin(th)
+            m2 = -math.sin(2.0 * fm) * math.cos(th)
+            m3 =  math.cos(2.0 * fm)
+        else:
+            m1 = 0.0
+            m2 = 0.0
+            m3 = 1.0
     else:
-        m1 = 0.0
-        m2 = 0.0
-        m3 = 1.0
-    # New skyrmion
+        if ansatz_bloch:
+            m1 = -math.sin(fm) * math.sin(skN * th)
+            m2 =  math.sin(fm) * math.cos(skN * th)
+            m3 =  math.cos(fm)
+        elif ansatz_neel:
+            m1 =  math.sin(fm) * math.cos(skN * th)
+            m2 =  math.sin(fm) * math.sin(skN * th)
+            m3 =  math.cos(fm)
+        elif ansatz_anti:
+            m1 = -math.sin(fm) * math.sin(skN * th)
+            m2 = -math.sin(fm) * math.cos(skN * th)
+            m3 =  math.cos(fm)
+        else:
+            m1 = 0.0
+            m2 = 0.0
+            m3 = 1.0
     int_den = max(1.0 + m3, eps)
     int_wr = m1 / int_den
     int_wi = m2 / int_den
-    # Composition
     new_wr = old_wr + int_wr
     new_wi = old_wi + int_wi
     normW = new_wr * new_wr + new_wi * new_wi
-    # Map from CP1 to S2
     Field[idx_field(0, x, y, p_i)] = 2.0 * new_wr / (1.0 + normW)
     Field[idx_field(1, x, y, p_i)] = 2.0 * new_wi / (1.0 + normW)
     Field[idx_field(2, x, y, p_i)] = (1.0 - normW) / (1.0 + normW)
@@ -385,31 +480,72 @@ def create_skyrmion_kernel(Field, grid, pxi, pxj, skyrmion_rotation, ansatz_bloc
 
 def initialize(*, Velocity, Field, grid, k1, k2, k3, k4, l1, l2, l3, l4, Temp, p_i_d, p_f_d, p_i_h=None, p_f_h=None, grid2d, block2d, config: dict | None = None):
     """
-    Theory-controlled initialization entrypoint.
+    Initialize the theory fields from the selected configuration mode.
 
-    Simulation is theory-agnostic and calls ONLY this function.
+    Parameters
+    ----------
+    Velocity : device array
+        Velocity field buffer.
+    Field : device array
+        State field buffer.
+    grid : device array
+        Coordinate array.
+    k1 : device array
+        First RK buffer.
+    k2 : device array
+        Second RK buffer.
+    k3 : device array
+        Third RK buffer.
+    k4 : device array
+        Fourth RK buffer.
+    l1 : device array
+        First auxiliary RK buffer.
+    l2 : device array
+        Second auxiliary RK buffer.
+    l3 : device array
+        Third auxiliary RK buffer.
+    l4 : device array
+        Fourth auxiliary RK buffer.
+    Temp : device array
+        Temporary field buffer.
+    p_i_d : device array
+        Integer parameter array on the device.
+    p_f_d : device array
+        Float parameter array on the device.
+    p_i_h : array-like, optional
+        Integer parameter array on the host.
+    p_f_h : array-like, optional
+        Float parameter array on the host.
+    grid2d : tuple
+        CUDA grid configuration.
+    block2d : tuple
+        CUDA block configuration.
+    config : dict or None, optional
+        Initialization options.
 
-    `config` is an opaque dict; this theory decides which keys matter.
+    Returns
+    -------
+    None
+        The selected initialization kernel is launched.
+
+    Examples
+    --------
+    Use ``initialize(..., config={"mode": "ground"})`` to initialize the ground state.
+    Use ``initialize(..., config={"ansatz": "bloch", "vortex_number": 1.0})`` to initialize a mixed ansatz.
     """
     cfg = config or {}
 
-    # Decide mode (theory-defined)
     mode = str(cfg.get("mode", "initial")).lower()
-    # Example supported modes: "ground", "initial"
-    # If unknown -> default to ground
     if mode in ("ground", "uniform", "vacuum", "gs"):
         create_ground_state_kernel[grid2d, block2d](Velocity, Field, grid, k1, k2, k3, k4, l1, l2, l3, l4, Temp, p_i_d, p_f_d)
         return
 
-    # Otherwise do the combined mixed soliton initial configuration
     ans = str(cfg.get("ansatz", "bloch")).lower()
     ansatz_bloch = (ans == "bloch")
     ansatz_neel  = (ans == "neel")
     ansatz_anti  = (ans == "anti")
 
-    # If the user asked for something ferromagnetic_superconductor doesn't know, fall back cleanly
     if not (ansatz_bloch or ansatz_neel or ansatz_anti):
-        # You can choose to raise instead, but defaulting is often nicer
         ansatz_bloch = True
 
     skyrmion_rotation = float(cfg.get("skyrmion_rotation", 0.0))

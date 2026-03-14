@@ -1,17 +1,13 @@
-# =========================
-# soliton_solver/theories/liquid_crystal/io.py
-# =========================
 """
-Superferro theory-specific output bundle.
+Write the liquid crystal theory output bundle.
 
-This preserves the exact filenames expected by the existing plotting.py workflow, while
-keeping the core I/O implementation theory-agnostic.
+Examples
+--------
+>>> output_data_bundle(output_dir, h_Field, h_EnergyDensity, h_BaryonDensity, h_ElectricChargeDensity, h_grid, xlen, ylen)
 """
-
 from __future__ import annotations
 import numpy as np
 from soliton_solver.core.io import output_data_bundle_core
-
 
 def output_data_bundle(
     output_dir: str,
@@ -26,7 +22,45 @@ def output_data_bundle(
     number_total_fields: int = 4,
     precision: int = 32,
 ) -> None:
-    arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "BaryonDensity": h_BaryonDensity, "ElectricChargeDensity": h_ElectricChargeDensity}
+    """
+    Write the output files used by the plotting workflow.
+
+    Parameters
+    ----------
+    output_dir : str
+        Directory where output files are written.
+    h_Field : numpy.ndarray
+        Host field array.
+    h_EnergyDensity : numpy.ndarray
+        Host energy density array.
+    h_BaryonDensity : numpy.ndarray
+        Host skyrmion charge density array.
+    h_ElectricChargeDensity : numpy.ndarray
+        Host electric charge density array.
+    h_grid : numpy.ndarray
+        Host coordinate grid array.
+    xlen : int
+        Number of lattice points in the x direction.
+    ylen : int
+        Number of lattice points in the y direction.
+    number_coordinates : int, optional
+        Number of coordinate components.
+    number_total_fields : int, optional
+        Number of field components.
+    precision : int, optional
+        Output precision.
+
+    Examples
+    --------
+    >>> output_data_bundle(output_dir, h_Field, h_EnergyDensity, h_BaryonDensity, h_ElectricChargeDensity, h_grid, xlen, ylen)
+    """
+    arrays = {
+        "grid": h_grid,
+        "Field": h_Field,
+        "EnergyDensity": h_EnergyDensity,
+        "BaryonDensity": h_BaryonDensity,
+        "ElectricChargeDensity": h_ElectricChargeDensity
+    }
 
     bundle_spec = [
         ("grid", 0, "xGrid.dat"),

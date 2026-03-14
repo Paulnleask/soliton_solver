@@ -1,24 +1,11 @@
 """
-Public user-facing interface for theory discovery, loading, and description.
-
-This module re-exports the main theory registry functionality through a simpler
-API intended for user code. It performs one-time automatic discovery of theory
-subpackages when imported, so that drop-in theories become available without
-manual registration.
-
-The module also provides friendly wrapper functions for listing available
-theories, printing a theory description, and printing a CLI-style theory table.
+Public user facing interface for theory discovery, loading, and description.
 
 Examples
 --------
->>> from soliton_solver import theories
->>> theories.list()
-('Baby Skyrme model',)
->>> theories.print_table()
-Theory             Version  Description                                      Aliases
-------------------------------------------------------------------------------------
-Baby Skyrme model  1.0      Solver for the baby Skyrme model, with nume...  Baby Skyrme, Baby skyrmion, Planar skyrmion
->>> theories.print_description("Baby Skyrme")
+Use ``theories.list()`` to return the canonical names of the registered theories.
+Use ``theories.print_table()`` to print a table of the available theories.
+Use ``theories.print_description("Baby Skyrme")`` to print a theory description.
 """
 
 from __future__ import annotations
@@ -37,8 +24,6 @@ def list() -> tuple[str, ...]:
     """
     Return the canonical names of all registered theories.
 
-    This is a user-facing wrapper around list_theories().
-
     Returns
     -------
     tuple[str, ...]
@@ -46,43 +31,43 @@ def list() -> tuple[str, ...]:
 
     Examples
     --------
-    >>> from soliton_solver import theories
-    >>> theories.list()
-    ('Baby Skyrme model',)
+    Use ``theories.list()`` to list the available theories.
     """
     return list_theories()
 
 
 def print_description(name: str) -> None:
     """
-    Print a description of a registered theory to the terminal.
-
-    This is a user-facing wrapper around describe_theory(). The theory may be
-    specified using either its canonical name or any registered alias.
+    Print a description of a registered theory.
 
     Parameters
     ----------
     name : str
         Canonical theory name or alias.
 
+    Returns
+    -------
+    None
+        The theory description is printed to the terminal.
+
     Examples
     --------
-    >>> from soliton_solver import theories
-    >>> theories.print_description("Baby Skyrme")
+    Use ``theories.print_description("Baby Skyrme")`` to print a theory description.
     """
     describe_theory(name)
 
 
 def print_table() -> None:
     """
-    Print a CLI-style table of available registered theories.
+    Print a table of the available registered theories.
 
-    The printed table shows canonical theory names only. Aliases are grouped
-    into a separate aliases column.
+    Returns
+    -------
+    None
+        The table is printed to the terminal.
 
     Examples
     --------
-    >>> from soliton_solver import theories
-    >>> theories.print_table()
+    Use ``theories.print_table()`` to print the theory table.
     """
     print_theory_table()

@@ -1,31 +1,12 @@
-# =========================
-# soliton_solver/theories/spin_triplet_superconducting_magnet/render_gl.py
-# =========================
 """
-Spin-triplet superferro-specific CUDA-OpenGL renderer logic.
+CUDA OpenGL rendering for the spin triplet superconducting ferromagnet theory.
 
-Usage:
-- This module provides the interactive viewer layer on top of the generic GL backend:
-    * chooses which scalar density to compute (energy / |psi|^2 / flux) per display mode
-    * renders either a scalar density (jet/gray colormaps) or magnetization (HSV)
-    * supports interactive soliton injection:
-        - skyrmion placement + rotation via mouse (preview overlay + commit on release)
-        - vortex placement via mouse click
-    * draws a small HUD with time/epochs/err and observables
-
-Public API:
-- GLRenderer: interactive renderer/controller
-- run_viewer(sim, params, ...): convenience main loop for interactive viewing
-
-Notes:
-- GLBackend handles: window creation, PBO/texture setup, CUDA-GL mapping, and HUD drawing.
-- This file handles: simulation-specific content, callbacks, and which kernels to run.
+Examples
+--------
+Use ``run_viewer(sim, params)`` to start the interactive viewer.
 """
-
-# ---------------- Imports ----------------
 from __future__ import annotations
 import math
-import time
 import numpy as np
 import glfw
 from numba import cuda
@@ -35,7 +16,6 @@ from soliton_solver.core.utils import launch_2d
 from soliton_solver.theories.spin_triplet_superconducting_magnet.initial_config import create_skyrmion_kernel, create_vortex_kernel
 from soliton_solver.core.colormaps import clip_u8, _hsv_to_rgb, render_jet_density_to_rgba, render_gray_density_to_rgba, render_magnetization_to_rgba
 
-# ---------------- Display modes ----------------
 DISPLAY_ENERGY = 1
 DISPLAY_MAGNETIZATION = 2
 DISPLAY_HIGGS1 = 3
@@ -45,33 +25,47 @@ DISPLAY_MAGNETIC_FLUX = 5
 DISPLAY_TITLES = {
     DISPLAY_ENERGY: "En",
     DISPLAY_MAGNETIZATION: "Sk",
-    DISPLAY_HIGGS1: "psi1",
-    DISPLAY_HIGGS2: "psi2",
+    DISPLAY_HIGGS1: "|psi1|^2",
+    DISPLAY_HIGGS2: "|psi2|^2",
     DISPLAY_MAGNETIC_FLUX: "B",
 }
 
-# ---------------- Skyrmion overlay preview ----------------
 @cuda.jit
 def overlay_skyrmion_preview_kernel(pbo_rgba, grid, pxi, pxj, rotation_angle, ansatz_bloch, ansatz_neel, ansatz_anti, p_i, p_f):
     """
-    Draw a translucent "preview" skyrmion overlay into the already-rendered RGBA PBO.
+    Blend a skyrmion preview into the RGBA output buffer.
 
-    Usage:
-    - Launched after the main render kernel (jet/gray/magnetization) when:
-        preview_active == True and soliton_mode == "skyrmion"
-    - Does not modify the simulation Field; it only blends colors into pbo_rgba.
+    Parameters
+    ----------
+    pbo_rgba : device array
+        RGBA output buffer.
+    grid : device array
+        Flattened coordinate grid.
+    pxi : int
+        Preview center index along the x direction.
+    pxj : int
+        Preview center index along the y direction.
+    rotation_angle : float
+        Preview rotation angle.
+    ansatz_bloch : bool
+        Flag selecting the Bloch ansatz.
+    ansatz_neel : bool
+        Flag selecting the Neel ansatz.
+    ansatz_anti : bool
+        Flag selecting the anti-skyrmion ansatz.
+    p_i : device array
+        Integer parameter array.
+    p_f : device array
+        Float parameter array.
 
-    Parameters:
-    - pbo_rgba: uint8 (H, W, 4) device view of the mapped OpenGL PBO
-    - grid: device coordinate grid (flattened), used to convert pixels to physical coords
-    - pxi, pxj: integer pixel indices in simulation grid that define the skyrmion center
-    - rotation_angle: extra angle offset applied to the skyrmion azimuth (interactive rotation)
-    - ansatz_*: which skyrmion ansatz to preview (bloch/neel/anti)
-    - p_i, p_f: device parameter arrays (expects xlen/ylen and skyrmion_number etc.)
+    Returns
+    -------
+    None
+        The RGBA buffer is updated in place.
 
-    Notes:
-    - The overlay uses HSV coloring consistent with magnetization rendering.
-    - A Gaussian fade (sigma ~ 0.1 rmax) blends the preview into the current frame.
+    Examples
+    --------
+    Launch ``overlay_skyrmion_preview_kernel[grid2d, block2d](...)`` to draw the skyrmion preview.
     """
     x, y = cuda.grid(2)
 
@@ -105,37 +99,60 @@ def overlay_skyrmion_preview_kernel(pbo_rgba, grid, pxi, pxj, rotation_angle, an
         if ang < 0.0:
             ang += 2.0 * math.pi
         theta += ang
-
-    max_r = rmax / 10.0
+    if skN == 0:
+        max_r = rmax / 10.0 * 2.0
+    else:
+        max_r = rmax / 10.0 * skN
     if r1 > max_r:
         fm = 0.0
     else:
         t = (2.0 * r1 / max_r)
         fm = math.pi * math.exp(-(t * t))
 
-    if ansatz_bloch:
-        mx = -math.sin(fm) * math.sin(skN * theta)
-        my =  math.sin(fm) * math.cos(skN * theta)
-        mz =  math.cos(fm)
-    elif ansatz_neel:
-        mx =  math.sin(fm) * math.cos(skN * theta)
-        my =  math.sin(fm) * math.sin(skN * theta)
-        mz =  math.cos(fm)
-    elif ansatz_anti:
-        mx = -math.sin(fm) * math.sin(skN * theta)
-        my = -math.sin(fm) * math.cos(skN * theta)
-        mz =  math.cos(fm)
+    if skN == 0:
+        if ansatz_bloch:
+            mx = -math.sin(2.0 * fm) * math.sin(theta)
+            my =  math.sin(2.0 * fm) * math.cos(theta)
+            mz =  math.cos(2.0 * fm)
+        elif ansatz_neel:
+            mx =  math.sin(2.0 * fm) * math.cos(theta)
+            my =  math.sin(2.0 * fm) * math.sin(theta)
+            mz =  math.cos(2.0 * fm)
+        elif ansatz_anti:
+            mx = -math.sin(2.0 * fm) * math.sin(theta)
+            my = -math.sin(2.0 * fm) * math.cos(theta)
+            mz =  math.cos(2.0 * fm)
+        else:
+            mx = 0.0
+            my = 0.0
+            mz = 1.0
     else:
-        mx = 0.0
-        my = 0.0
-        mz = 1.0
+        if ansatz_bloch:
+            mx = -math.sin(fm) * math.sin(skN * theta)
+            my =  math.sin(fm) * math.cos(skN * theta)
+            mz =  math.cos(fm)
+        elif ansatz_neel:
+            mx =  math.sin(fm) * math.cos(skN * theta)
+            my =  math.sin(fm) * math.sin(skN * theta)
+            mz =  math.cos(fm)
+        elif ansatz_anti:
+            mx = -math.sin(fm) * math.sin(skN * theta)
+            my = -math.sin(fm) * math.cos(skN * theta)
+            mz =  math.cos(fm)
+        else:
+            mx = 0.0
+            my = 0.0
+            mz = 1.0
 
     hue = (0.5 + (1.0 / (2.0 * math.pi)) * math.atan2(mx, my)) * 360.0
     saturation = 0.5 - 0.5 * math.tanh(3.0 * (mz - 0.5))
     value = mz + 1.0
     R, G, B = _hsv_to_rgb(hue, saturation, value)
 
-    sigma = 0.10 * rmax
+    if skN == 0:
+        sigma = 0.10 * rmax * 2.0
+    else:
+        sigma = 0.10 * rmax * skN
     if sigma <= 0.0:
         return
     fade = math.exp(-(r1 * r1) / (2.0 * sigma * sigma))
@@ -150,41 +167,31 @@ def overlay_skyrmion_preview_kernel(pbo_rgba, grid, pxi, pxj, rotation_angle, an
     pbo_rgba[y, x, 2] = clip_u8((1.0 - a) * bb + a * (B * 255.0))
     pbo_rgba[y, x, 3] = 255
 
-# ---------------- OpenGL renderer ----------------
 class GLRenderer:
     """
-    SuperFerro viewer front-end.
+    Interactive OpenGL renderer for the theory viewer.
 
-    Usage:
-    - renderer = GLRenderer(width=xlen, height=ylen)
-    - renderer.bind_sim(sim)   # enables injection + preview based on sim params
-    - In a loop:
-        renderer.begin_frame()
-        ... compute density into sim.en ...
-        renderer.set_hud_text(...)
-        renderer.render(Field=sim.Field, density_flat=sim.en, ...)
-        renderer.end_frame()
-
-    Responsibilities:
-    - Manages display mode, UI state, and input callbacks.
-    - Delegates all windowing and CUDA-GL interop to GLBackend.
-    - Launches colormap kernels into the mapped PBO.
-    - Optionally overlays a skyrmion preview and/or injects solitons into the sim on clicks.
+    Examples
+    --------
+    Use ``renderer = GLRenderer(width, height)`` to create the viewer.
     """
 
     def __init__(self, width: int, height: int, title: str = "superferro (CUDA-OpenGL)"):
         """
-        Create a renderer and its underlying GLFW/OpenGL backend.
+        Create the renderer and the OpenGL backend.
 
-        Usage:
-        - renderer = GLRenderer(params.xlen, params.ylen)
-        - width/height are used both for:
-            * the GLFW window size / OpenGL texture resolution
-            * the CUDA render kernel launch bounds (xlen/ylen)
+        Parameters
+        ----------
+        width : int
+            Viewport width.
+        height : int
+            Viewport height.
+        title : str, optional
+            Window title.
 
-        Parameters:
-        - width, height: viewport dimensions in pixels
-        - title: window title
+        Examples
+        --------
+        Use ``renderer = GLRenderer(params.xlen, params.ylen)`` to create the renderer.
         """
         self.backend = GLBackend(width, height, title=title)
 
@@ -211,24 +218,24 @@ class GLRenderer:
         self.vortex_type = 0
         self.request_save_output = False
 
-        # callbacks
         glfw.set_key_callback(self.backend.window, self._on_key)
         glfw.set_cursor_pos_callback(self.backend.window, self._on_cursor_pos)
         glfw.set_mouse_button_callback(self.backend.window, self._on_mouse_button)
 
         self._update_window_title()
 
-    # ---------------- Bind a Simulation instance for interactive injection + overlay ----------------
     def bind_sim(self, sim):
         """
-        Attach a Simulation instance to enable injection and to read current parameter flags.
+        Attach a simulation instance to the renderer.
 
-        Usage:
-        - renderer.bind_sim(sim)
+        Parameters
+        ----------
+        sim : object
+            Simulation instance.
 
-        Effects:
-        - Enables skyrmion/vortex insertion kernels to write into sim.Field.
-        - Reads initial skyrmion_rotation from sim.p_f_h[22] if present.
+        Examples
+        --------
+        Use ``renderer.bind_sim(sim)`` to enable injection and preview.
         """
         self._sim = sim
         try:
@@ -236,17 +243,25 @@ class GLRenderer:
         except Exception:
             self.skyrmion_rotation = 0.0
 
-    # ---------------- Window → simulation pixel mapping ----------------
     def _window_to_sim(self, x, y):
         """
-        Convert a GLFW window pixel coordinate into a simulation lattice index.
+        Convert window coordinates to simulation indices.
 
-        Usage:
-        - Called by mouse handlers to map the cursor location to (pxi, pxj) in the sim grid.
+        Parameters
+        ----------
+        x : float
+            Window x coordinate.
+        y : float
+            Window y coordinate.
 
-        Notes:
-        - Uses current window size (not framebuffer size) and flips y so that window origin
-          matches the simulation’s expected orientation.
+        Returns
+        -------
+        tuple
+            Simulation indices ``(pxi, pxj)``.
+
+        Examples
+        --------
+        Use ``pxi, pxj = self._window_to_sim(x, y)`` to map the cursor to the lattice.
         """
         sim = self._sim
         if sim is None:
@@ -273,10 +288,21 @@ class GLRenderer:
     @staticmethod
     def _wrap2pi(a: float) -> float:
         """
-        Wrap an angle to [0, 2π).
+        Wrap an angle to the interval ``[0, 2π)``.
 
-        Usage:
-        - Used to keep interactive skyrmion_rotation bounded.
+        Parameters
+        ----------
+        a : float
+            Input angle.
+
+        Returns
+        -------
+        float
+            Wrapped angle.
+
+        Examples
+        --------
+        Use ``a = GLRenderer._wrap2pi(a)`` to normalize a rotation angle.
         """
         twopi = 2.0 * math.pi
         a = math.fmod(a, twopi)
@@ -284,21 +310,26 @@ class GLRenderer:
             a += twopi
         return a
 
-    # ---------------- Keyboard callback ----------------
     def _on_key(self, window, key, scancode, action, mods):
         """
-        GLFW key handler.
+        Handle keyboard input.
 
-        Usage / bindings:
-        - ESC: close window
-        - F1..F5: switch display mode (energy / magnetization / |psi|^2 / flux)
-        - S: enter skyrmion placement mode (shows preview; click/drag rotates)
-        - V: enter vortex placement mode (click to insert)
-        - 1..9: set skyrmion_number and vortex_number (writes to sim.p_f)
-        - A: toggle vortex type/sign (0/1) for insertion
-        - N: toggle newtonflow flag in the simulation params
-        - K: toggle killkinen flag in the simulation params
-        - Q: exit soliton mode (no preview/insertion)
+        Parameters
+        ----------
+        window : object
+            GLFW window handle.
+        key : int
+            GLFW key code.
+        scancode : int
+            GLFW scan code.
+        action : int
+            GLFW action code.
+        mods : int
+            GLFW modifier flags.
+
+        Examples
+        --------
+        This callback is registered automatically during renderer initialization.
         """
         if action != glfw.PRESS:
             return
@@ -327,7 +358,7 @@ class GLRenderer:
             self.preview_active = False
             self.iso_rotating = False
 
-        elif glfw.KEY_1 <= key <= glfw.KEY_9:
+        elif glfw.KEY_0 <= key <= glfw.KEY_9:
             n = float(key - glfw.KEY_0)
             self._set_topological_number(n)
 
@@ -350,24 +381,23 @@ class GLRenderer:
 
     def _set_topological_number(self, n: float):
         """
-        Update skyrmion_number and vortex_number in the bound Simulation (in-place).
+        Update the skyrmion and vortex numbers in the simulation parameters.
 
-        Usage:
-        - Called by key handler when pressing number keys 1..9.
-        - Writes:
-            sim.p_f_h[21] = n  (skyrmion_number)
-            sim.p_f_h[15] = n  (vortex_number)
-          and uploads p_f to the device.
+        Parameters
+        ----------
+        n : float
+            New topological number.
 
-        Note:
-        - This updates only the device parameter array; it does not rebuild Simulation buffers.
+        Examples
+        --------
+        Use ``self._set_topological_number(n)`` to update the simulation parameter buffer.
         """
         sim = getattr(self, "_sim", None)
         if sim is None:
             return
 
-        sim.p_f_h[21] = float(n)  # skyrmion_number
-        sim.p_f_h[15] = float(n)  # vortex_number
+        sim.p_f_h[21] = float(n)
+        sim.p_f_h[15] = float(n)
 
         try:
             sim.p_f_d.copy_to_device(sim.p_f_h)
@@ -376,12 +406,20 @@ class GLRenderer:
 
     def _on_cursor_pos(self, window, xpos, ypos):
         """
-        GLFW mouse-move handler for skyrmion preview and rotation.
+        Handle mouse motion for preview and skyrmion rotation.
 
-        Usage:
-        - If not in skyrmion mode: disables preview.
-        - If rotating (mouse held down): updates skyrmion_rotation based on horizontal mouse delta.
-        - Otherwise: updates preview center (pxi, pxj) from current cursor position.
+        Parameters
+        ----------
+        window : object
+            GLFW window handle.
+        xpos : float
+            Cursor x coordinate.
+        ypos : float
+            Cursor y coordinate.
+
+        Examples
+        --------
+        This callback is registered automatically during renderer initialization.
         """
         if self._sim is None:
             return
@@ -405,15 +443,22 @@ class GLRenderer:
 
     def _on_mouse_button(self, window, button, action, mods):
         """
-        GLFW mouse-button handler for committing soliton insertions.
+        Handle mouse button input for soliton insertion.
 
-        Usage:
-        - Left click behavior depends on soliton_mode:
-            * "skyrmion":
-                - PRESS: start rotation + lock preview center
-                - RELEASE: launch create_skyrmion_kernel to write into sim.Field
-            * "vortex":
-                - PRESS: launch create_vortex_kernel at cursor position
+        Parameters
+        ----------
+        window : object
+            GLFW window handle.
+        button : int
+            GLFW mouse button code.
+        action : int
+            GLFW action code.
+        mods : int
+            GLFW modifier flags.
+
+        Examples
+        --------
+        This callback is registered automatically during renderer initialization.
         """
         if self._sim is None:
             return
@@ -467,10 +512,16 @@ class GLRenderer:
 
     def set_display_mode(self, mode: int):
         """
-        Set the current display mode and update the window title.
+        Set the active display mode.
 
-        Usage:
-        - renderer.set_display_mode(DISPLAY_MAGNETIZATION)
+        Parameters
+        ----------
+        mode : int
+            Display mode constant.
+
+        Examples
+        --------
+        Use ``renderer.set_display_mode(DISPLAY_MAGNETIZATION)`` to switch the display mode.
         """
         if mode not in DISPLAY_TITLES:
             return
@@ -479,67 +530,102 @@ class GLRenderer:
 
     def _update_window_title(self):
         """
-        Update the GLFW window title to match the active display mode.
+        Update the window title for the active display mode.
+
+        Examples
+        --------
+        This method is called automatically when the display mode changes.
         """
         self.backend.set_window_title(DISPLAY_TITLES.get(self.display_mode, "superferro"))
 
     def close(self):
         """
-        Destroy GL resources and close the window.
+        Close the renderer and release the OpenGL resources.
+
+        Examples
+        --------
+        Use ``renderer.close()`` to destroy the renderer.
         """
         self.backend.close()
 
     def should_close(self) -> bool:
         """
-        Convenience passthrough to GLFW window_should_close.
+        Check whether the window should close.
+
+        Returns
+        -------
+        bool
+            ``True`` if the window should close.
+
+        Examples
+        --------
+        Use ``renderer.should_close()`` in the viewer loop condition.
         """
         return self.backend.should_close()
 
     def begin_frame(self):
         """
-        Poll events at the beginning of a frame.
+        Begin a frame.
+
+        Examples
+        --------
+        Use ``renderer.begin_frame()`` at the start of each viewer iteration.
         """
         self.backend.begin_frame()
 
     def end_frame(self):
         """
-        Swap buffers at the end of a frame.
+        End a frame.
+
+        Examples
+        --------
+        Use ``renderer.end_frame()`` at the end of each viewer iteration.
         """
         self.backend.end_frame()
 
     def set_hud_text(self, *, top: str = "", bottom: str = ""):
         """
-        Set HUD text lines (top/bottom).
+        Set the HUD text.
 
-        Usage:
-        - renderer.set_hud_text(top="...", bottom="...")
+        Parameters
+        ----------
+        top : str, optional
+            Top HUD line.
+        bottom : str, optional
+            Bottom HUD line.
+
+        Examples
+        --------
+        Use ``renderer.set_hud_text(top="...", bottom="...")`` to update the HUD.
         """
         self.backend.set_hud_text(top=top, bottom=bottom)
 
     def render(self, *, Field, density_flat, xlen: int, ylen: int, p_i, vmin: float, vmax: float, use_jet: bool):
         """
-        Render one frame into the OpenGL window.
+        Render one frame.
 
-        Usage:
-        - Call after you have computed the appropriate scalar field into density_flat (typically sim.en):
-            renderer.render(Field=sim.Field, density_flat=sim.en, xlen=..., ylen=..., p_i=sim.p_i_d, vmin=..., vmax=..., use_jet=True)
+        Parameters
+        ----------
+        Field : device array
+            Simulation field buffer.
+        density_flat : device array
+            Scalar density buffer.
+        xlen : int
+            Lattice size along the x direction.
+        ylen : int
+            Lattice size along the y direction.
+        p_i : device array
+            Integer parameter array.
+        vmin : float
+            Lower colormap bound.
+        vmax : float
+            Upper colormap bound.
+        use_jet : bool
+            Whether to use the jet colormap for scalar data.
 
-        Rendering pipeline:
-        1) Map the OpenGL PBO into CUDA address space (backend.map_pbo)
-        2) Wrap the device pointer as a uint8(H,W,4) array view
-        3) Launch one of:
-            - render_magnetization_to_rgba (HSV)
-            - render_jet_density_to_rgba or render_gray_density_to_rgba (scalar densities)
-        4) Optionally overlay a skyrmion preview into the same PBO
-        5) Unmap PBO and have backend upload it to a texture + draw fullscreen quad
-
-        Parameters:
-        - Field: simulation Field (needed for magnetization HSV mode)
-        - density_flat: scalar density to visualize for non-magnetization modes
-        - xlen, ylen: simulation lattice size (bounds for CUDA kernels)
-        - p_i: device parameter array (passed to magnetization renderer)
-        - vmin, vmax: scalar range used to normalize density -> colormap
-        - use_jet: selects jet vs grayscale for scalar displays
+        Examples
+        --------
+        Use ``renderer.render(Field=sim.Field, density_flat=sim.en, xlen=params.xlen, ylen=params.ylen, p_i=sim.p_i_d, vmin=vmin, vmax=vmax, use_jet=True)`` to draw a frame.
         """
         mapped = self.backend.map_pbo()
         try:
@@ -575,20 +661,22 @@ class GLRenderer:
 
         self.backend.upload_and_draw()
 
-# ---------------- Simulation stepping adapter ----------------
 def advance_solver(sim, steps_per_frame: int, state: dict):
     """
-    Advance the simulation by a fixed number of solver steps per rendered frame.
+    Advance the solver for one rendered frame.
 
-    Usage:
-    - Called once per frame from run_viewer().
-    - Updates the mutable `state` dict in-place:
-        state["energy"], state["error"], state["epochs"]
+    Parameters
+    ----------
+    sim : object
+        Simulation instance.
+    steps_per_frame : int
+        Number of solver steps per frame.
+    state : dict
+        Mutable state dictionary.
 
-    Parameters:
-    - sim: Simulation instance
-    - steps_per_frame: number of sim.step(...) calls per frame
-    - state: dict holding running values (energy/error/epochs)
+    Examples
+    --------
+    Use ``advance_solver(sim, steps_per_frame, state)`` inside the viewer loop.
     """
     if state.get("energy") is None:
         obs = sim.observables()
@@ -598,19 +686,20 @@ def advance_solver(sim, steps_per_frame: int, state: dict):
             state["energy"], state["error"] = sim.step(state["energy"])
             state["epochs"] += 1
 
-# ---------------- Multi-display density selection ----------------
 def _compute_density_for_mode(sim, mode: int):
     """
-    Ensure sim.en contains the correct scalar density for the current display mode.
+    Compute the scalar density for the active display mode.
 
-    Usage:
-    - Called each frame by run_viewer() before computing vmin/vmax and rendering.
+    Parameters
+    ----------
+    sim : object
+        Simulation instance.
+    mode : int
+        Display mode constant.
 
-    Behavior:
-    - DISPLAY_ENERGY: sim.compute_energy_density() -> sim.en
-    - DISPLAY_HIGGS: sim.compute_higgs_density() -> sim.en
-    - DISPLAY_MAGNETIC_FLUX: sim.compute_magnetic_flux_density(which=2) -> sim.en
-    - DISPLAY_MAGNETIZATION: does nothing here (render uses Field directly)
+    Examples
+    --------
+    Use ``_compute_density_for_mode(sim, mode)`` before rendering a scalar field.
     """
     if mode == DISPLAY_ENERGY:
         if hasattr(sim, "compute_energy_density"):
@@ -629,32 +718,29 @@ def _compute_density_for_mode(sim, mode: int):
             sim.compute_magnetic_flux_density(which=2)
             return
 
-# ---------------- Convenience viewer loop ----------------
 def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 120):
     """
-    Run an interactive CUDA-OpenGL viewer loop for a Simulation.
+    Run the interactive viewer loop.
 
-    Usage:
-    - run_viewer(sim, sim.rp, steps_per_frame=5)
-      (`params` is used mainly for xlen/ylen and window sizing; passing ResolvedParams is typical.)
+    Parameters
+    ----------
+    sim : object
+        Simulation instance.
+    params : object
+        Parameter object containing the lattice dimensions.
+    steps_per_frame : int, optional
+        Number of solver steps per frame.
+    fps_print_every : int, optional
+        Number of frames between FPS prints.
 
-    What happens per frame:
-    1) poll input events
-    2) advance the solver by `steps_per_frame` (if newtonflow enabled)
-    3) compute observables for HUD (energy/skyrmion/vortex)
-    4) compute the active display density into sim.en (if needed)
-    5) compute vmin/vmax via device reductions (compute_min/compute_max)
-    6) render into CUDA-mapped PBO and draw to screen
-    7) optionally print FPS every `fps_print_every` frames
-
-    Keyboard shortcuts are handled by GLRenderer._on_key (see that docstring).
+    Examples
+    --------
+    Use ``run_viewer(sim, params, steps_per_frame=5)`` to start the interactive viewer.
     """
     renderer = GLRenderer(params.xlen, params.ylen)
     renderer.bind_sim(sim)
 
     state = {"energy": None, "error": None, "epochs": 0}
-    last_time = time.time()
-    frames = 0
 
     n = sim.en.size
     tpb = 1024
@@ -718,19 +804,8 @@ def run_viewer(sim, params, *, steps_per_frame: int = 5, fps_print_every: int = 
             bottom_text = ", ".join(bottom_parts)
 
             renderer.set_hud_text(top=top_text, bottom=bottom_text)
-
             renderer.render(Field=sim.Field, density_flat=sim.en, xlen=params.xlen, ylen=params.ylen, p_i=sim.p_i_d, vmin=vmin, vmax=vmax, use_jet=use_jet)
-
             renderer.end_frame()
-
-            frames += 1
-            if fps_print_every and frames % fps_print_every == 0:
-                now = time.time()
-                dt0 = now - last_time
-                fps = frames / dt0 if dt0 > 0 else 0.0
-                print(f"FPS ~ {fps:.1f} (steps/frame={steps_per_frame})")
-                frames = 0
-                last_time = now
 
     finally:
         renderer.close()

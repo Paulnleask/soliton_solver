@@ -1,46 +1,12 @@
 """
-Baby Skyrme theory-specific parameters, parameter resolution, device packing, and terminal parameter documentation.
-
-This module extends the core Params and ResolvedParams classes with the theory-specific parameters required by the Baby Skyrme model.
-It preserves the existing CUDA ABI layout by appending theory-specific entries to the core integer and floating-point device parameter arrays.
-
-The module also provides a describe() function so that the Baby Skyrme theory can print readable parameter information through theory.describe().
-
-Core prefix
------------
-From soliton_solver.core.params.pack_device_params:
-- p_i[0..9]
-- p_f[0..5]
-
-Baby Skyrme appended entries
-----------------------------
-- p_i[10]    number_magnetization_fields
-- p_i[11]    Potential_Standard
-- p_i[12]    Potential_Holomorphic
-- p_i[13]    Potential_EasyPlane
-- p_i[14]    Potential_Dihedral2
-- p_i[15]    Potential_Aloof
-- p_i[16]    Potential_Dihedral3
-- p_i[17]    Potential_Broken
-- p_i[18]    Potential_DoubleVacua
-- p_i[19]    N
-
-- p_f[6]     mpi
-- p_f[7]     kappa
-- p_f[8]     skyrmion_number
-- p_f[9]     skyrmion_rotation
-- p_f[10]    ansatz_bloch
-- p_f[11]    ansatz_neel
-- p_f[12]    ansatz_anti
-- p_f[13]    ansatz_uniform
+Baby Skyrme theory specific parameters, parameter resolution, device packing, and terminal parameter documentation.
 
 Examples
 --------
->>> from soliton_solver.theories.baby_skyrme.params import Params, default_params
->>> p = default_params(mpi=2.0, potential="Standard", ansatz="bloch")
->>> rp = p.resolved()
->>> p_i, p_f = pack_device_params(rp)
->>> describe()
+Use ``default_params`` to create a Baby Skyrme parameter set with optional overrides.
+Use ``Params.resolved()`` to derive the fully resolved theory parameters.
+Use ``pack_device_params`` to build the device parameter arrays for the Baby Skyrme kernels.
+Use ``describe()`` to print the Baby Skyrme parameter documentation.
 """
 
 from __future__ import annotations
@@ -58,18 +24,14 @@ from soliton_solver.core.params import pack_device_params as pack_core_device_pa
 @dataclass(frozen=True)
 class Params(CoreParams):
     """
-    User-facing Baby Skyrme parameters.
-
-    This class extends the core solver parameters with Baby Skyrme model
-    couplings, potential selection flags, and initial-condition controls.
+    User facing Baby Skyrme parameters.
 
     Parameters
     ----------
     number_total_fields : int, optional
-        Total number of fields in the theory. For the Baby Skyrme model this
-        defaults to 3.
+        Total number of fields in the theory.
     number_magnetization_fields : int, optional
-        Number of magnetization field components. This defaults to 3.
+        Number of magnetization field components.
     mpi : float, optional
         Coefficient controlling the potential strength.
     kappa : float, optional
@@ -81,7 +43,7 @@ class Params(CoreParams):
     Potential_Holomorphic : bool, optional
         Enable the holomorphic potential.
     Potential_EasyPlane : bool, optional
-        Enable the easy-plane potential.
+        Enable the easy plane potential.
     Potential_Dihedral2 : bool, optional
         Enable the dihedral-2 potential.
     Potential_Aloof : bool, optional
@@ -92,23 +54,25 @@ class Params(CoreParams):
         Enable the broken potential.
     Potential_DoubleVacua : bool, optional
         Enable the double-vacua potential.
-    potential : str | Iterable[str] | None, optional
-        Convenience selector for potential choice. If provided, it overrides the
-        individual Potential_* booleans. It may be a single string, an iterable
-        of strings, or None.
+    potential : str or Iterable[str] or None, optional
+        Convenience selector for the potential choice.
     skyrmion_number : float, optional
-        Topological charge used by the initial-condition ansatz.
+        Topological charge used by the initial ansatz.
     skyrmion_rotation : float, optional
-        Rotation angle applied in the initial-condition ansatz.
+        Rotation angle used by the initial ansatz.
     ansatz : str, optional
-        Initial-condition ansatz. Supported values are "bloch", "neel", "anti",
-        and "uniform".
+        Initial ansatz type.
+
+    Returns
+    -------
+    None
+        The dataclass stores the Baby Skyrme parameter set.
 
     Examples
     --------
-    >>> p = Params()
-    >>> p = Params(mpi=2.0, kappa=0.5, potential="Easy plane", ansatz="neel")
-    >>> rp = p.resolved()
+    Use ``p = Params()`` to create the default Baby Skyrme parameter set.
+    Use ``p = Params(mpi=2.0, kappa=0.5, potential="Easy plane", ansatz="neel")`` to set model parameters and the initial ansatz.
+    Use ``rp = p.resolved()`` to derive the resolved parameter set.
     """
 
     number_total_fields: int = 3
@@ -135,18 +99,16 @@ class Params(CoreParams):
 
     def resolved(self) -> "ResolvedParams":
         """
-        Convert user-facing parameters into fully resolved Baby Skyrme parameters.
+        Convert user facing parameters into resolved Baby Skyrme parameters.
 
         Returns
         -------
         ResolvedParams
-            Resolved parameter object containing both core derived quantities and
-            Baby Skyrme theory-specific derived quantities.
+            Fully resolved Baby Skyrme parameters.
 
         Examples
         --------
-        >>> p = Params(mpi=2.0, potential="Standard")
-        >>> rp = p.resolved()
+        Use ``rp = p.resolved()`` to derive the resolved Baby Skyrme parameters.
         """
         return ResolvedParams.from_params(self)
 
@@ -155,10 +117,6 @@ class Params(CoreParams):
 class ResolvedParams(CoreResolvedParams):
     """
     Fully resolved Baby Skyrme parameters.
-
-    This class contains the full set of core resolved parameters together with
-    Baby Skyrme theory-specific flags and coefficients needed by the CPU and GPU
-    solver code.
 
     Parameters
     ----------
@@ -181,13 +139,13 @@ class ResolvedParams(CoreResolvedParams):
     ansatz_anti : bool
         Whether the anti-skyrmion ansatz is enabled.
     ansatz_uniform : bool
-        Whether the uniform initial configuration is enabled.
+        Whether the uniform ansatz is enabled.
     Potential_Standard : bool
         Whether the standard potential is enabled.
     Potential_Holomorphic : bool
         Whether the holomorphic potential is enabled.
     Potential_EasyPlane : bool
-        Whether the easy-plane potential is enabled.
+        Whether the easy plane potential is enabled.
     Potential_Dihedral2 : bool
         Whether the dihedral-2 potential is enabled.
     Potential_Aloof : bool
@@ -199,10 +157,14 @@ class ResolvedParams(CoreResolvedParams):
     Potential_DoubleVacua : bool
         Whether the double-vacua potential is enabled.
 
+    Returns
+    -------
+    None
+        The dataclass stores the resolved Baby Skyrme parameter set.
+
     Examples
     --------
-    >>> p = Params(potential="Aloof")
-    >>> rp = ResolvedParams.from_params(p)
+    Use ``rp = ResolvedParams.from_params(p)`` to build the resolved Baby Skyrme parameters from ``p``.
     """
 
     number_magnetization_fields: int
@@ -230,16 +192,12 @@ class ResolvedParams(CoreResolvedParams):
     @staticmethod
     def from_params(p: Params) -> "ResolvedParams":
         """
-        Build resolved Baby Skyrme parameters from user-facing parameters.
-
-        This method resolves ansatz strings into explicit boolean flags and
-        converts the convenience potential selector into the explicit
-        Potential_* boolean fields expected by the rest of the code.
+        Build resolved Baby Skyrme parameters from user facing parameters.
 
         Parameters
         ----------
         p : Params
-            User-facing Baby Skyrme parameters.
+            User facing Baby Skyrme parameters.
 
         Returns
         -------
@@ -249,13 +207,13 @@ class ResolvedParams(CoreResolvedParams):
         Raises
         ------
         ValueError
-            If an unknown potential name is supplied, or if the potential
-            selector is provided but resolves to no active potential.
+            Raised if an unknown potential name is supplied.
+        ValueError
+            Raised if ``p.potential`` is provided but no valid potential is selected.
 
         Examples
         --------
-        >>> p = Params(potential=["Standard", "Broken"], N=2)
-        >>> rp = ResolvedParams.from_params(p)
+        Use ``rp = ResolvedParams.from_params(p)`` to resolve the Baby Skyrme parameters.
         """
         core = CoreResolvedParams.from_params(p)
 
@@ -286,7 +244,7 @@ class ResolvedParams(CoreResolvedParams):
 
             def _norm(s: str) -> str:
                 """
-                Normalize a potential name for case-insensitive matching.
+                Normalize a potential name for case insensitive matching.
 
                 Parameters
                 ----------
@@ -297,6 +255,10 @@ class ResolvedParams(CoreResolvedParams):
                 -------
                 str
                     Normalized potential name.
+
+                Examples
+                --------
+                Use ``key = _norm(name)`` before matching a potential name.
                 """
                 return (s or "").strip().lower().replace("_", " ").replace("-", " ")
 
@@ -352,7 +314,7 @@ def default_params(**overrides) -> Params:
     Parameters
     ----------
     **overrides
-        Keyword arguments forwarded to Params.with_().
+        Keyword arguments forwarded to ``Params.with_()``.
 
     Returns
     -------
@@ -361,7 +323,7 @@ def default_params(**overrides) -> Params:
 
     Examples
     --------
-    >>> p = default_params(mpi=2.0, ansatz="neel")
+    Use ``p = default_params(mpi=2.0, ansatz="neel")`` to build a customized Baby Skyrme parameter set.
     """
     return Params().with_(**overrides)
 
@@ -369,10 +331,6 @@ def default_params(**overrides) -> Params:
 def pack_device_params(rp: ResolvedParams):
     """
     Pack resolved Baby Skyrme parameters into device ABI arrays.
-
-    The core integer and floating-point parameter arrays are created first and
-    the Baby Skyrme theory-specific entries are then appended. This preserves
-    the ABI indices expected by the Baby Skyrme kernels.
 
     Parameters
     ----------
@@ -382,13 +340,11 @@ def pack_device_params(rp: ResolvedParams):
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Tuple (p_i, p_f) containing the integer and floating-point device
-        parameter arrays.
+        Tuple ``(p_i, p_f)`` containing the integer and floating point device parameter arrays.
 
     Examples
     --------
-    >>> rp = default_params().resolved()
-    >>> p_i, p_f = pack_device_params(rp)
+    Use ``p_i, p_f = pack_device_params(rp)`` to build the Baby Skyrme device parameter arrays.
     """
     p_i_core, p_f_core = pack_core_device_params(rp)
 
@@ -426,20 +382,14 @@ def describe() -> None:
     """
     Print a readable description of the Baby Skyrme parameter set.
 
-    The printed output is intended for interactive terminal use through
-    theory.describe(). It summarizes the field content, theory-specific model
-    parameters, potential selection controls, initial-condition controls, and
-    the meaning of the packed device arrays.
-
     Returns
     -------
     None
-        This function prints parameter information to the terminal.
+        The parameter information is printed to the terminal.
 
     Examples
     --------
-    >>> from soliton_solver.theories.baby_skyrme import params
-    >>> params.describe()
+    Use ``describe()`` to print the Baby Skyrme parameter documentation.
     """
     print("Field content:")
     print("  The Baby Skyrme model uses 3 field components by default.")

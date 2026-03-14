@@ -1,76 +1,78 @@
-# =====================================================================================
-# soliton_solver/core/io.py
-# =====================================================================================
 """
-Host-side I/O utilities for writing simulation outputs as plain-text .dat files.
+Host side I/O utilities for writing simulation outputs as plain text .dat files.
 
-Purpose:
-    Provides theory-agnostic output routines for exporting lattice data,
-    full field configurations, and optional per-component grids.
-
-Core functionality:
-    - Flattened indexing helper for host arrays.
-    - Writers for full multi-component fields.
-    - Writers for scalar iteration data.
-    - Writers for individual per-component density grids.
-    - A bundle writer that produces a consistent output directory structure.
-
-Usage:
-    A theory constructs a bundle_spec list:
-        [(array_key, component_index, filename), ...]
-    and calls output_data_bundle_core(...) with:
-        - Host field and grid arrays,
-        - Lattice sizes and metadata,
-        - Optional additional arrays mapped by name.
-
-Outputs:
-    - Creates an output directory (if needed).
-    - Writes lattice size and lattice vectors files.
-    - Writes full field dump.
-    - Writes any additional per-component grids defined in bundle_spec.
+Examples
+--------
+Use ``output_field_dat`` to write a full multi component field to disk.
+Use ``output_iteration_data_dat`` to write scalar iteration data to disk.
+Use ``output_density_data_dat`` to write a single component grid to disk.
+Use ``output_data_bundle_core`` to write a complete output bundle for plotting.
 """
-# ---------------- Imports ----------------
+
 from __future__ import annotations
 import os
 import numpy as np
 
-# ---------------- Array flattening ----------------
 def _flat(a: int, x: int, y: int, xlen: int, ylen: int) -> int:
     """
-    Compute flattened (a, x, y) index for arrays stored as [a][x][y] in a 1D buffer.
+    Compute the flattened index for a component and lattice site.
 
-    Usage:
-        i = _flat(a, x, y, xlen, ylen)
-        value = field_flat[i]
+    Parameters
+    ----------
+    a : int
+        Component index.
+    x : int
+        Lattice index along the x direction.
+    y : int
+        Lattice index along the y direction.
+    xlen : int
+        Number of lattice points along the x direction.
+    ylen : int
+        Number of lattice points along the y direction.
 
-    Parameters:
-        a: Component index.
-        x, y: Lattice indices.
-        xlen, ylen: Lattice extents.
+    Returns
+    -------
+    int
+        Flattened index into the one dimensional array.
 
-    Outputs:
-        - Returns the integer flat index into a 1D array storing components and grid points.
+    Examples
+    --------
+    Use ``i = _flat(a, x, y, xlen, ylen)`` to access a flattened field or grid array.
     """
     return y + x * ylen + a * xlen * ylen
 
-# ---------------- Outputs field data ----------------
 def output_field_dat(field_flat: np.ndarray, path: str, xlen: int, ylen: int, nfields: int, precision: int = 32) -> None:
     """
-    Write a full multi-component field dump as a plain-text .dat file.
+    Write a full multi component field to a plain text .dat file.
 
-    Usage:
-        output_field_dat(h_Field, "out/d_Field.dat", xlen, ylen, nfields, precision=32)
+    Parameters
+    ----------
+    field_flat : ndarray
+        Flattened field array containing all components and lattice sites.
+    path : str
+        Output file path.
+    xlen : int
+        Number of lattice points along the x direction.
+    ylen : int
+        Number of lattice points along the y direction.
+    nfields : int
+        Number of field components to write.
+    precision : int, optional
+        Number of significant digits used in the output format.
 
-    Parameters:
-        field_flat: Flattened field array containing all components and grid points.
-        path: Output file path.
-        xlen, ylen: Lattice extents.
-        nfields: Number of field components to write.
-        precision: Significant digits for formatting (default 32).
+    Returns
+    -------
+    None
+        The field data are written to ``path``.
 
-    Outputs:
-        - Creates/overwrites `path`.
-        - Writes each component as an x-by-y tab-separated grid, separated by a blank line between components.
+    Raises
+    ------
+    OSError
+        Raised if the output file cannot be opened or written.
+
+    Examples
+    --------
+    Use ``output_field_dat(h_Field, "out/d_Field.dat", xlen, ylen, nfields, precision=32)`` to write the full field.
     """
     fmt = f"{{:.{precision}g}}"
     with open(path, "w", newline="\n") as f:
@@ -82,22 +84,32 @@ def output_field_dat(field_flat: np.ndarray, path: str, xlen: int, ylen: int, nf
                 f.write("\n")
             f.write("\n")
 
-# ---------------- Outputs iteration data ----------------
 def output_iteration_data_dat(values, path: str, precision: int = 32) -> None:
     """
-    Write a 1D list of scalar values as a single tab-separated line in a .dat file.
+    Write scalar values as a single tab separated line in a plain text .dat file.
 
-    Usage:
-        output_iteration_data_dat([energy, err], "out/IterationData.dat", precision=16)
+    Parameters
+    ----------
+    values : iterable
+        Scalar values to write.
+    path : str
+        Output file path.
+    precision : int, optional
+        Number of significant digits used in the output format.
 
-    Parameters:
-        values: Iterable of scalar values.
-        path: Output file path.
-        precision: Significant digits for formatting (default 32).
+    Returns
+    -------
+    None
+        The values are written to ``path``.
 
-    Outputs:
-        - Creates/overwrites `path`.
-        - Writes all values on one line separated by tabs.
+    Raises
+    ------
+    OSError
+        Raised if the output file cannot be opened or written.
+
+    Examples
+    --------
+    Use ``output_iteration_data_dat([energy, err], "out/IterationData.dat", precision=16)`` to write iteration data.
     """
     fmt = f"{{:.{precision}g}}"
     with open(path, "w", newline="\n") as f:
@@ -105,24 +117,38 @@ def output_iteration_data_dat(values, path: str, precision: int = 32) -> None:
             f.write(fmt.format(float(v)))
             f.write("\t")
 
-# ---------------- Outputs density data ----------------
 def output_density_data_dat(density_flat: np.ndarray, a: int, path: str, xlen: int, ylen: int, precision: int = 32) -> None:
     """
-    Write a single component (a) of a flattened per-component grid as a plain-text .dat file.
+    Write one component of a flattened grid to a plain text .dat file.
 
-    Usage:
-        output_density_data_dat(density_flat, a=0, path="out/Density0.dat", xlen=xlen, ylen=ylen, precision=32)
+    Parameters
+    ----------
+    density_flat : ndarray
+        Flattened array containing one or more component grids.
+    a : int
+        Component index to write.
+    path : str
+        Output file path.
+    xlen : int
+        Number of lattice points along the x direction.
+    ylen : int
+        Number of lattice points along the y direction.
+    precision : int, optional
+        Number of significant digits used in the output format.
 
-    Parameters:
-        density_flat: Flattened array containing one or more per-component x-by-y grids.
-        a: Component index to write.
-        path: Output file path.
-        xlen, ylen: Lattice extents.
-        precision: Significant digits for formatting (default 32).
+    Returns
+    -------
+    None
+        The selected component grid is written to ``path``.
 
-    Outputs:
-        - Creates/overwrites `path`.
-        - Writes the selected component as an x-by-y tab-separated grid.
+    Raises
+    ------
+    OSError
+        Raised if the output file cannot be opened or written.
+
+    Examples
+    --------
+    Use ``output_density_data_dat(density_flat, 0, "out/Density0.dat", xlen, ylen, precision=32)`` to write one component grid.
     """
     fmt = f"{{:.{precision}g}}"
     with open(path, "w", newline="\n") as f:
@@ -132,7 +158,6 @@ def output_density_data_dat(density_flat: np.ndarray, a: int, path: str, xlen: i
                 f.write("\t")
             f.write("\n")
 
-# ---------------- Outputs data bundle for plotting ----------------
 def output_data_bundle_core(
     output_dir: str,
     *,
@@ -150,42 +175,50 @@ def output_data_bundle_core(
     field_dump_name: str = "d_Field.dat",
 ) -> None:
     """
-    Write a theory-agnostic output bundle (lattice metadata, full field dump, and optional extra grids).
+    Write lattice metadata, a full field dump, and optional component grids.
 
-    Usage:
-        output_data_bundle_core(
-            output_dir,
-            h_Field=h_Field,
-            h_grid=h_grid,
-            xlen=xlen,
-            ylen=ylen,
-            number_coordinates=2,
-            number_total_fields=nfields,
-            precision=32,
-            bundle_spec=[("Density", 0, "Density0.dat")],
-            arrays={"Density": density_flat},
-        )
+    Parameters
+    ----------
+    output_dir : str
+        Directory used for all output files.
+    h_Field : ndarray
+        Flattened host field array.
+    h_grid : ndarray
+        Flattened host coordinate grid.
+    xlen : int
+        Number of lattice points along the x direction.
+    ylen : int
+        Number of lattice points along the y direction.
+    number_coordinates : int
+        Number of coordinate components stored in ``h_grid``.
+    number_total_fields : int
+        Number of field components stored in ``h_Field``.
+    precision : int
+        Number of significant digits used in the output format.
+    bundle_spec : list of tuple
+        List of ``(array_key, component_index, filename)`` entries describing optional outputs.
+    arrays : dict of ndarray
+        Mapping from array names to flattened arrays used for optional outputs.
+    lattice_points_name : str, optional
+        Filename for the lattice point counts.
+    lattice_vectors_name : str, optional
+        Filename for the lattice vectors.
+    field_dump_name : str, optional
+        Filename for the full field dump.
 
-    Parameters:
-        output_dir: Directory to create/use for outputs.
-        h_Field: Flattened host field array to dump.
-        h_grid: Flattened host coordinate grid (components are coordinate axes).
-        xlen, ylen: Lattice extents.
-        number_coordinates: Number of coordinate components available in h_grid (e.g. 1 or 2).
-        number_total_fields: Number of field components in h_Field.
-        precision: Significant digits for formatting.
-        bundle_spec: List of (array_key, component_index, filename) for optional per-component grid outputs.
-        arrays: Mapping from array_key to flattened numpy arrays holding per-component grids.
-        lattice_points_name: Filename for lattice size output (default "LatticePoints.dat").
-        lattice_vectors_name: Filename for lattice vectors output (default "LatticeVectors.dat").
-        field_dump_name: Filename for full field dump (default "d_Field.dat").
+    Returns
+    -------
+    None
+        The output directory and requested files are written to disk.
 
-    Outputs:
-        - Creates `output_dir` if needed.
-        - Writes lattice point counts to `lattice_points_name`.
-        - Writes lattice vectors (derived from max grid coordinates) to `lattice_vectors_name`.
-        - Writes the full field dump to `field_dump_name`.
-        - For each (array_key, a, filename) in bundle_spec present in `arrays`, writes component `a` to `filename`.
+    Raises
+    ------
+    OSError
+        Raised if the output directory or any output file cannot be created or written.
+
+    Examples
+    --------
+    Use ``output_data_bundle_core(output_dir, h_Field=h_Field, h_grid=h_grid, xlen=xlen, ylen=ylen, number_coordinates=2, number_total_fields=nfields, precision=32, bundle_spec=[("Density", 0, "Density0.dat")], arrays={"Density": density_flat})`` to write a complete output bundle.
     """
     os.makedirs(output_dir, exist_ok=True)
 

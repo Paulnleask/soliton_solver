@@ -1,12 +1,13 @@
 """
-Ferromagnetic superconductor theory registration and terminal description.
+Bose-Einstein condensate theory package registration and user facing theory description.
 
 Examples
 --------
 >>> from soliton_solver.theories import load_theory
->>> theory = load_theory("Ferromagnetic superconductor")
+>>> theory = load_theory("Bose-Einstein condensate")
 >>> theory.describe()
 """
+
 from __future__ import annotations
 
 from soliton_solver.theories.registry import TheorySpec
@@ -20,11 +21,11 @@ from . import render_gl
 from .instructions import print_instructions
 
 THEORY_SPEC = TheorySpec(
-    name="Ferromagnetic superconductor",
-    aliases=("Superconducting ferromagnet", "Superconducting magnet", "Magnetic skyrmions superconducting vortices", "skyrmion vortex pairs"),
-    import_path="soliton_solver.theories.ferromagnetic_superconductor",
-    description="Hybrid magnetic skyrmion and superconducting vortices in ferromagnetic superconductors.",
-    version="1.1"
+    name="Bose-Einstein condensate",
+    aliases=("BEC", "Gross-Pitaevskii", "Gross-Pitaevskii equation", "GP", "GPE"),
+    import_path="soliton_solver.theories.bose_einstein_condensate",
+    description="Vortices in a rotating Bose-Einstein condensate (BEC).",
+    version="1.0"
 )
 
 def _print_section(title: str) -> None:
@@ -34,12 +35,12 @@ def _print_section(title: str) -> None:
     Parameters
     ----------
     title : str
-        Section title.
+        Section title to print.
 
     Returns
     -------
     None
-        The section heading is printed to the terminal.
+        The formatted section heading is printed to the terminal.
 
     Examples
     --------
@@ -50,7 +51,7 @@ def _print_section(title: str) -> None:
 
 def _print_metadata() -> None:
     """
-    Print the theory metadata.
+    Print the core registry metadata for the Bose-Einstein condensate theory.
 
     Returns
     -------
@@ -85,7 +86,7 @@ def _print_submodules() -> None:
     Returns
     -------
     None
-        The submodule names are printed to the terminal.
+        The available submodules are printed to the terminal.
 
     Examples
     --------
@@ -102,7 +103,7 @@ def _print_submodules() -> None:
 
 def _print_parameter_information() -> None:
     """
-    Print parameter information for the theory.
+    Print parameter information for the Bose-Einstein condensate theory.
 
     Returns
     -------
@@ -126,26 +127,26 @@ def _print_parameter_information() -> None:
 
 def _print_notes() -> None:
     """
-    Print a short summary of the theory.
+    Print a short summary of the Bose-Einstein condensate theory package.
 
     Returns
     -------
     None
-        The summary is printed to the terminal.
+        The summary notes are printed to the terminal.
 
     Examples
     --------
     >>> _print_notes()
     """
     _print_section("Notes")
-    print("This theory package provides a model for ferromagnetic superconductors with coupled magnetic and superconducting fields.")
-    print("It supports configurations containing magnetic skyrmions and superconducting vortices.")
-    print("It includes kernels, initialization utilities, observables, I/O helpers, and rendering support.")
+    print("This theory package provides a model of vortices in a rotating Bose-Einstein condensate.")
+    print("It includes kernels for the field equations, initial condition utilities, observable calculations, I/O helpers, and rendering support.")
+    print("The model describes vortex forming condensate dynamics in a rotating system.")
     print()
 
 def _print_instructions() -> None:
     """
-    Print usage instructions for the theory.
+    Print additional usage instructions for the Bose-Einstein condensate theory.
 
     Returns
     -------
@@ -162,7 +163,7 @@ def _print_instructions() -> None:
 
 def describe() -> None:
     """
-    Print a structured description of the theory.
+    Print a structured terminal description of the Bose-Einstein condensate theory.
 
     Returns
     -------
@@ -172,7 +173,7 @@ def describe() -> None:
     Examples
     --------
     >>> from soliton_solver.theories import load_theory
-    >>> theory = load_theory("Ferromagnetic superconductor")
+    >>> theory = load_theory("Bose-Einstein condensate")
     >>> theory.describe()
     """
     _print_metadata()

@@ -1,58 +1,49 @@
-# =========================
-# soliton_solver/theories/maxwell_chern_simons_higgs/observables.py
-# =========================
 """
-Host-side observable wrappers (energy / topological charges).
+Host wrappers for Maxwell-Chern-Simons-Higgs observables.
 
-Usage:
-- These functions are *Python host* helpers that:
-  1) launch a CUDA kernel that writes a per-site scalar field into `en`,
-  2) reduce/sum that scalar field into a single number using compute_sum(...),
-  3) clear temporary buffers for the next call.
-
-Buffers:
-- Field: device array containing the simulation fields.
-- d1fd1x: device buffer for first derivatives (written by kernels as needed).
-- en: device scalar field buffer (component 0 holds per-site contributions).
-- entmp: device buffer used as input to compute_sum() (often a 1-component copy of `en`).
-- gridsum_partial: device buffer for partial reductions used by compute_sum().
-
-Parameters:
-- p_i_d, p_f_d: device parameter arrays passed into kernels.
-- p_i_h, p_f_h: host parameter arrays used for launch sizing and reduction dimensions.
+Examples
+--------
+Use ``compute_energy`` to evaluate the total energy.
+Use ``compute_vortex_number`` to evaluate the total magnetic flux.
 """
-
-# ---------------- Imports ----------------
 from numba import cuda
 from soliton_solver.core.utils import compute_sum
 from soliton_solver.core.utils import launch_2d
-from soliton_solver.theories.maxwell_chern_simons_higgs.kernels import compute_energy_kernel, compute_vortex_number_kernel, compute_electric_charge_kernel
+from soliton_solver.theories.maxwell_chern_simons_higgs.kernels import compute_energy_kernel, compute_vortex_number_kernel, compute_electric_charge_kernel, compute_noether_charge_kernel
 
-# ---------------- Compute the energy wrapper ----------------
 def compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h, p_f_h):
     """
-    Compute the total energy by summing per-site energy contributions.
+    Compute the total energy.
 
-    Usage:
-    - Call on the host when you want the total energy scalar:
-        E = compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h, p_f_h)
-    - Internally:
-        1) compute_energy_kernel writes en[a=0, x, y] = local energy contribution
-        2) entmp is filled from en (device-to-device copy via copy_to_device)
-        3) compute_sum reduces entmp to a single float
-        4) entmp and en are zeroed for reuse
+    Parameters
+    ----------
+    Field : device array
+        Device field array.
+    d1fd1x : device array
+        Device buffer for first derivatives.
+    en : device array
+        Device buffer for per-site energy contributions.
+    entmp : device array
+        Device scratch buffer used in the reduction.
+    gridsum_partial : device array
+        Device buffer for partial reduction results.
+    p_i_d : device array
+        Device integer parameter array.
+    p_f_d : device array
+        Device float parameter array.
+    p_i_h : host array
+        Host integer parameter array.
+    p_f_h : host array
+        Host float parameter array.
 
-    Parameters:
-    - Field: device field array
-    - d1fd1x: device first-derivative buffer (used by compute_energy_kernel)
-    - en: device output buffer for local energy contributions
-    - entmp: device scratch buffer passed into compute_sum (same shape as en's component 0)
-    - gridsum_partial: device buffer for partial reduction results
-    - p_i_d, p_f_d: device parameter arrays
-    - p_i_h, p_f_h: host parameter arrays (p_i_h used for launch + reduction sizing)
+    Returns
+    -------
+    float
+        Total energy over the grid.
 
-    Returns:
-    - energy (float): total energy over the grid.
+    Examples
+    --------
+    Use ``E = compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h, p_f_h)`` to evaluate the total energy.
     """
     grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
     compute_energy_kernel[grid2d, block2d](en, Field, d1fd1x, p_i_d, p_f_d)
@@ -64,30 +55,39 @@ def compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_
     en[:] = 0.0
     return energy
 
-# ---------------- Compute the vortex number wrapper ----------------
 def compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_d, p_f_d, p_i_h):
     """
-    Compute the total vortex/flux number by summing a selected per-site flux-density component.
+    Compute the total vortex number.
 
-    Usage:
-    - Call on the host:
-        N = compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_d, p_f_d, p_i_h)
-    - `which` selects which flux component the kernel writes (see compute_vortex_number_kernel /
-      compute_vortex_density in kernels.py).
-    - Internally launches compute_vortex_number_kernel, then reduces via compute_sum().
+    Parameters
+    ----------
+    Field : device array
+        Device field array.
+    d1fd1x : device array
+        Device buffer for first derivatives.
+    en : device array
+        Device buffer for per-site flux contributions.
+    entmp : device array
+        Device scratch buffer used in the reduction.
+    gridsum_partial : device array
+        Device buffer for partial reduction results.
+    which : int
+        Flux component selector.
+    p_i_d : device array
+        Device integer parameter array.
+    p_f_d : device array
+        Device float parameter array.
+    p_i_h : host array
+        Host integer parameter array.
 
-    Parameters:
-    - Field: device field array (gauge components are used)
-    - d1fd1x: device first-derivative buffer (filled by the kernel)
-    - en: device output buffer for per-site flux contributions
-    - entmp: device scratch buffer passed into compute_sum
-    - gridsum_partial: device buffer for partial reduction results
-    - which: integer selector for the flux component (0/1/other)
-    - p_i_d, p_f_d: device parameter arrays
-    - p_i_h: host int parameter array (used for launch + reduction sizing)
+    Returns
+    -------
+    float
+        Total vortex number for the selected component.
 
-    Returns:
-    - charge (float): total vortex/flux number for the selected component.
+    Examples
+    --------
+    Use ``N = compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_d, p_f_d, p_i_h)`` to evaluate the total vortex number.
     """
     grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
     compute_vortex_number_kernel[grid2d, block2d](en, Field, d1fd1x, which, p_i_d, p_f_d)
@@ -99,30 +99,39 @@ def compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_
     en[:] = 0.0
     return charge
 
-# ---------------- Compute the vortex number wrapper ----------------
 def compute_electric_charge(Field, d1fd1x, d2fd2x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h):
     """
-    Compute the total vortex/flux number by summing a selected per-site flux-density component.
+    Compute the total electric charge.
 
-    Usage:
-    - Call on the host:
-        N = compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_d, p_f_d, p_i_h)
-    - `which` selects which flux component the kernel writes (see compute_vortex_number_kernel /
-      compute_vortex_density in kernels.py).
-    - Internally launches compute_vortex_number_kernel, then reduces via compute_sum().
+    Parameters
+    ----------
+    Field : device array
+        Device field array.
+    d1fd1x : device array
+        Device buffer for first derivatives.
+    d2fd2x : device array
+        Device buffer for second derivatives.
+    en : device array
+        Device buffer for per-site charge contributions.
+    entmp : device array
+        Device scratch buffer used in the reduction.
+    gridsum_partial : device array
+        Device buffer for partial reduction results.
+    p_i_d : device array
+        Device integer parameter array.
+    p_f_d : device array
+        Device float parameter array.
+    p_i_h : host array
+        Host integer parameter array.
 
-    Parameters:
-    - Field: device field array (gauge components are used)
-    - d1fd1x: device first-derivative buffer (filled by the kernel)
-    - en: device output buffer for per-site flux contributions
-    - entmp: device scratch buffer passed into compute_sum
-    - gridsum_partial: device buffer for partial reduction results
-    - which: integer selector for the flux component (0/1/other)
-    - p_i_d, p_f_d: device parameter arrays
-    - p_i_h: host int parameter array (used for launch + reduction sizing)
+    Returns
+    -------
+    float
+        Total electric charge over the grid.
 
-    Returns:
-    - charge (float): total vortex/flux number for the selected component.
+    Examples
+    --------
+    Use ``Q = compute_electric_charge(Field, d1fd1x, d2fd2x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h)`` to evaluate the total electric charge.
     """
     grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
     compute_electric_charge_kernel[grid2d, block2d](Field, d1fd1x, d2fd2x, en, p_i_d, p_f_d)
@@ -134,30 +143,35 @@ def compute_electric_charge(Field, d1fd1x, d2fd2x, en, entmp, gridsum_partial, p
     en[:] = 0.0
     return charge
 
-# ---------------- Compute the vortex number wrapper ----------------
 def compute_noether_charge(Field, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h):
     """
-    Compute the total vortex/flux number by summing a selected per-site flux-density component.
+    Compute the total Noether charge.
 
-    Usage:
-    - Call on the host:
-        N = compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_d, p_f_d, p_i_h)
-    - `which` selects which flux component the kernel writes (see compute_vortex_number_kernel /
-      compute_vortex_density in kernels.py).
-    - Internally launches compute_vortex_number_kernel, then reduces via compute_sum().
+    Parameters
+    ----------
+    Field : device array
+        Device field array.
+    en : device array
+        Device buffer for per-site charge contributions.
+    entmp : device array
+        Device scratch buffer used in the reduction.
+    gridsum_partial : device array
+        Device buffer for partial reduction results.
+    p_i_d : device array
+        Device integer parameter array.
+    p_f_d : device array
+        Device float parameter array.
+    p_i_h : host array
+        Host integer parameter array.
 
-    Parameters:
-    - Field: device field array (gauge components are used)
-    - d1fd1x: device first-derivative buffer (filled by the kernel)
-    - en: device output buffer for per-site flux contributions
-    - entmp: device scratch buffer passed into compute_sum
-    - gridsum_partial: device buffer for partial reduction results
-    - which: integer selector for the flux component (0/1/other)
-    - p_i_d, p_f_d: device parameter arrays
-    - p_i_h: host int parameter array (used for launch + reduction sizing)
+    Returns
+    -------
+    float
+        Total Noether charge over the grid.
 
-    Returns:
-    - charge (float): total vortex/flux number for the selected component.
+    Examples
+    --------
+    Use ``Q = compute_noether_charge(Field, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h)`` to evaluate the total Noether charge.
     """
     grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
     compute_noether_charge_kernel[grid2d, block2d](Field, en, p_i_d, p_f_d)

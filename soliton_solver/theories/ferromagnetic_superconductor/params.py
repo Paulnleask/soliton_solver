@@ -1,50 +1,12 @@
 """
-Ferromagnetic superconductor theory-specific parameters, parameter resolution, device packing, and terminal parameter documentation.
-
-This module extends the core Params and ResolvedParams classes with the theory-specific parameters required by the ferromagnetic superconductor model.
-It preserves the existing CUDA ABI layout by appending theory-specific entries to the core integer and floating-point device parameter arrays.
-The module also provides a describe() function so that the ferromagnetic superconductor theory can print readable parameter information through theory.describe().
-
-Core prefix
------------
-From soliton_solver.core.params.pack_device_params:
-- p_i[0..9]
-- p_f[0..5]
-
-Ferromagnetic superconductor appended entries
----------------------------------------------
-- p_i[10]    number_magnetization_fields
-- p_i[11]    number_higgs_fields
-- p_i[12]    number_gauge_fields
-
-- p_f[6]     q
-- p_f[7]     ha
-- p_f[8]     hb
-- p_f[9]     eta1
-- p_f[10]    eta2
-- p_f[11]    u1
-- p_f[12]    vortex_number
-- p_f[13]    ainf
-- p_f[14]    alpha
-- p_f[15]    beta
-- p_f[16]    gamma
-- p_f[17]    M0
-- p_f[18]    skyrmion_number
-- p_f[19]    skyrmion_rotation
-- p_f[20]    ansatz_bloch
-- p_f[21]    ansatz_neel
-- p_f[22]    ansatz_anti
-- p_f[23]    ansatz_uniform
+Ferromagnetic superconductor parameters and device packing.
 
 Examples
 --------
->>> from soliton_solver.theories.ferromagnetic_superconductor.params import Params, default_params
 >>> p = default_params(q=1.0, vortex_number=2.0, ansatz="bloch")
 >>> rp = p.resolved()
 >>> p_i, p_f = pack_device_params(rp)
->>> describe()
 """
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -56,28 +18,21 @@ from soliton_solver.core.params import Params as CoreParams
 from soliton_solver.core.params import ResolvedParams as CoreResolvedParams
 from soliton_solver.core.params import pack_device_params as pack_core_device_params
 
-
 @dataclass(frozen=True)
 class Params(CoreParams):
     """
     User-facing ferromagnetic superconductor parameters.
 
-    This class extends the core solver parameters with ferromagnetic superconductor couplings, vacuum scales, gauge-field controls, and initial-condition controls.
-
     Parameters
     ----------
     number_total_fields : int, optional
-        Total number of fields stored by the solver.
-        For the ferromagnetic superconductor model this defaults to 8.
+        Total number of field components.
     number_magnetization_fields : int, optional
         Number of magnetization field components.
-        This defaults to 3.
     number_higgs_fields : int, optional
         Number of Higgs field components.
-        This defaults to 2.
     number_gauge_fields : int, optional
-        Number of gauge-field components.
-        This defaults to 3.
+        Number of gauge field components.
     q : float, optional
         Gauge coupling.
     alpha : float, optional
@@ -85,39 +40,38 @@ class Params(CoreParams):
     beta : float, optional
         Quartic Higgs-sector coefficient.
     gamma : float, optional
-        Coupling associated with the magnetic sector.
+        Magnetic-sector coupling coefficient.
     ha : float, optional
         Quadratic magnetic-sector coefficient.
     hb : float, optional
         Quartic magnetic-sector coefficient.
     eta1 : float, optional
-        Coupling between the superconducting and magnetic sectors.
-    eta2 : float | None, optional
-        Secondary inter-sector coupling.
-        If None, it is derived from eta1 and ha.
-    M0 : float | None, optional
-        Derived magnetic vacuum scale.
-        If None, it is computed from the model coefficients when possible.
-    u1 : float | None, optional
-        Derived superconducting vacuum scale.
-        If None, it is computed from the model coefficients when possible.
+        Primary coupling between the superconducting and magnetic sectors.
+    eta2 : float or None, optional
+        Secondary coupling between the superconducting and magnetic sectors.
+    M0 : float or None, optional
+        Magnetic vacuum scale.
+    u1 : float or None, optional
+        Superconducting vacuum scale.
     vortex_number : float, optional
-        Winding number used by the vortex or gauge-field initial condition.
-    ainf : float | None, optional
+        Vortex winding number.
+    ainf : float or None, optional
         Asymptotic gauge-field value.
-        If None, it is derived from vortex_number and q.
     skyrmion_number : float, optional
-        Topological charge used by the initial-condition ansatz.
+        Skyrmion number used in the initial ansatz.
     skyrmion_rotation : float, optional
-        Rotation angle applied in the initial-condition ansatz.
+        Rotation angle used in the initial ansatz.
     ansatz : str, optional
-        Initial-condition ansatz.
-        Supported values are "bloch", "neel", "anti", and "uniform".
+        Initial ansatz type.
+
+    Returns
+    -------
+    None
+        The dataclass stores the theory parameters.
 
     Examples
     --------
-    >>> p = Params()
-    >>> p = Params(q=1.0, alpha=-1.0, beta=1.0, gamma=1.0, vortex_number=2.0, ansatz="neel")
+    >>> p = Params(q=1.0, vortex_number=2.0, ansatz="neel")
     >>> rp = p.resolved()
     """
 
@@ -146,12 +100,12 @@ class Params(CoreParams):
 
     def resolved(self) -> "ResolvedParams":
         """
-        Convert user-facing parameters into fully resolved ferromagnetic superconductor parameters.
+        Resolve the theory parameters.
 
         Returns
         -------
         ResolvedParams
-            Resolved parameter object containing both core derived quantities and ferromagnetic superconductor theory-specific derived quantities.
+            Resolved ferromagnetic superconductor parameters.
 
         Examples
         --------
@@ -160,13 +114,10 @@ class Params(CoreParams):
         """
         return ResolvedParams.from_params(self)
 
-
 @dataclass(frozen=True)
 class ResolvedParams(CoreResolvedParams):
     """
-    Fully resolved ferromagnetic superconductor parameters.
-
-    This class contains the full set of core resolved parameters together with ferromagnetic superconductor theory-specific flags and coefficients needed by the CPU and GPU solver code.
+    Resolved ferromagnetic superconductor parameters.
 
     Parameters
     ----------
@@ -175,7 +126,7 @@ class ResolvedParams(CoreResolvedParams):
     number_higgs_fields : int
         Number of Higgs field components.
     number_gauge_fields : int
-        Number of gauge-field components.
+        Number of gauge field components.
     q : float
         Gauge coupling.
     alpha : float
@@ -183,9 +134,9 @@ class ResolvedParams(CoreResolvedParams):
     beta : float
         Quartic Higgs-sector coefficient.
     gamma : float
-        Coupling associated with the magnetic sector.
+        Magnetic-sector coupling coefficient.
     skyrmion_number : float
-        Topological charge used in the initial ansatz.
+        Skyrmion number used in the initial ansatz.
     ha : float
         Quadratic magnetic-sector coefficient.
     hb : float
@@ -199,19 +150,24 @@ class ResolvedParams(CoreResolvedParams):
     u1 : float
         Superconducting vacuum scale.
     vortex_number : float
-        Winding number used in the gauge-field sector.
+        Vortex winding number.
     ainf : float
         Asymptotic gauge-field value.
     skyrmion_rotation : float
         Rotation angle used in the initial ansatz.
     ansatz_bloch : bool
-        Whether the Bloch ansatz is enabled.
+        Whether the Bloch ansatz is selected.
     ansatz_neel : bool
-        Whether the Neel ansatz is enabled.
+        Whether the Néel ansatz is selected.
     ansatz_anti : bool
-        Whether the anti-skyrmion ansatz is enabled.
+        Whether the anti-skyrmion ansatz is selected.
     ansatz_uniform : bool
-        Whether the uniform initial configuration is enabled.
+        Whether the uniform ansatz is selected.
+
+    Returns
+    -------
+    None
+        The dataclass stores the resolved theory parameters.
 
     Examples
     --------
@@ -246,9 +202,7 @@ class ResolvedParams(CoreResolvedParams):
     @staticmethod
     def from_params(p: Params) -> "ResolvedParams":
         """
-        Build resolved ferromagnetic superconductor parameters from user-facing parameters.
-
-        This method computes derived inter-sector couplings, vacuum scales, asymptotic gauge values, and ansatz flags required by the rest of the code.
+        Build resolved parameters from user-facing parameters.
 
         Parameters
         ----------
@@ -289,20 +243,19 @@ class ResolvedParams(CoreResolvedParams):
 
         return ResolvedParams(xlen=core.xlen, ylen=core.ylen, halo=core.halo, number_coordinates=core.number_coordinates, number_total_fields=core.number_total_fields, dim_grid=core.dim_grid, dim_fields=core.dim_fields, killkinen=core.killkinen, newtonflow=core.newtonflow, unit_magnetization=core.unit_magnetization, xsize=core.xsize, ysize=core.ysize, lsx=core.lsx, lsy=core.lsy, grid_volume=core.grid_volume, time_step=core.time_step, number_magnetization_fields=p.number_magnetization_fields, number_higgs_fields=p.number_higgs_fields, number_gauge_fields=p.number_gauge_fields, q=float(p.q), alpha=float(p.alpha), beta=float(p.beta), gamma=float(p.gamma), skyrmion_number=float(p.skyrmion_number), ha=float(p.ha), hb=float(p.hb), eta1=float(p.eta1), eta2=float(eta2), M0=float(M0), u1=float(u1), vortex_number=float(p.vortex_number), ainf=float(ainf), skyrmion_rotation=float(p.skyrmion_rotation), ansatz_bloch=ansatz_bloch, ansatz_neel=ansatz_neel, ansatz_anti=ansatz_anti, ansatz_uniform=ansatz_uniform)
 
-
 def default_params(**overrides) -> Params:
     """
-    Construct ferromagnetic superconductor parameters using defaults plus user overrides.
+    Construct default theory parameters with overrides.
 
     Parameters
     ----------
     **overrides
-        Keyword arguments forwarded to Params.with_().
+        Keyword overrides passed to ``Params.with_``.
 
     Returns
     -------
     Params
-        Parameter object with the requested overrides applied.
+        Parameter object with the requested overrides.
 
     Examples
     --------
@@ -310,13 +263,9 @@ def default_params(**overrides) -> Params:
     """
     return Params().with_(**overrides)
 
-
 def pack_device_params(rp: ResolvedParams):
     """
-    Pack resolved ferromagnetic superconductor parameters into device ABI arrays.
-
-    The core integer and floating-point parameter arrays are created first and the ferromagnetic superconductor theory-specific entries are then appended.
-    This preserves the ABI indices expected by the ferromagnetic superconductor kernels.
+    Pack resolved parameters into device arrays.
 
     Parameters
     ----------
@@ -326,7 +275,7 @@ def pack_device_params(rp: ResolvedParams):
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Tuple (p_i, p_f) containing the integer and floating-point device parameter arrays.
+        Integer and floating-point device parameter arrays.
 
     Examples
     --------
@@ -362,18 +311,14 @@ def pack_device_params(rp: ResolvedParams):
     p_f = np.concatenate((p_f_core, p_f_theory))
     return p_i, p_f
 
-
 def describe() -> None:
     """
-    Print a readable description of the ferromagnetic superconductor parameter set.
-
-    The printed output is intended for interactive terminal use through theory.describe().
-    It summarizes the field content, theory-specific model parameters, derived scales, initial-condition controls, and the meaning of the packed device arrays.
+    Print the theory parameter description.
 
     Returns
     -------
     None
-        This function prints parameter information to the terminal.
+        The parameter description is printed to the terminal.
 
     Examples
     --------

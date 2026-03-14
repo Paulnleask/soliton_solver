@@ -1,17 +1,13 @@
-# =========================
-# soliton_solver/theories/ginzburg_landau_superconductor/io.py
-# =========================
 """
-Superferro theory-specific output bundle.
+Write theory-specific output files for the Ginzburg-Landau superconductor simulation.
 
-This preserves the exact filenames expected by the existing plotting.py workflow, while
-keeping the core I/O implementation theory-agnostic.
+Examples
+--------
+>>> output_data_bundle("out", h_Field, h_EnergyDensity, h_VortexDensity, h_Supercurrent, h_grid, 256, 256)
 """
-
 from __future__ import annotations
 import numpy as np
 from soliton_solver.core.io import output_data_bundle_core
-
 
 def output_data_bundle(
     output_dir: str,
@@ -26,6 +22,43 @@ def output_data_bundle(
     number_total_fields: int = 4,
     precision: int = 32,
 ) -> None:
+    """
+    Write simulation outputs using the filenames expected by the plotting workflow.
+
+    Parameters
+    ----------
+    output_dir : str
+        Directory where output files are written.
+    h_Field : ndarray
+        Flattened field array on the host.
+    h_EnergyDensity : ndarray
+        Energy density grid.
+    h_VortexDensity : ndarray
+        Vortex density grid.
+    h_Supercurrent : ndarray
+        Supercurrent vector field grid.
+    h_grid : ndarray
+        Coordinate grid array.
+    xlen : int
+        Number of lattice points in the x direction.
+    ylen : int
+        Number of lattice points in the y direction.
+    number_coordinates : int, optional
+        Number of coordinate components.
+    number_total_fields : int, optional
+        Number of field components.
+    precision : int, optional
+        Output formatting precision.
+
+    Returns
+    -------
+    None
+        Output files are written to disk.
+
+    Examples
+    --------
+    >>> output_data_bundle("out", h_Field, h_EnergyDensity, h_VortexDensity, h_Supercurrent, h_grid, 256, 256)
+    """
     arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "VortexDensity": h_VortexDensity, "Supercurrent": h_Supercurrent}
 
     bundle_spec = [

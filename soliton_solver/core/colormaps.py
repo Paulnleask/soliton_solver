@@ -1,42 +1,38 @@
-# =====================================================================================
-# soliton_solver/core/colormaps.py
-# =====================================================================================
 """
 CUDA colormap and rendering kernels for writing RGBA images into a mapped PBO.
 
-Purpose:
-    Provides simple CUDA kernels that map scalar densities or vector magnetization
-    fields to 8-bit RGBA pixels suitable for CUDA-OpenGL interop rendering.
-
-Usage:
-    - Allocate/map an output buffer as a uint8 RGBA array: pbo_rgba[y, x, 0..3].
-    - Launch a 2D CUDA grid covering (xlen, ylen).
-    - Provide either:
-        - density_flat with idx = y + x * ylen, or
-        - Field containing stacked magnetization planes for HSV rendering.
-
-Outputs:
-    - Writes RGBA pixels into pbo_rgba with alpha set to 255.
+Examples
+--------
+Use ``render_jet_density_to_rgba`` to map a scalar density field to RGBA pixels.
+Use ``render_gray_density_to_rgba`` to render a scalar density field in grayscale.
+Use ``render_magnetization_to_rgba`` to map a magnetization field to RGBA pixels.
 """
 
-# ---------------- Imports ----------------
 import math
 from numba import cuda
 
-# ---------------- Clipping ----------------
 @cuda.jit(device=True, inline=True)
 def clip_u8(x):
     """
-    Clamp a float to [0, 255] and convert to an integer suitable for uint8 storage.
+    Clamp a float to the interval [0, 255] and convert it to an integer.
 
-    Usage:
-        pbo_rgba[y, x, 0] = clip_u8(r * 255.0)
+    Parameters
+    ----------
+    x : float
+        Value to clamp.
 
-    Parameters:
-        x: Float value to clamp.
+    Returns
+    -------
+    int
+        Clamped integer value in the interval [0, 255].
 
-    Outputs:
-        - Returns an int in [0, 255].
+    Raises
+    ------
+    None.
+
+    Examples
+    --------
+    Use ``clip_u8(r * 255.0)`` before writing a channel value into an RGBA buffer.
     """
     if x < 0.0:
         return 0
@@ -44,22 +40,32 @@ def clip_u8(x):
         return 255
     return int(x)
 
-# ---------------- HSV2RGB ----------------
 @cuda.jit(device=True, inline=True)
 def _hsv_to_rgb(h, s, v):
     """
-    Convert HSV values to RGB.
+    Convert HSV values to RGB values.
 
-    Usage:
-        R, G, B = _hsv_to_rgb(hue_deg, saturation, value)
+    Parameters
+    ----------
+    h : float
+        Hue in degrees.
+    s : float
+        Saturation value.
+    v : float
+        Value component.
 
-    Parameters:
-        h: Hue in degrees (wraps values >= 360 to 0).
-        s: Saturation in [0, 1].
-        v: Value/brightness in [0, 1+] (may exceed 1 for brightening).
+    Returns
+    -------
+    tuple of float
+        Red, green, and blue channel values.
 
-    Outputs:
-        - Returns (R, G, B) as floats (typically in [0, 1+]).
+    Raises
+    ------
+    None.
+
+    Examples
+    --------
+    Use ``_hsv_to_rgb(hue_deg, saturation, value)`` to convert HSV values before writing RGB output.
     """
     if h >= 360.0:
         h = 0.0
@@ -84,24 +90,38 @@ def _hsv_to_rgb(h, s, v):
         R, G, B = v, p, r
     return R, G, B
 
-# ---------------- Jet colormap ----------------
 @cuda.jit
 def render_jet_density_to_rgba(pbo_rgba, density_flat, xlen, ylen, vmin, vmax):
     """
-    Render a scalar density field to RGBA using a jet-style piecewise-linear colormap.
+    Render a scalar density field to RGBA using a jet-style colormap.
 
-    Usage:
-        render_jet_density_to_rgba[grid2d, block2d](pbo_rgba, density_flat, xlen, ylen, vmin, vmax)
+    Parameters
+    ----------
+    pbo_rgba : device array
+        Output RGBA buffer with shape ``(ylen, xlen, 4)``.
+    density_flat : device array
+        Flattened scalar field indexed as ``y + x * ylen``.
+    xlen : int
+        Number of grid points along the x direction.
+    ylen : int
+        Number of grid points along the y direction.
+    vmin : float
+        Lower bound of the normalization range.
+    vmax : float
+        Upper bound of the normalization range.
 
-    Parameters:
-        pbo_rgba: (ylen, xlen, 4) uint8 device array written in-place.
-        density_flat: (xlen*ylen,) float device array, indexed as idx = y + x * ylen.
-        xlen, ylen: Image dimensions.
-        vmin, vmax: Normalization range for density values.
+    Returns
+    -------
+    None
+        The RGBA values are written into ``pbo_rgba`` in place.
 
-    Outputs:
-        - Writes (R, G, B, A) into pbo_rgba for each pixel.
-        - Sets A = 255.
+    Raises
+    ------
+    None.
+
+    Examples
+    --------
+    Launch ``render_jet_density_to_rgba[grid2d, block2d](pbo_rgba, density_flat, xlen, ylen, vmin, vmax)`` to render the density field.
     """
     x, y = cuda.grid(2)
     if x >= xlen or y >= ylen:
@@ -141,23 +161,38 @@ def render_jet_density_to_rgba(pbo_rgba, density_flat, xlen, ylen, vmin, vmax):
     pbo_rgba[y, x, 2] = clip_u8(b)
     pbo_rgba[y, x, 3] = 255
 
-# ---------------- Grayscale colormap ----------------
 @cuda.jit
 def render_gray_density_to_rgba(pbo_rgba, density_flat, xlen, ylen, vmin, vmax):
     """
-    Render a scalar density field to RGBA as grayscale.
+    Render a scalar density field to RGBA in grayscale.
 
-    Usage:
-        render_gray_density_to_rgba[grid2d, block2d](pbo_rgba, density_flat, xlen, ylen, vmin, vmax)
+    Parameters
+    ----------
+    pbo_rgba : device array
+        Output RGBA buffer with shape ``(ylen, xlen, 4)``.
+    density_flat : device array
+        Flattened scalar field indexed as ``y + x * ylen``.
+    xlen : int
+        Number of grid points along the x direction.
+    ylen : int
+        Number of grid points along the y direction.
+    vmin : float
+        Lower bound of the normalization range.
+    vmax : float
+        Upper bound of the normalization range.
 
-    Parameters:
-        pbo_rgba: (ylen, xlen, 4) uint8 device array written in-place.
-        density_flat: (xlen*ylen,) float device array, indexed as idx = y + x * ylen.
-        xlen, ylen: Image dimensions.
-        vmin, vmax: Normalization range for density values.
+    Returns
+    -------
+    None
+        The RGBA values are written into ``pbo_rgba`` in place.
 
-    Outputs:
-        - Writes R=G=B=normalized*255 and A=255 into pbo_rgba for each pixel.
+    Raises
+    ------
+    None.
+
+    Examples
+    --------
+    Launch ``render_gray_density_to_rgba[grid2d, block2d](pbo_rgba, density_flat, xlen, ylen, vmin, vmax)`` to render the density field.
     """
     x, y = cuda.grid(2)
     if x >= xlen or y >= ylen:
@@ -176,30 +211,36 @@ def render_gray_density_to_rgba(pbo_rgba, density_flat, xlen, ylen, vmin, vmax):
     pbo_rgba[y, x, 2] = uc
     pbo_rgba[y, x, 3] = 255
 
-# ---------------- Runge colormap ----------------
 @cuda.jit
 def render_magnetization_to_rgba(pbo_rgba, Field, xlen, ylen, p_i):
     """
-    Render a 3-component magnetization field to RGBA using an HSV color wheel mapping.
+    Render a three-component magnetization field to RGBA using an HSV mapping.
 
-    Usage:
-        render_magnetization_to_rgba[grid2d, block2d](pbo_rgba, Field, xlen, ylen, p_i)
+    Parameters
+    ----------
+    pbo_rgba : device array
+        Output RGBA buffer with shape ``(ylen, xlen, 4)``.
+    Field : device array
+        Flattened array containing three stacked magnetization planes.
+    xlen : int
+        Number of grid points along the x direction.
+    ylen : int
+        Number of grid points along the y direction.
+    p_i : device array
+        Integer array used to determine the plane stride and base indexing.
 
-    Parameters:
-        pbo_rgba: (ylen, xlen, 4) uint8 device array written in-place.
-        Field: Flattened float device array storing magnetization planes (m1, m2, m3).
-        xlen, ylen: Image dimensions.
-        p_i: Device int array used to compute plane stride:
-            - p_i[0]: x-dimension used in plane stride
-            - p_i[1]: y-dimension used in base index
+    Returns
+    -------
+    None
+        The RGBA values are written into ``pbo_rgba`` in place.
 
-    Outputs:
-        - Interprets Field as three stacked planes:
-            base = y + x * ylen
-            plane = xlen * ylen  (computed from p_i)
-            m1 = Field[base + 0*plane], m2 = Field[base + 1*plane], m3 = Field[base + 2*plane]
-        - Computes hue from atan2(m1, m2); shapes saturation/value using m3.
-        - Writes (R, G, B, A) into pbo_rgba with A = 255.
+    Raises
+    ------
+    None.
+
+    Examples
+    --------
+    Launch ``render_magnetization_to_rgba[grid2d, block2d](pbo_rgba, Field, xlen, ylen, p_i)`` to render the magnetization field.
     """
     x, y = cuda.grid(2)
     if x >= xlen or y >= ylen:

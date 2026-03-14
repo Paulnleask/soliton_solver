@@ -1,7 +1,19 @@
-# =====================================================================================
-# soliton_solver/theories/liquid_crystal/instructions.py
-# =====================================================================================
+"""
+Print terminal instructions for the liquid crystal simulation controls.
+
+Examples
+--------
+>>> print_instructions()
+"""
+
 def print_instructions():
+    """
+    Print the interactive controls for the simulation.
+
+    Examples
+    --------
+    >>> print_instructions()
+    """
     print(
         "\nControls:\n"
         "   Energy density display:                 F1\n"
@@ -11,6 +23,7 @@ def print_instructions():
         "   Toggle arresting criteria:              k\n"
         "   Enter skyrmion placement mode:          s\n"
         "   Choose skyrmion number:                 1,...,9\n"
+        "   Choose skyrmionium:                     0\n"
         "   Place skyrmion:                         Left-click\n"
         "   Isorotate skyrmion:                     Drag & release left-click\n"
         "   Leave skyrmion placement mode:          q\n"

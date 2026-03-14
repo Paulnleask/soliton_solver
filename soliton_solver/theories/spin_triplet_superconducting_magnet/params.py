@@ -1,53 +1,12 @@
 """
-Spin triplet superconducting ferromagnet theory-specific parameters, parameter resolution, device packing, and terminal parameter documentation.
-
-This module extends the core Params and ResolvedParams classes with the theory-specific parameters required by the spin triplet superconducting ferromagnet model.
-It preserves the existing CUDA ABI layout by appending theory-specific entries to the core integer and floating-point device parameter arrays.
-The module also provides a describe() function so that the spin triplet superconducting ferromagnet theory can print human-readable parameter information through theory.describe().
-
-Core prefix
------------
-From soliton_solver.core.params.pack_device_params:
-- p_i[0..9]
-- p_f[0..5]
-
-Spin triplet superconducting ferromagnet appended entries
----------------------------------------------------------
-- p_i[10]    number_magnetization_fields
-- p_i[11]    number_higgs_fields
-- p_i[12]    number_gauge_fields
-
-- p_f[6]     q
-- p_f[7]     ha
-- p_f[8]     hb1
-- p_f[9]     hb2
-- p_f[10]    hc
-- p_f[11]    u1
-- p_f[12]    u2
-- p_f[13]    vortex1_number
-- p_f[14]    vortex2_number
-- p_f[15]    vortex_number
-- p_f[16]    ainf
-- p_f[17]    alpha
-- p_f[18]    beta
-- p_f[19]    gamma
-- p_f[20]    M0
-- p_f[21]    skyrmion_number
-- p_f[22]    skyrmion_rotation
-- p_f[23]    ansatz_bloch
-- p_f[24]    ansatz_neel
-- p_f[25]    ansatz_anti
-- p_f[26]    ansatz_uniform
+Parameters for the spin triplet superconducting ferromagnet theory.
 
 Examples
 --------
->>> from soliton_solver.theories.spin_triplet_superconducting_magnet.params import Params, default_params
 >>> p = default_params(q=1.0, vortex1_number=1.0, vortex2_number=2.0, ansatz="bloch")
 >>> rp = p.resolved()
 >>> p_i, p_f = pack_device_params(rp)
->>> describe()
 """
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -59,78 +18,63 @@ from soliton_solver.core.params import Params as CoreParams
 from soliton_solver.core.params import ResolvedParams as CoreResolvedParams
 from soliton_solver.core.params import pack_device_params as pack_core_device_params
 
-
 @dataclass(frozen=True)
 class Params(CoreParams):
     """
-    User-facing spin triplet superconducting ferromagnet parameters.
-
-    This class extends the core solver parameters with spin-triplet superconducting and magnetic couplings, derived vacuum scales, multicomponent vortex controls, and initial-condition controls.
+    User-facing parameters for the spin triplet superconducting ferromagnet theory.
 
     Parameters
     ----------
     number_total_fields : int, optional
         Total number of fields stored by the solver.
-        For the spin triplet superconducting ferromagnet model this defaults to 10.
     number_magnetization_fields : int, optional
         Number of magnetization field components.
-        This defaults to 3.
     number_higgs_fields : int, optional
-        Number of superconducting Higgs-field components.
-        This defaults to 4.
+        Number of superconducting Higgs field components.
     number_gauge_fields : int, optional
-        Number of gauge-field components.
-        This defaults to 3.
+        Number of gauge field components.
     q : float, optional
         Gauge coupling.
     alpha : float, optional
-        Quadratic magnetic-sector coefficient.
+        Quadratic magnetic coefficient.
     beta : float, optional
-        Quartic magnetic-sector coefficient.
+        Quartic magnetic coefficient.
     gamma : float, optional
-        Coupling associated with the magnetic sector.
+        Magnetic gradient coefficient.
     ha : float, optional
-        Quadratic superconducting-sector coefficient.
+        Quadratic superconducting coefficient.
     hb1 : float, optional
-        First quartic superconducting-sector coefficient.
+        First quartic superconducting coefficient.
     hb2 : float, optional
-        Second quartic superconducting-sector coefficient.
+        Second quartic superconducting coefficient.
     hc : float, optional
         Coupling between the superconducting components.
-    M0 : float | None, optional
-        Derived magnetic vacuum scale.
-        If None, it is computed from alpha and beta when possible.
-    u1 : float | None, optional
-        Derived vacuum amplitude of the first superconducting component.
-        If None, it is computed from ha, hc, hb1, and hb2 when possible.
-    u2 : float | None, optional
-        Derived vacuum amplitude of the second superconducting component.
-        If None, it is computed from ha, hc, hb1, and hb2 when possible.
+    M0 : float or None, optional
+        Magnetic vacuum scale.
+    u1 : float or None, optional
+        Vacuum amplitude of the first superconducting component.
+    u2 : float or None, optional
+        Vacuum amplitude of the second superconducting component.
     vortex_number : float, optional
         Effective total vortex number.
-        This raw field is present for completeness, but the resolved value is computed from vortex1_number, vortex2_number, u1, and u2.
     vortex1_number : float, optional
-        Winding number associated with the first superconducting component.
+        Winding number of the first superconducting component.
     vortex2_number : float, optional
-        Winding number associated with the second superconducting component.
-    ainf : float | None, optional
-        Asymptotic gauge-field value.
-        If None, it is derived from the resolved vortex_number and q.
+        Winding number of the second superconducting component.
+    ainf : float or None, optional
+        Asymptotic gauge field value.
     skyrmion_number : float, optional
-        Topological charge used by the initial-condition ansatz.
+        Skyrmion number used in the initial ansatz.
     skyrmion_rotation : float, optional
-        Rotation angle applied in the initial-condition ansatz.
+        Rotation angle used in the initial ansatz.
     ansatz : str, optional
-        Initial-condition ansatz.
-        Supported values are "bloch", "neel", "anti", and "uniform".
+        Initial ansatz type.
 
     Examples
     --------
-    >>> p = Params()
     >>> p = Params(q=1.0, hb1=3.0, hb2=0.5, hc=-0.5, vortex1_number=1.0, vortex2_number=2.0, ansatz="neel")
     >>> rp = p.resolved()
     """
-
     number_total_fields: int = 10
 
     number_magnetization_fields: int = 3
@@ -159,12 +103,12 @@ class Params(CoreParams):
 
     def resolved(self) -> "ResolvedParams":
         """
-        Convert user-facing parameters into fully resolved spin triplet superconducting ferromagnet parameters.
+        Resolve the theory parameters.
 
         Returns
         -------
         ResolvedParams
-            Resolved parameter object containing both core derived quantities and spin triplet superconducting ferromagnet theory-specific derived quantities.
+            Fully resolved parameter set.
 
         Examples
         --------
@@ -173,38 +117,35 @@ class Params(CoreParams):
         """
         return ResolvedParams.from_params(self)
 
-
 @dataclass(frozen=True)
 class ResolvedParams(CoreResolvedParams):
     """
-    Fully resolved spin triplet superconducting ferromagnet parameters.
-
-    This class contains the full set of core resolved parameters together with spin triplet superconducting ferromagnet theory-specific flags and coefficients needed by the CPU and GPU solver code.
+    Fully resolved parameters for the spin triplet superconducting ferromagnet theory.
 
     Parameters
     ----------
     number_magnetization_fields : int
         Number of magnetization field components.
     number_higgs_fields : int
-        Number of superconducting Higgs-field components.
+        Number of superconducting Higgs field components.
     number_gauge_fields : int
-        Number of gauge-field components.
+        Number of gauge field components.
     q : float
         Gauge coupling.
     alpha : float
-        Quadratic magnetic-sector coefficient.
+        Quadratic magnetic coefficient.
     beta : float
-        Quartic magnetic-sector coefficient.
+        Quartic magnetic coefficient.
     gamma : float
-        Coupling associated with the magnetic sector.
+        Magnetic gradient coefficient.
     skyrmion_number : float
-        Topological charge used in the initial ansatz.
+        Skyrmion number used in the initial ansatz.
     ha : float
-        Quadratic superconducting-sector coefficient.
+        Quadratic superconducting coefficient.
     hb1 : float
-        First quartic superconducting-sector coefficient.
+        First quartic superconducting coefficient.
     hb2 : float
-        Second quartic superconducting-sector coefficient.
+        Second quartic superconducting coefficient.
     hc : float
         Coupling between the superconducting components.
     M0 : float
@@ -214,13 +155,13 @@ class ResolvedParams(CoreResolvedParams):
     u2 : float
         Vacuum amplitude of the second superconducting component.
     vortex_number : float
-        Effective total vortex number derived from the two component windings.
+        Effective total vortex number.
     vortex1_number : float
         Winding number of the first superconducting component.
     vortex2_number : float
         Winding number of the second superconducting component.
     ainf : float
-        Asymptotic gauge-field value.
+        Asymptotic gauge field value.
     skyrmion_rotation : float
         Rotation angle used in the initial ansatz.
     ansatz_bloch : bool
@@ -230,14 +171,13 @@ class ResolvedParams(CoreResolvedParams):
     ansatz_anti : bool
         Whether the anti-skyrmion ansatz is enabled.
     ansatz_uniform : bool
-        Whether the uniform initial configuration is enabled.
+        Whether the uniform ansatz is enabled.
 
     Examples
     --------
     >>> p = Params(q=1.0, vortex1_number=1.0, vortex2_number=2.0)
     >>> rp = ResolvedParams.from_params(p)
     """
-
     number_magnetization_fields: int
     number_higgs_fields: int
     number_gauge_fields: int
@@ -268,19 +208,17 @@ class ResolvedParams(CoreResolvedParams):
     @staticmethod
     def from_params(p: Params) -> "ResolvedParams":
         """
-        Build resolved spin triplet superconducting ferromagnet parameters from user-facing parameters.
-
-        This method computes derived vacuum scales, constructs the effective total vortex number from the two component windings, computes the asymptotic gauge value, and resolves ansatz flags required by the rest of the code.
+        Build resolved parameters from user-facing parameters.
 
         Parameters
         ----------
         p : Params
-            User-facing spin triplet superconducting ferromagnet parameters.
+            User-facing parameter set.
 
         Returns
         -------
         ResolvedParams
-            Fully resolved spin triplet superconducting ferromagnet parameters.
+            Fully resolved parameter set.
 
         Examples
         --------
@@ -324,20 +262,19 @@ class ResolvedParams(CoreResolvedParams):
             skyrmion_rotation=float(p.skyrmion_rotation), ansatz_bloch=ansatz_bloch, ansatz_neel=ansatz_neel, ansatz_anti=ansatz_anti, ansatz_uniform=ansatz_uniform
         )
 
-
 def default_params(**overrides) -> Params:
     """
-    Construct spin triplet superconducting ferromagnet parameters using defaults plus user overrides.
+    Construct default theory parameters with optional overrides.
 
     Parameters
     ----------
     **overrides
-        Keyword arguments forwarded to Params.with_().
+        Keyword overrides passed to ``Params.with_``.
 
     Returns
     -------
     Params
-        Parameter object with the requested overrides applied.
+        Parameter set with overrides applied.
 
     Examples
     --------
@@ -345,23 +282,19 @@ def default_params(**overrides) -> Params:
     """
     return Params().with_(**overrides)
 
-
 def pack_device_params(rp: ResolvedParams):
     """
-    Pack resolved spin triplet superconducting ferromagnet parameters into device ABI arrays.
-
-    The core integer and floating-point parameter arrays are created first and the spin triplet superconducting ferromagnet theory-specific entries are then appended.
-    This preserves the ABI indices expected by the spin triplet superconducting ferromagnet kernels.
+    Pack resolved parameters into device arrays.
 
     Parameters
     ----------
     rp : ResolvedParams
-        Fully resolved spin triplet superconducting ferromagnet parameters.
+        Fully resolved parameter set.
 
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Tuple (p_i, p_f) containing the integer and floating-point device parameter arrays.
+        Integer and floating-point device parameter arrays.
 
     Examples
     --------
@@ -400,18 +333,9 @@ def pack_device_params(rp: ResolvedParams):
     p_f = np.concatenate((p_f_core, p_f_theory))
     return p_i, p_f
 
-
 def describe() -> None:
     """
-    Print a human-readable description of the spin triplet superconducting ferromagnet parameter set.
-
-    The printed output is intended for interactive terminal use through theory.describe().
-    It summarizes the field content, theory-specific model parameters, derived vacuum scales, multicomponent vortex controls, initial-condition controls, and the meaning of the packed device arrays.
-
-    Returns
-    -------
-    None
-        This function prints parameter information to the terminal.
+    Print parameter information for the theory.
 
     Examples
     --------

@@ -1,11 +1,10 @@
 """
-Baby Skyrme theory specific output bundle.
+Write Bose-Einstein condensate output files using the theory specific filenames.
 
 Examples
 --------
-Use ``output_data_bundle`` to export the Baby Skyrme simulation outputs for plotting.
+Use ``output_data_bundle`` to write field, grid, and energy density files for plotting.
 """
-
 from __future__ import annotations
 import numpy as np
 from soliton_solver.core.io import output_data_bundle_core
@@ -14,59 +13,59 @@ def output_data_bundle(
     output_dir: str,
     h_Field: np.ndarray,
     h_EnergyDensity: np.ndarray,
-    h_BaryonDensity: np.ndarray,
     h_grid: np.ndarray,
     xlen: int,
     ylen: int,
     number_coordinates: int = 2,
-    number_total_fields: int = 3,
+    number_total_fields: int = 2,
     precision: int = 32,
 ) -> None:
     """
-    Write the Baby Skyrme output data bundle.
+    Write the standard Bose-Einstein condensate output bundle.
 
     Parameters
     ----------
     output_dir : str
-        Directory where the output files will be written.
+        Output directory path.
     h_Field : ndarray
-        Flattened host array containing the magnetization field.
+        Host field array.
     h_EnergyDensity : ndarray
-        Flattened host array containing the energy density.
-    h_BaryonDensity : ndarray
-        Flattened host array containing the baryon density.
+        Host energy density array.
     h_grid : ndarray
-        Flattened host coordinate grid.
+        Host coordinate grid array.
     xlen : int
         Number of lattice points along the x direction.
     ylen : int
         Number of lattice points along the y direction.
     number_coordinates : int, optional
-        Number of coordinate components stored in the grid.
+        Number of coordinate components.
     number_total_fields : int, optional
-        Number of field components stored in the field array.
+        Number of field components.
     precision : int, optional
         Number of significant digits used in the output format.
 
     Returns
     -------
     None
-        The requested output files are written to the output directory.
+        The output bundle is written to disk.
+
+    Raises
+    ------
+    OSError
+        Raised if an output directory or file cannot be created or written.
 
     Examples
     --------
-    Use ``output_data_bundle(output_dir, h_Field, h_EnergyDensity, h_BaryonDensity, h_grid, xlen, ylen)`` to write the simulation output bundle.
+    Use ``output_data_bundle(output_dir, h_Field, h_EnergyDensity, h_grid, xlen, ylen)`` to write the output files.
     """
-    arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "BaryonDensity": h_BaryonDensity}
+    arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity}
 
     bundle_spec = [
         ("grid", 0, "xGrid.dat"),
         ("grid", 1, "yGrid.dat"),
-        ("Field", 0, "MagnetField1.dat"),
-        ("Field", 1, "MagnetField2.dat"),
-        ("Field", 2, "MagnetField3.dat"),
-        ("BaryonDensity", 0, "SkyrmionChargeDensity.dat"),
-        ("EnergyDensity", 0, "EnergyDensity.dat"),
+        ("Field", 0, "HiggsField1.dat"),
+        ("Field", 1, "HiggsField2.dat"),
+        ("EnergyDensity", 0, "EnergyDensity.dat")
     ]
 
     output_data_bundle_core(

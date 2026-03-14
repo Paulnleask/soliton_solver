@@ -1,49 +1,12 @@
 """
-Chiral magnet theory-specific parameters, parameter resolution, device packing,
-and terminal parameter documentation.
-
-This module extends the core Params and ResolvedParams classes with the
-theory-specific parameters required by the chiral magnet model. It preserves
-the existing CUDA ABI layout by appending theory-specific entries to the core
-integer and floating-point device parameter arrays.
-
-The module also provides a describe() function so that the chiral magnet theory
-can print readable parameter information through theory.describe().
-
-Core prefix
------------
-From soliton_solver.core.params.pack_device_params:
-- p_i[0..9]
-- p_f[0..5]
-
-Chiral magnet appended entries
-------------------------------
-- p_i[10]    number_magnetization_fields
-- p_i[11]    dmi_dresselhaus
-- p_i[12]    dmi_rashba
-- p_i[13]    dmi_heusler
-- p_i[14]    dmi_hybrid
-- p_i[15]    demag
-
-- p_f[6]     coup_K
-- p_f[7]     coup_h
-- p_f[8]     coup_mu
-- p_f[9]     skyrmion_number
-- p_f[10]    skyrmion_rotation
-- p_f[11]    ansatz_bloch
-- p_f[12]    ansatz_neel
-- p_f[13]    ansatz_anti
-- p_f[14]    ansatz_uniform
+Chiral magnet theory parameters and device packing.
 
 Examples
 --------
->>> from soliton_solver.theories.chiral_magnet.params import Params, default_params
 >>> p = default_params(dmi_term="Dresselhaus", ansatz="bloch")
 >>> rp = p.resolved()
 >>> p_i, p_f = pack_device_params(rp)
->>> describe()
 """
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -55,23 +18,17 @@ from soliton_solver.core.params import Params as CoreParams
 from soliton_solver.core.params import ResolvedParams as CoreResolvedParams
 from soliton_solver.core.params import pack_device_params as pack_core_device_params
 
-
 @dataclass(frozen=True)
 class Params(CoreParams):
     """
-    User-facing chiral magnet parameters.
-
-    This class extends the core solver parameters with chiral magnet material
-    constants, Dzyaloshinskii-Moriya interaction controls, demagnetization
-    settings, and initial-condition controls.
+    User facing chiral magnet parameters.
 
     Parameters
     ----------
     number_total_fields : int, optional
-        Total number of fields stored by the solver. For the chiral magnet
-        model this defaults to 4.
+        Total number of stored fields.
     number_magnetization_fields : int, optional
-        Number of magnetization field components. This defaults to 3.
+        Number of magnetization field components.
     J : float, optional
         Exchange stiffness.
     K : float, optional
@@ -84,36 +41,30 @@ class Params(CoreParams):
         Applied magnetic field magnitude.
     mu0 : float, optional
         Vacuum permeability.
-    coup_K : float | None, optional
-        Dimensionless anisotropy coupling. If None, it is derived from J, K,
-        and D when possible.
-    coup_h : float | None, optional
-        Dimensionless Zeeman-field coupling. If None, it is derived from J, M,
-        B, and D when possible.
-    coup_mu : float | None, optional
-        Dimensionless demagnetization coupling. If None, it is derived from J,
-        mu0, M, and D when possible.
+    coup_K : float or None, optional
+        Dimensionless anisotropy coupling.
+    coup_h : float or None, optional
+        Dimensionless Zeeman coupling.
+    coup_mu : float or None, optional
+        Dimensionless demagnetization coupling.
     dmi_dresselhaus : bool, optional
-        Enable the Dresselhaus or bulk DMI term.
+        Enable the Dresselhaus DMI term.
     dmi_rashba : bool, optional
-        Enable the Rashba or interfacial DMI term.
+        Enable the Rashba DMI term.
     dmi_heusler : bool, optional
-        Enable the Heusler or B20 DMI term.
+        Enable the Heusler DMI term.
     dmi_hybrid : bool, optional
         Enable the hybrid DMI term.
     demag : bool, optional
         Enable the demagnetization term.
-    dmi_term : str | Iterable[str] | None, optional
-        Convenience selector for DMI choice. If provided, it overrides the
-        individual dmi_* booleans. It may be a single string, an iterable of
-        strings, or None.
+    dmi_term : str or Iterable[str] or None, optional
+        Convenience selector for DMI choice.
     skyrmion_number : float, optional
-        Topological charge used by the initial-condition ansatz.
+        Topological charge used in the initial ansatz.
     skyrmion_rotation : float, optional
-        Rotation angle applied in the initial-condition ansatz.
+        Rotation angle used in the initial ansatz.
     ansatz : str, optional
-        Initial-condition ansatz. Supported values are "bloch", "neel", "anti",
-        and "uniform".
+        Initial ansatz type.
 
     Examples
     --------
@@ -150,13 +101,12 @@ class Params(CoreParams):
 
     def resolved(self) -> "ResolvedParams":
         """
-        Convert user-facing parameters into fully resolved chiral magnet parameters.
+        Resolve the chiral magnet parameters.
 
         Returns
         -------
         ResolvedParams
-            Resolved parameter object containing both core derived quantities and
-            chiral magnet theory-specific derived quantities.
+            Fully resolved parameter set.
 
         Examples
         --------
@@ -165,15 +115,10 @@ class Params(CoreParams):
         """
         return ResolvedParams.from_params(self)
 
-
 @dataclass(frozen=True)
 class ResolvedParams(CoreResolvedParams):
     """
     Fully resolved chiral magnet parameters.
-
-    This class contains the full set of core resolved parameters together with
-    chiral magnet theory-specific flags and coefficients needed by the CPU and
-    GPU solver code.
 
     Parameters
     ----------
@@ -194,7 +139,7 @@ class ResolvedParams(CoreResolvedParams):
     coup_K : float
         Dimensionless anisotropy coupling.
     coup_h : float
-        Dimensionless Zeeman-field coupling.
+        Dimensionless Zeeman coupling.
     coup_mu : float
         Dimensionless demagnetization coupling.
     skyrmion_number : float
@@ -208,13 +153,13 @@ class ResolvedParams(CoreResolvedParams):
     ansatz_anti : bool
         Whether the anti-skyrmion ansatz is enabled.
     ansatz_uniform : bool
-        Whether the uniform initial configuration is enabled.
+        Whether the uniform ansatz is enabled.
     dmi_dresselhaus : bool
-        Whether the Dresselhaus or bulk DMI term is enabled.
+        Whether the Dresselhaus DMI term is enabled.
     dmi_rashba : bool
-        Whether the Rashba or interfacial DMI term is enabled.
+        Whether the Rashba DMI term is enabled.
     dmi_heusler : bool
-        Whether the Heusler or B20 DMI term is enabled.
+        Whether the Heusler DMI term is enabled.
     dmi_hybrid : bool
         Whether the hybrid DMI term is enabled.
     demag : bool
@@ -254,17 +199,12 @@ class ResolvedParams(CoreResolvedParams):
     @staticmethod
     def from_params(p: Params) -> "ResolvedParams":
         """
-        Build resolved chiral magnet parameters from user-facing parameters.
-
-        This method resolves ansatz strings into explicit boolean flags,
-        computes dimensionless couplings when they are not provided, and
-        converts the convenience DMI selector into the explicit dmi_* boolean
-        fields expected by the rest of the code.
+        Build resolved parameters from user parameters.
 
         Parameters
         ----------
         p : Params
-            User-facing chiral magnet parameters.
+            User facing chiral magnet parameters.
 
         Returns
         -------
@@ -274,8 +214,9 @@ class ResolvedParams(CoreResolvedParams):
         Raises
         ------
         ValueError
-            If an unknown DMI name is supplied, or if the DMI selector is
-            provided but resolves to no active DMI term.
+            Raised if an unknown DMI name is supplied.
+        ValueError
+            Raised if ``dmi_term`` is provided but no valid DMI is selected.
 
         Examples
         --------
@@ -319,7 +260,7 @@ class ResolvedParams(CoreResolvedParams):
 
             def _norm(s: str) -> str:
                 """
-                Normalize a DMI name for case-insensitive matching.
+                Normalize a DMI name.
 
                 Parameters
                 ----------
@@ -369,20 +310,19 @@ class ResolvedParams(CoreResolvedParams):
             demag=p.demag,
         )
 
-
 def default_params(**overrides) -> Params:
     """
-    Construct chiral magnet parameters using defaults plus user overrides.
+    Construct default chiral magnet parameters with overrides.
 
     Parameters
     ----------
     **overrides
-        Keyword arguments forwarded to Params.with_().
+        Keyword arguments passed to ``Params.with_``.
 
     Returns
     -------
     Params
-        Parameter object with the requested overrides applied.
+        Parameter object with the requested overrides.
 
     Examples
     --------
@@ -390,14 +330,9 @@ def default_params(**overrides) -> Params:
     """
     return Params().with_(**overrides)
 
-
 def pack_device_params(rp: ResolvedParams):
     """
-    Pack resolved chiral magnet parameters into device ABI arrays.
-
-    The core integer and floating-point parameter arrays are created first and
-    the chiral magnet theory-specific entries are then appended. This preserves
-    the ABI indices expected by the chiral magnet kernels.
+    Pack resolved parameters into device arrays.
 
     Parameters
     ----------
@@ -407,8 +342,7 @@ def pack_device_params(rp: ResolvedParams):
     Returns
     -------
     tuple[np.ndarray, np.ndarray]
-        Tuple (p_i, p_f) containing the integer and floating-point device
-        parameter arrays.
+        Integer and floating point device parameter arrays.
 
     Examples
     --------
@@ -443,20 +377,9 @@ def pack_device_params(rp: ResolvedParams):
 
     return p_i, p_f
 
-
 def describe() -> None:
     """
-    Print a readable description of the chiral magnet parameter set.
-
-    The printed output is intended for interactive terminal use through
-    theory.describe(). It summarizes the field content, theory-specific model
-    parameters, DMI selection controls, demagnetization settings,
-    initial-condition controls, and the meaning of the packed device arrays.
-
-    Returns
-    -------
-    None
-        This function prints parameter information to the terminal.
+    Print the chiral magnet parameter description.
 
     Examples
     --------

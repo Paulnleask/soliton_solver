@@ -1,11 +1,9 @@
-# =========================
-# soliton_solver/theories/spin_triplet_superconducting_magnet/io.py
-# =========================
 """
-Spin-triplet superferro theory-specific output bundle.
+Write the output bundle for the spin triplet superconducting ferromagnet theory.
 
-This preserves the exact filenames expected by the existing plotting.py workflow, while
-keeping the core I/O implementation theory-agnostic.
+Examples
+--------
+>>> output_data_bundle("out", h_Field, h_EnergyDensity, h_MagneticFluxDensity, h_BaryonDensity, h_Supercurrent, h_grid, xlen, ylen)
 """
 
 from __future__ import annotations
@@ -26,6 +24,45 @@ def output_data_bundle(
     number_total_fields: int = 8,
     precision: int = 32,
 ) -> None:
+    """
+    Write the theory output bundle using the standard core I/O routine.
+
+    Parameters
+    ----------
+    output_dir : str
+        Output directory path.
+    h_Field : numpy.ndarray
+        Flattened field array.
+    h_EnergyDensity : numpy.ndarray
+        Energy density grid.
+    h_MagneticFluxDensity : numpy.ndarray
+        Magnetic flux density grid.
+    h_BaryonDensity : numpy.ndarray
+        Magnetization charge density grid.
+    h_Supercurrent : numpy.ndarray
+        Supercurrent density grid.
+    h_grid : numpy.ndarray
+        Flattened coordinate grid.
+    xlen : int
+        Lattice size along the x direction.
+    ylen : int
+        Lattice size along the y direction.
+    number_coordinates : int, optional
+        Number of coordinate components.
+    number_total_fields : int, optional
+        Number of field components.
+    precision : int, optional
+        Output formatting precision.
+
+    Returns
+    -------
+    None
+        Output files are written to the specified directory.
+
+    Examples
+    --------
+    >>> output_data_bundle("out", h_Field, h_EnergyDensity, h_MagneticFluxDensity, h_BaryonDensity, h_Supercurrent, h_grid, xlen, ylen)
+    """
     arrays = {"grid": h_grid, "Field": h_Field, "EnergyDensity": h_EnergyDensity, "MagneticFluxDensity": h_MagneticFluxDensity, "BaryonDensity": h_BaryonDensity, "Supercurrent": h_Supercurrent}
 
     bundle_spec = [
