@@ -1,6 +1,3 @@
-# =========================
-# plotting.py
-# =========================
 """
 To run: python -m soliton_solver.theories.baby_skyrme.results.plotting
 """

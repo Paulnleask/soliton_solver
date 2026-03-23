@@ -1,6 +1,3 @@
-# =========================
-# plotting.py
-# =========================
 """
 To run: python -m soliton_solver.theories.liquid_crystal.results.plotting
 """

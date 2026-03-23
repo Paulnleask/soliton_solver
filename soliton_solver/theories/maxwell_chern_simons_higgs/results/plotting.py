@@ -1,6 +1,3 @@
-# =========================
-# plotting.py
-# =========================
 """
 To run: python -m soliton_solver.theories.maxwell_chern_simons_higgs.results.plotting
 """

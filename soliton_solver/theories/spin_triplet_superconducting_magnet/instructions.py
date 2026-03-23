@@ -19,7 +19,7 @@ def print_instructions():
         "   Energy density display:                 F1\n"
         "   Magnetization field display:            F2\n"
         "   Order parameter 1 density display:      F3\n"
-        "   Order parameter 2 density display:      F3\n"
+        "   Order parameter 2 density display:      F4\n"
         "   Magnetic flux density display:          F5\n"
         "   Toggle arrested Newton flow:            n\n"
         "   Toggle arresting criteria:              k\n"

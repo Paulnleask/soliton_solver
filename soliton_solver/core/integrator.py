@@ -9,7 +9,7 @@ Use ``do_arrested_newton_flow`` to advance the field and velocity by one arreste
 """
 
 from numba import cuda
-from soliton_solver.core.utils import idx_field, in_bounds, launch_2d, set_field_zero_kernel, compute_max_field
+from soliton_solver.core.utils import idx_field, in_bounds, launch_2d, set_field_zero_kernel, compute_max_field, compute_sum
 from soliton_solver.core.derivatives import compute_derivative_first, compute_derivative_second
 
 def make_do_gradient_step_kernel(do_gradient_step_point):
@@ -188,6 +188,32 @@ def make_do_rk4_kernel(compute_norm_magnetization, project_orthogonal_magnetizat
 
     return _do_rk4_kernel
 
+@cuda.jit(device=True)
+def arresting_criteria_point(Velocity, EnergyGradient, p_i, x, y):
+    force = 0.0
+    number_total_fields = p_i[4]
+    for a in range(number_total_fields):
+        force += Velocity[idx_field(a, x, y, p_i)] * EnergyGradient[idx_field(a, x, y, p_i)]
+    return force
+
+@cuda.jit
+def arresting_criteria_kernel(Velocity, EnergyGradient, en, p_i_d):
+    x, y = cuda.grid(2)
+    if not in_bounds(x, y, p_i_d):
+        return
+    en[idx_field(0, x, y, p_i_d)] = arresting_criteria_point(Velocity, EnergyGradient, p_i_d, x, y)
+
+def arresting_criteria(Velocity, EnergyGradient, en, entmp, gridsum_partial, p_i_d, p_i_h):
+    grid2d, block2d = launch_2d(p_i_h, threads=(16, 16))
+    arresting_criteria_kernel[grid2d, block2d](Velocity, EnergyGradient, en, p_i_d)
+    cuda.synchronize()
+    entmp.copy_to_device(en)
+    dim_grid = p_i_h[5]
+    force = compute_sum(entmp, gridsum_partial, int(dim_grid))
+    entmp[:] = 0.0
+    en[:] = 0.0
+    return force
+
 def do_arrested_newton_flow(Velocity, Field, d1fd1x, d2fd2x, EnergyGradient, k1, k2, k3, k4, l1, l2, l3, l4, Temp, en, entmp, gridsum_partial, max_partial, p_i_d, p_f_d, p_i_h, p_f_h, prev_energy, compute_energy, gradient_step_kernel, rk4_kernel, compute_norm=None, do_norm_kernel=None):
     """
     Perform one arrested Newton flow step using RK4 integration.
@@ -311,8 +337,12 @@ def do_arrested_newton_flow(Velocity, Field, d1fd1x, d2fd2x, EnergyGradient, k1,
     maybe_normalize(Field)
     new_energy = compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h, p_f_h)
     killkinen = p_i_h[7]
+    # arrest = arresting_criteria(Velocity, EnergyGradient, en, entmp, gridsum_partial, p_i_d, p_i_h)
     if killkinen and (new_energy > prev_energy):
         set_field_zero_kernel[grid2d, block2d](Velocity, p_i_d)
         cuda.synchronize()
+    # if killkinen and (arrest < 0):
+    #     set_field_zero_kernel[grid2d, block2d](Velocity, p_i_d)
+    #     cuda.synchronize()
     err = compute_max_field(EnergyGradient, max_partial, p_i_h)
     return new_energy, err

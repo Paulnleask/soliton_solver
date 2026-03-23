@@ -1,6 +1,3 @@
-# =========================
-# plotting.py
-# =========================
 """
 To run: python -m soliton_solver.theories.spin_triplet_superconducting_magnet.results.plotting
 """

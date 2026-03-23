@@ -260,6 +260,23 @@ class Simulation:
         self.kernels.compute_norm_higgs2_kernel[grid2d, block2d](self.en, self.Field, self.p_i_d)
         cuda.synchronize()
 
+    def compute_phase_difference_density(self):
+        """
+        Compute the per site phase difference into the shared ``en`` buffer.
+
+        Returns
+        -------
+        None
+            The local phase difference is written into ``en``.
+
+        Examples
+        --------
+        Use ``sim.compute_phase_difference_density()`` to populate the shared density buffer.
+        """
+        grid2d, block2d = launch_2d(self.p_i_h, threads=self.threads2d)
+        self.kernels.compute_phase_difference_kernel[grid2d, block2d](self.en, self.Field, self.p_i_d)
+        cuda.synchronize()
+
     def compute_magnetic_flux_density(self, which):
         """
         Compute a theory defined flux related density into the shared ``en`` buffer.

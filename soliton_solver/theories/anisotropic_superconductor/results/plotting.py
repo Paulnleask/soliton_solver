@@ -1,5 +1,5 @@
 """
-To run: python -m soliton_solver.theories.ginzburg_landau_superconductor.results.plotting
+To run: python -m soliton_solver.theories.anisotropic_superconductor.results.plotting
 """
 import numpy as np
 import matplotlib
@@ -67,6 +67,8 @@ ySpacing = np.abs(yGrid[0, 0] - yGrid[0, 1])
 # Load fields
 Field1 = load_dat("HiggsField1.dat")
 Field2 = load_dat("HiggsField2.dat")
+Field3 = load_dat("HiggsField3.dat")
+Field4 = load_dat("HiggsField4.dat")
 
 Supercurrent1 = load_dat("Supercurrent1.dat")
 Supercurrent2 = load_dat("Supercurrent2.dat")
@@ -75,7 +77,7 @@ GaugeField1 = load_dat("GaugeField1.dat")
 GaugeField2 = load_dat("GaugeField2.dat")
 
 EnergyDensity = load_dat("EnergyDensity.dat")
-MagneticFluxDensityXY = load_dat("VortexDensity.dat")
+MagneticFluxDensityXY = load_dat("ChargeDensity.dat")
 
 # 2D bicubic interpolations
 xGrid = bicubic_upscale(xGrid, 2)
@@ -83,6 +85,8 @@ yGrid = bicubic_upscale(yGrid, 2)
 
 Field1 = bicubic_upscale(Field1, 2)
 Field2 = bicubic_upscale(Field2, 2)
+Field3 = bicubic_upscale(Field3, 2)
+Field4 = bicubic_upscale(Field4, 2)
 
 Supercurrent1 = bicubic_upscale(Supercurrent1, 2)
 Supercurrent2 = bicubic_upscale(Supercurrent2, 2)
@@ -95,22 +99,34 @@ MagneticFluxDensityXY = bicubic_upscale(MagneticFluxDensityXY, 2)
 
 # Define modulus of Higgs field
 psi1 = Field1 * Field1 + Field2 * Field2
+psi2 = Field3 * Field3 + Field4 * Field4
+theta1 = np.atan2(Field2, Field1)
+theta2 = np.atan2(Field4, Field3)
+theta12 = np.cos(theta1 - theta2)
 
 # ---------- Figure 1: densities ----------
-fig1 = plt.figure(figsize=(12, 6), dpi=500)
+fig1 = plt.figure(figsize=(10, 5), dpi=500)
 gs = fig1.add_gridspec(2, 3, wspace=0.25, hspace=0.35)
 
 # Energy density
 ax11 = fig1.add_subplot(gs[0, 0])
 draw_panel(ax11, xGrid, yGrid, EnergyDensity, r"$\mathcal{E}(\vec{x})$", xLength, yLength, xlim=(xMin,xMax), ylim=(yMin,yMax))
 
-# |psi|^2 density
+# |psi_1|^2 density
 ax12 = fig1.add_subplot(gs[0, 1])
-draw_panel(ax12, xGrid, yGrid, psi1, r"$|\psi(\vec{x})|^2$", xLength, yLength, xlim=(xMin,xMax), ylim=(yMin,yMax))
+draw_panel(ax12, xGrid, yGrid, psi1, r"$|\psi_1(\vec{x})|^2$", xLength, yLength, xlim=(xMin,xMax), ylim=(yMin,yMax))
+
+# |psi_2|^2 density
+ax13 = fig1.add_subplot(gs[0, 2])
+draw_panel(ax13, xGrid, yGrid, psi2, r"$|\psi_2(\vec{x})|^2$", xLength, yLength, xlim=(xMin,xMax), ylim=(yMin,yMax))
+
+# |psi_2|^2 density
+ax21 = fig1.add_subplot(gs[1, 0])
+draw_panel(ax21, xGrid, yGrid, theta12, r"$\cos(\theta_1-\theta_2)$", xLength, yLength, xlim=(xMin,xMax), ylim=(yMin,yMax))
 
 # Magnetic flux density (with -/(2π))
-ax13 = fig1.add_subplot(gs[0, 2])
-draw_panel(ax13, xGrid, yGrid, MagneticFluxDensityXY, r"$\Phi(\vec{x})$", xLength, yLength, xlim=(xMin,xMax), ylim=(yMin,yMax), cmap="bone")
+ax22 = fig1.add_subplot(gs[1, 1])
+draw_panel(ax22, xGrid, yGrid, MagneticFluxDensityXY, r"$\Phi(\vec{x})$", xLength, yLength, xlim=(xMin,xMax), ylim=(yMin,yMax), cmap="bone")
 
 # Plots and labels the figure
 fig1.savefig(HERE / "Plot_Densities.png", dpi=500, bbox_inches="tight")
