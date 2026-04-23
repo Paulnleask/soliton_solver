@@ -204,7 +204,7 @@ def arresting_criteria_kernel(Velocity, EnergyGradient, en, p_i_d):
     en[idx_field(0, x, y, p_i_d)] = arresting_criteria_point(Velocity, EnergyGradient, p_i_d, x, y)
 
 def arresting_criteria(Velocity, EnergyGradient, en, entmp, gridsum_partial, p_i_d, p_i_h):
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 16))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
     arresting_criteria_kernel[grid2d, block2d](Velocity, EnergyGradient, en, p_i_d)
     cuda.synchronize()
     entmp.copy_to_device(en)
@@ -290,7 +290,7 @@ def do_arrested_newton_flow(Velocity, Field, d1fd1x, d2fd2x, EnergyGradient, k1,
     --------
     Use ``new_energy, err = do_arrested_newton_flow(...)`` to advance the simulation by one minimization step.
     """
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 16))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
 
     def maybe_normalize(target_field):
         """

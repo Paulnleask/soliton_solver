@@ -45,7 +45,7 @@ def compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_
     --------
     Use ``energy = compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h, p_f_h)`` to compute the total energy.
     """
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
     compute_energy_kernel[grid2d, block2d](en, Field, d1fd1x, p_i_d, p_f_d)
     cuda.synchronize()
     entmp.copy_to_device(en)
@@ -85,7 +85,7 @@ def compute_norm(Field, en, entmp, gridsum_partial, p_i_d, p_i_h, p_i_f):
     --------
     Use ``norm = compute_norm(Field, en, entmp, gridsum_partial, p_i_d, p_i_h, p_i_f)`` to compute the total norm.
     """
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
     compute_norm_kernel[grid2d, block2d](en, Field, p_i_d, p_i_f)
     cuda.synchronize()
     entmp.copy_to_device(en)

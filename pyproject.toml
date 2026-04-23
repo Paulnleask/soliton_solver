@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "soliton_solver"
-version = "1.1.0"
+version = "1.1.1"
 description = "GPU-accelerated framework for computing topological solitons in 2D field theories."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -16,7 +16,7 @@ authors = [
 
 dependencies = [
   "numpy",
-  "numba",
+  "numba-cuda",
   "moderngl",
   "glfw",
   "PyOpenGL",

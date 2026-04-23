@@ -45,7 +45,7 @@ def compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_
     --------
     Use ``E = compute_energy(Field, d1fd1x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h, p_f_h)`` to evaluate the total energy.
     """
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
     compute_energy_kernel[grid2d, block2d](en, Field, d1fd1x, p_i_d, p_f_d)
     cuda.synchronize()
     entmp.copy_to_device(en)
@@ -89,7 +89,7 @@ def compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_
     --------
     Use ``N = compute_vortex_number(Field, d1fd1x, en, entmp, gridsum_partial, which, p_i_d, p_f_d, p_i_h)`` to evaluate the total vortex number.
     """
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
     compute_vortex_number_kernel[grid2d, block2d](en, Field, d1fd1x, which, p_i_d, p_f_d)
     cuda.synchronize()
     entmp.copy_to_device(en)
@@ -133,7 +133,7 @@ def compute_electric_charge(Field, d1fd1x, d2fd2x, en, entmp, gridsum_partial, p
     --------
     Use ``Q = compute_electric_charge(Field, d1fd1x, d2fd2x, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h)`` to evaluate the total electric charge.
     """
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
     compute_electric_charge_kernel[grid2d, block2d](Field, d1fd1x, d2fd2x, en, p_i_d, p_f_d)
     cuda.synchronize()
     entmp.copy_to_device(en)
@@ -173,7 +173,7 @@ def compute_noether_charge(Field, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_
     --------
     Use ``Q = compute_noether_charge(Field, en, entmp, gridsum_partial, p_i_d, p_f_d, p_i_h)`` to evaluate the total Noether charge.
     """
-    grid2d, block2d = launch_2d(p_i_h, threads=(16, 32))
+    grid2d, block2d = launch_2d(p_i_h, threads=(8, 8))
     compute_noether_charge_kernel[grid2d, block2d](Field, en, p_i_d, p_f_d)
     cuda.synchronize()
     entmp.copy_to_device(en)

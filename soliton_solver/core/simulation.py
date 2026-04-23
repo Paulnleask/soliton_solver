@@ -19,7 +19,6 @@ from soliton_solver.core.utils import launch_2d, set_field_zero_kernel
 from soliton_solver.core.integrator import do_arrested_newton_flow, do_rk4_kernel_no_constraint
 import warnings
 from numba.core.errors import NumbaPerformanceWarning
-
 warnings.filterwarnings("ignore", category=NumbaPerformanceWarning)
 
 class Simulation:
@@ -70,7 +69,7 @@ class Simulation:
         self.kernels = theory.kernels
         self.initial_config = theory.initial_config
         self.observables_mod = theory.observables
-        self.threads2d = getattr(self.theory, "threads2d", (16, 32))
+        self.threads2d = getattr(self.theory, "threads2d", (8, 8))
 
         self.gradient_step_kernel = getattr(self.kernels, "do_gradient_step_kernel", None)
         if self.gradient_step_kernel is None:

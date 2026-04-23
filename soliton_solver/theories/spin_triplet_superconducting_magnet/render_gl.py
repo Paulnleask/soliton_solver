@@ -489,7 +489,7 @@ class GLRenderer:
                 ans_neel = bool(p_f[24] > 0.5)
                 ans_anti = bool(p_f[25] > 0.5)
 
-                grid2d, block2d = launch_2d(sim.p_i_h, threads=(16, 32))
+                grid2d, block2d = launch_2d(sim.p_i_h, threads=(8, 8))
                 create_skyrmion_kernel[grid2d, block2d](
                     sim.Field, sim.grid,
                     int(self.preview_pxi), int(self.preview_pxj),
@@ -503,7 +503,7 @@ class GLRenderer:
         if self.soliton_mode == "vortex" and action == glfw.PRESS:
             x, y = glfw.get_cursor_pos(self.backend.window)
             simX, simY = self._window_to_sim(x, y)
-            grid2d, block2d = launch_2d(sim.p_i_h, threads=(16, 32))
+            grid2d, block2d = launch_2d(sim.p_i_h, threads=(8, 8))
             create_vortex_kernel[grid2d, block2d](
                 sim.Field, sim.grid, int(simX), int(simY), int(self.vortex_type), sim.p_i_d, sim.p_f_d
             )
@@ -631,7 +631,7 @@ class GLRenderer:
         try:
             pbo_view = cuda_array_from_ptr(mapped.ptr, (self.height, self.width, 4), np.uint8)
 
-            grid2d, block2d = launch_2d(p_i, threads=(16, 32))
+            grid2d, block2d = launch_2d(p_i, threads=(8, 8))
 
             if self.display_mode == DISPLAY_MAGNETIZATION:
                 render_magnetization_to_rgba[grid2d, block2d](pbo_view, Field, xlen, ylen, p_i)
