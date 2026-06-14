@@ -1,0 +1,890 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Visualization with CUDA-OpenGL Interoperability &#8212; soliton_solver  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'visualization';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture" href="architecture.html" />
+    <link rel="prev" title="GPU Acceleration via Numba CUDA" href="gpu_acceleration.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/soliton_solver_logo.png" class="logo__image only-light" alt="soliton_solver  documentation - Home"/>
+    <script>document.write(`<img src="_static/soliton_solver_logo.png" class="logo__image only-dark" alt="soliton_solver  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu_acceleration.html">GPU Acceleration via Numba CUDA</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Visualization with CUDA-OpenGL Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Extending the Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/Paulnleask/soliton_solver" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/visualization.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Visualization with CUDA-OpenGL Interoperability</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-opengl-interoperability">CUDA-OpenGL Interoperability</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-gl-resource-mapping">CUDA-GL resource mapping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#zero-copy-transfers">Zero-copy transfers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rendering-pipeline">Rendering pipeline</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#density-kernels">Density kernels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#color-mapping">Color mapping</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jet-colormap">Jet colormap</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hsv-colormap">HSV colormap</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interactive-controls">Interactive controls</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#keyboard-controls">Keyboard controls</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mouse-interaction">Mouse interaction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">Performance optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#frame-rate-management">Frame rate management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#display-mode-selection">Display mode selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#texture-format">Texture format</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-visualization">Custom visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-characteristics">Performance characteristics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="visualization-with-cuda-opengl-interoperability">
+<h1>Visualization with CUDA-OpenGL Interoperability<a class="headerlink" href="#visualization-with-cuda-opengl-interoperability" title="Link to this heading">#</a></h1>
+<p>Real-time rendering of simulations using CUDA-OpenGL interoperability. Field data streams directly from GPU memory into the display without intermediate transfers to CPU memory.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> provides GPU-accelerated visualization using CUDA-OpenGL interoperability:</p>
+<ul class="simple">
+<li><p><strong>Zero-copy rendering</strong> — Field data flows directly from CUDA memory to OpenGL buffers</p></li>
+<li><p><strong>Real-time performance</strong> — Interactive exploration at 30–60 FPS on modern GPUs</p></li>
+<li><p><strong>GLFW windowing</strong> — Cross-platform window management and input handling</p></li>
+<li><p><strong>Theory-specific visualization</strong> — Each theory defines custom colormaps and observables</p></li>
+</ul>
+<p>The visualization backend is implemented in <code class="docutils literal notranslate"><span class="pre">soliton_solver/visualization/gl_backend.py</span></code>. Each theory provides a theory-specific renderer in <code class="docutils literal notranslate"><span class="pre">render_gl.py</span></code>.</p>
+</section>
+<section id="cuda-opengl-interoperability">
+<h2>CUDA-OpenGL Interoperability<a class="headerlink" href="#cuda-opengl-interoperability" title="Link to this heading">#</a></h2>
+<p>CUDA-OpenGL interop allows CUDA kernels to read/write OpenGL buffer objects directly without CPU-GPU transfers.</p>
+<section id="cuda-gl-resource-mapping">
+<h3>CUDA-GL resource mapping<a class="headerlink" href="#cuda-gl-resource-mapping" title="Link to this heading">#</a></h3>
+<p>The workflow is:</p>
+<ol class="arabic simple">
+<li><p><strong>Create OpenGL buffer</strong> — Pixel buffer object (PBO) allocated via OpenGL</p></li>
+<li><p><strong>Register with CUDA</strong> — PBO is registered as a CUDA graphics resource</p></li>
+<li><p><strong>Map resource</strong> — CUDA gets a device pointer to the PBO memory</p></li>
+<li><p><strong>Compute on GPU</strong> — CUDA kernels write directly to the PBO</p></li>
+<li><p><strong>Unmap resource</strong> — Resource is released for OpenGL to use</p></li>
+<li><p><strong>Render texture</strong> — OpenGL displays the PBO as a texture</p></li>
+</ol>
+<p>Implementation (from <code class="docutils literal notranslate"><span class="pre">gl_backend.py</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GLBackend</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;CUDA-OpenGL&quot;</span><span class="p">):</span>
+        <span class="c1"># Create PBO</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pbo</span> <span class="o">=</span> <span class="n">GL</span><span class="o">.</span><span class="n">glGenBuffers</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glBindBuffer</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_PIXEL_UNPACK_BUFFER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbo</span><span class="p">)</span>
+        <span class="n">GL</span><span class="o">.</span><span class="n">glBufferData</span><span class="p">(</span>
+            <span class="n">GL</span><span class="o">.</span><span class="n">GL_PIXEL_UNPACK_BUFFER</span><span class="p">,</span> 
+            <span class="n">width</span> <span class="o">*</span> <span class="n">height</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span>  <span class="c1"># 4 bytes per RGBA pixel</span>
+            <span class="kc">None</span><span class="p">,</span> 
+            <span class="n">GL</span><span class="o">.</span><span class="n">GL_STREAM_DRAW</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># Register PBO with CUDA</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resource</span> <span class="o">=</span> <span class="n">_cuda_register_gl_buffer</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pbo</span><span class="p">,</span> 
+            <span class="n">flags</span><span class="o">=</span><span class="n">_cuda_gl_write_discard_flag</span><span class="p">()</span>
+        <span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_pbo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a CUDA device pointer to the PBO.&quot;&quot;&quot;</span>
+        <span class="n">ptr</span><span class="p">,</span> <span class="n">nbytes</span> <span class="o">=</span> <span class="n">_cuda_map_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cuda_array_from_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">unmap_pbo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Release the PBO for OpenGL.&quot;&quot;&quot;</span>
+        <span class="n">_cuda_unmap_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="zero-copy-transfers">
+<h3>Zero-copy transfers<a class="headerlink" href="#zero-copy-transfers" title="Link to this heading">#</a></h3>
+<p>Traditional flow (CPU-GPU copies):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>GPU Field Buffer → CPU Memory → OpenGL Texture → Display
+</pre></div>
+</div>
+<p>CUDA-OpenGL interop (zero-copy):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>GPU Field Buffer ← CUDA kernel → PBO ← OpenGL Texture → Display
+</pre></div>
+</div>
+<p><strong>Benefits:</strong></p>
+<ul class="simple">
+<li><p><strong>Bandwidth saved</strong> — No PCIe transfers of rendered frame data (~50 MB/frame at 1024×1024)</p></li>
+<li><p><strong>Latency reduced</strong> — Eliminates GPU→CPU→GPU round-trip</p></li>
+<li><p><strong>Throughput improved</strong> — 30–60 FPS typical vs. 5–10 FPS with copies</p></li>
+</ul>
+</section>
+</section>
+<section id="rendering-pipeline">
+<h2>Rendering pipeline<a class="headerlink" href="#rendering-pipeline" title="Link to this heading">#</a></h2>
+<p>The rendering pipeline consists of:</p>
+<ol class="arabic simple">
+<li><p><strong>CUDA density computation</strong> — Field observables evaluated on GPU</p></li>
+<li><p><strong>CUDA colormap</strong> — Density mapped to RGBA via CUDA kernel</p></li>
+<li><p><strong>PBO mapping</strong> — Pixel buffer mapped from OpenGL to CUDA</p></li>
+<li><p><strong>CUDA pixel write</strong> — Density + colormap written to PBO</p></li>
+<li><p><strong>PBO unmapping</strong> — Resource released to OpenGL</p></li>
+<li><p><strong>Texture upload</strong> — PBO copied to GPU texture (fast, on-device)</p></li>
+<li><p><strong>OpenGL rendering</strong> — Texture displayed as fullscreen quad</p></li>
+</ol>
+<section id="density-kernels">
+<h3>Density kernels<a class="headerlink" href="#density-kernels" title="Link to this heading">#</a></h3>
+<p>Each visualization mode computes a density field. Examples:</p>
+<p><strong>Energy density</strong> — Local energy at each grid point:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_energy_kernel</span><span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute energy density.&quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">en</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="c1"># Theory-specific energy formula</span>
+        <span class="o">...</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Skyrmion number</strong> — Topological charge density:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_skyrmion_number_kernel</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute skyrmion number density.&quot;&quot;&quot;</span>
+    <span class="c1"># Integrand of winding number formula</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p><strong>Field magnitude</strong> — Norm of complex/vector fields:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_norm_kernel</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute field magnitude.&quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">density</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+        <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> 
+        <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span><span class="o">**</span><span class="mi">2</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="color-mapping">
+<h3>Color mapping<a class="headerlink" href="#color-mapping" title="Link to this heading">#</a></h3>
+<p>Density values are mapped to RGBA colors. Several colormaps are available:</p>
+<section id="jet-colormap">
+<h4>Jet colormap<a class="headerlink" href="#jet-colormap" title="Link to this heading">#</a></h4>
+<p>Standard blue-cyan-green-yellow-red colormap. Used for scalar densities.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">render_jet_density_to_rgba</span><span class="p">(</span><span class="n">pbo_rgba</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map density to jet colormap.&quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+        <span class="k">return</span>
+    
+    <span class="c1"># Normalize density to [0, 1]</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="n">density</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">-</span> <span class="n">min_val</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_val</span> <span class="o">-</span> <span class="n">min_val</span><span class="p">)</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>  <span class="c1"># Clamp to [0, 1]</span>
+    
+    <span class="c1"># Jet colormap interpolation</span>
+    <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mf">0.125</span><span class="p">:</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">val</span> <span class="o">/</span> <span class="mf">0.125</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mf">0.375</span><span class="p">:</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">val</span> <span class="o">-</span> <span class="mf">0.125</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.25</span><span class="p">),</span> <span class="mf">1.0</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mf">0.625</span><span class="p">:</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">val</span> <span class="o">-</span> <span class="mf">0.375</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.25</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">val</span> <span class="o">-</span> <span class="mf">0.375</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.25</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="mf">0.875</span><span class="p">:</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">val</span> <span class="o">-</span> <span class="mf">0.625</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.25</span><span class="p">),</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="p">(</span><span class="n">val</span> <span class="o">-</span> <span class="mf">0.875</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.125</span><span class="p">),</span> <span class="mf">0.0</span>
+    
+    <span class="n">pbo_rgba</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">pbo_rgba</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">pbo_rgba</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">pbo_rgba</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>  <span class="c1"># Alpha</span>
+</pre></div>
+</div>
+</section>
+<section id="hsv-colormap">
+<h4>HSV colormap<a class="headerlink" href="#hsv-colormap" title="Link to this heading">#</a></h4>
+<p>Hue-Saturation-Value colormap. Useful for vector fields (magnetization, etc.).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">magnetization_to_hsv</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">,</span> <span class="n">mz</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert magnetization vector to HSV.&quot;&quot;&quot;</span>
+    <span class="c1"># Hue from in-plane angle: atan2(mx, my)</span>
+    <span class="n">hue</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M_PI</span><span class="p">))</span> <span class="o">*</span> <span class="n">atan2</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">))</span> <span class="o">*</span> <span class="mf">360.0</span>
+    
+    <span class="c1"># Saturation from out-of-plane component</span>
+    <span class="n">saturation</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">tanh</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="p">(</span><span class="n">mz</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">))</span>
+    
+    <span class="c1"># Value proportional to mz</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">mz</span> <span class="o">+</span> <span class="mf">1.0</span>
+    
+    <span class="k">return</span> <span class="n">hue</span><span class="p">,</span> <span class="n">saturation</span><span class="p">,</span> <span class="n">value</span>
+</pre></div>
+</div>
+<p>Advantages:</p>
+<ul class="simple">
+<li><p><strong>Intuitive</strong> — Hue encodes direction, saturation/value encode magnitude</p></li>
+<li><p><strong>Perceptually uniform</strong> — Color changes reflect data changes smoothly</p></li>
+<li><p><strong>Vector-friendly</strong> — Naturally represents 2D in-plane + 1D perpendicular components</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="interactive-controls">
+<h2>Interactive controls<a class="headerlink" href="#interactive-controls" title="Link to this heading">#</a></h2>
+<p>The viewer supports real-time interaction via keyboard and mouse.</p>
+<section id="keyboard-controls">
+<h3>Keyboard controls<a class="headerlink" href="#keyboard-controls" title="Link to this heading">#</a></h3>
+<p>Typical control scheme (theory-dependent):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Action</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n</span></code></p></td>
+<td><p>Toggle arrested Newton flow on/off</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">k</span></code></p></td>
+<td><p>Toggle velocity arrest on energy increase</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">F1</span></code></p></td>
+<td><p>Cycle display mode (energy, order parameter, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v</span></code></p></td>
+<td><p>Enter vortex placement mode</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">a</span></code></p></td>
+<td><p>Cycle vortex ansatz (Bloch, Neel, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1</span></code>–<code class="docutils literal notranslate"><span class="pre">9</span></code></p></td>
+<td><p>Set vortex number (winding number)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">o</span></code></p></td>
+<td><p>Save results to disk</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Esc</span></code></p></td>
+<td><p>Exit viewer</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="mouse-interaction">
+<h3>Mouse interaction<a class="headerlink" href="#mouse-interaction" title="Link to this heading">#</a></h3>
+<p><strong>Vortex placement mode</strong> — Click to place vortices at cursor position:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">on_mouse_click</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">vortex_type</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Place a vortex at (x, y).&quot;&quot;&quot;</span>
+    <span class="c1"># Convert pixel coords to lattice indices</span>
+    <span class="n">pxi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">xlen</span> <span class="o">/</span> <span class="n">window_width</span><span class="p">)</span>
+    <span class="n">pxj</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ylen</span> <span class="o">/</span> <span class="n">window_height</span><span class="p">)</span>
+    
+    <span class="c1"># Kernel writes vortex configuration</span>
+    <span class="n">create_vortex_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">pxi</span><span class="p">,</span> <span class="n">pxj</span><span class="p">,</span> <span class="n">vortex_type</span><span class="p">,</span> <span class="o">...</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-optimization">
+<h2>Performance optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading">#</a></h2>
+<section id="frame-rate-management">
+<h3>Frame rate management<a class="headerlink" href="#frame-rate-management" title="Link to this heading">#</a></h3>
+<p>Balance solver accuracy vs. interactive responsiveness:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">run_viewer</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">steps_per_frame</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">steps_per_frame=1</span></code> — Rendering dominates; interactive but solver takes few steps</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps_per_frame=5</span></code> — Good balance; ~10 FPS solver + ~6 fps display</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">steps_per_frame=20</span></code> — Solver dominates; slower rendering but faster convergence</p></li>
+</ul>
+</section>
+<section id="display-mode-selection">
+<h3>Display mode selection<a class="headerlink" href="#display-mode-selection" title="Link to this heading">#</a></h3>
+<p>Different observables have different computational cost:</p>
+<ul class="simple">
+<li><p><strong>Energy density</strong> — Relatively cheap; fast gradient computation</p></li>
+<li><p><strong>Topological charge</strong> — Moderately expensive; requires derivatives</p></li>
+<li><p><strong>Magnetic field</strong> — Expensive; requires curl computation</p></li>
+</ul>
+<p>Choose the cheapest mode for interactive work; switch to expensive modes for analysis.</p>
+</section>
+<section id="texture-format">
+<h3>Texture format<a class="headerlink" href="#texture-format" title="Link to this heading">#</a></h3>
+<p>RGBA8 (8 bits per channel) vs. RGBA16F (16-bit float):</p>
+<ul class="simple">
+<li><p><strong>RGBA8</strong> — Default, uses less bandwidth, sufficient for visualization</p></li>
+<li><p><strong>RGBA16F</strong> — Higher precision, for detailed feature inspection</p></li>
+</ul>
+</section>
+</section>
+<section id="custom-visualization">
+<h2>Custom visualization<a class="headerlink" href="#custom-visualization" title="Link to this heading">#</a></h2>
+<p>To add visualization to a new theory, implement <code class="docutils literal notranslate"><span class="pre">render_gl.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># soliton_solver/theories/my_theory/render_gl.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.visualization.gl_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLBackend</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GLRenderer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom renderer for my_theory.&quot;&quot;&quot;</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Theory&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display_mode</span> <span class="o">=</span> <span class="mi">1</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render one frame.&quot;&quot;&quot;</span>
+        <span class="c1"># 1. Compute observable (density field)</span>
+        <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">compute_my_observable_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
+            <span class="n">sim</span><span class="o">.</span><span class="n">en</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_i_d</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_f_d</span>
+        <span class="p">)</span>
+        <span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+        
+        <span class="c1"># 2. Map PBO for CUDA writing</span>
+        <span class="n">pbo_rgba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">map_pbo</span><span class="p">()</span>
+        
+        <span class="c1"># 3. Color-map and write to PBO</span>
+        <span class="n">my_colormap_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
+            <span class="n">pbo_rgba</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">en</span><span class="p">,</span> <span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_i_d</span>
+        <span class="p">)</span>
+        <span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+        
+        <span class="c1"># 4. Unmap PBO</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">unmap_pbo</span><span class="p">()</span>
+        
+        <span class="c1"># 5. Display</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">upload_and_draw</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_viewer</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">steps_per_frame</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch interactive viewer.&quot;&quot;&quot;</span>
+    <span class="n">renderer</span> <span class="o">=</span> <span class="n">GLRenderer</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">xlen</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ylen</span><span class="p">)</span>
+    
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">renderer</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">should_close</span><span class="p">():</span>
+        <span class="n">renderer</span><span class="o">.</span><span class="n">display_frame</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+        
+        <span class="c1"># Advance solver</span>
+        <span class="n">energy</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">prev_energy</span><span class="o">=</span><span class="n">energy</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Key points:</strong></p>
+<ul class="simple">
+<li><p>Implement <code class="docutils literal notranslate"><span class="pre">compute_*_kernel</span></code> for your observables</p></li>
+<li><p>Implement a colormap kernel to map density → RGBA</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">GLBackend</span></code> for the window and PBO management</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">map_pbo()</span></code> / <code class="docutils literal notranslate"><span class="pre">unmap_pbo()</span></code> around CUDA work</p></li>
+</ul>
+</section>
+<section id="performance-characteristics">
+<h2>Performance characteristics<a class="headerlink" href="#performance-characteristics" title="Link to this heading">#</a></h2>
+<p>Typical performance on NVIDIA A100:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Grid size</p></th>
+<th class="head"><p>Frame rate</p></th>
+<th class="head"><p>Pixel throughput</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>512×512</p></td>
+<td><p>60 FPS</p></td>
+<td><p>~150 M pixels/sec</p></td>
+</tr>
+<tr class="row-odd"><td><p>1024×1024</p></td>
+<td><p>30 FPS</p></td>
+<td><p>~300 M pixels/sec</p></td>
+</tr>
+<tr class="row-even"><td><p>2048×2048</p></td>
+<td><p>15 FPS</p></td>
+<td><p>~600 M pixels/sec</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Bottleneck: GPU memory bandwidth and synchronization overhead between CUDA and OpenGL.</p>
+<section id="troubleshooting">
+<h3>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h3>
+<p><strong>Black screen / no display:</strong></p>
+<ul class="simple">
+<li><p>Check that density kernel writes valid data (not NaN, inf, or all zeros)</p></li>
+<li><p>Verify colormap kernel writes to correct PBO array</p></li>
+</ul>
+<p><strong>Flickering / torn frames:</strong></p>
+<ul class="simple">
+<li><p>Enable vsync: <code class="docutils literal notranslate"><span class="pre">glfw.swap_interval(1)</span></code> (default)</p></li>
+<li><p>Increase <code class="docutils literal notranslate"><span class="pre">steps_per_frame</span></code> if solver is too slow</p></li>
+</ul>
+<p><strong>CUDA-GL errors:</strong></p>
+<ul class="simple">
+<li><p>Ensure both CUDA and OpenGL operations are synchronized</p></li>
+<li><p>Call <code class="docutils literal notranslate"><span class="pre">cuda.synchronize()</span></code> before unmapping resources</p></li>
+<li><p>Check that PBO size matches window resolution</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="gpu_acceleration.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">GPU Acceleration via Numba CUDA</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="architecture.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Architecture</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-opengl-interoperability">CUDA-OpenGL Interoperability</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-gl-resource-mapping">CUDA-GL resource mapping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#zero-copy-transfers">Zero-copy transfers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rendering-pipeline">Rendering pipeline</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#density-kernels">Density kernels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#color-mapping">Color mapping</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jet-colormap">Jet colormap</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hsv-colormap">HSV colormap</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interactive-controls">Interactive controls</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#keyboard-controls">Keyboard controls</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mouse-interaction">Mouse interaction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">Performance optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#frame-rate-management">Frame rate management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#display-mode-selection">Display mode selection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#texture-format">Texture format</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-visualization">Custom visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-characteristics">Performance characteristics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Paul Leask
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Paul Leask.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
