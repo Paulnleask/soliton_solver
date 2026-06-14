@@ -1,0 +1,5 @@
+sphinx>=4.0
+sphinx-book-theme
+myst-parser
+sphinx-autodoc-typehints
+sphinx-math-dollar

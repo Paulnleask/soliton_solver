@@ -1,0 +1,873 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GPU Acceleration via Numba CUDA &#8212; soliton_solver  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]]}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'gpu_acceleration';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Visualization with CUDA-OpenGL Interoperability" href="visualization.html" />
+    <link rel="prev" title="Numerical Solver" href="numerical_solver.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/soliton_solver_logo.png" class="logo__image only-light" alt="soliton_solver  documentation - Home"/>
+    <script>document.write(`<img src="_static/soliton_solver_logo.png" class="logo__image only-dark" alt="soliton_solver  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">GPU Acceleration via Numba CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization with CUDA-OpenGL Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Extending the Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/Paulnleask/soliton_solver" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/gpu_acceleration.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>GPU Acceleration via Numba CUDA</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-kernels">CUDA Kernels</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-structure">Kernel structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#thread-mapping">Thread mapping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-examples">Kernel examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#finite-difference-derivatives">Finite-difference derivatives</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gradient-computation">Gradient computation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shared-memory">Shared Memory</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shared-memory-layout">Shared memory layout</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simt-execution-model">SIMT Execution Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#warp-level-operations">Warp-level operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#occupancy-and-resource-utilization">Occupancy and resource utilization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arrested-newton-flow-algorithm">Arrested Newton Flow Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-description">Algorithm description</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convergence-properties">Convergence properties</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gpu-implementation">GPU implementation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-layout-and-indexing">Memory layout and indexing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-indexing">Flattened indexing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-benchmarks">Performance benchmarks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profiling-and-optimization">Profiling and optimization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#out-of-memory-errors">Out-of-memory errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-launch-failures">Kernel launch failures</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-degradation">Performance degradation</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="gpu-acceleration-via-numba-cuda">
+<h1>GPU Acceleration via Numba CUDA<a class="headerlink" href="#gpu-acceleration-via-numba-cuda" title="Link to this heading">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> achieves high performance by implementing the PDE solver entirely on NVIDIA GPUs using Numba CUDA. This document explains the GPU acceleration strategy, kernel design, and performance characteristics.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The solver uses <strong>Numba CUDA</strong> for JIT compilation of Python functions into optimized CUDA kernels. Key benefits:</p>
+<ul class="simple">
+<li><p><strong>No explicit C/C++ code</strong> — Pure Python kernel definitions, compiled to CUDA at runtime</p></li>
+<li><p><strong>Type specialization</strong> — Kernels are optimized for float64 field arrays</p></li>
+<li><p><strong>Lazy compilation</strong> — Kernels compile on first invocation, then cached</p></li>
+<li><p><strong>Reduced compilation burden</strong> — Theory developers can write kernels in Python without CUDA expertise</p></li>
+</ul>
+</section>
+<section id="cuda-kernels">
+<h2>CUDA Kernels<a class="headerlink" href="#cuda-kernels" title="Link to this heading">#</a></h2>
+<section id="kernel-structure">
+<h3>Kernel structure<a class="headerlink" href="#kernel-structure" title="Link to this heading">#</a></h3>
+<p>Kernels in <code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> follow a <strong>2D grid + per-thread update</strong> pattern:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">in_bounds</span><span class="p">,</span> <span class="n">idx_field</span>
+
+<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_kernel</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a field on the GPU.&quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Get (x, y) thread index</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+        <span class="k">return</span>  <span class="c1"># Threads outside domain do nothing</span>
+    
+    <span class="c1"># Per-thread computation</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)</span>  <span class="c1"># Flatten (x, y) to linear index</span>
+    <span class="n">Field</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">1.0</span>  <span class="c1"># Update field value</span>
+</pre></div>
+</div>
+</section>
+<section id="thread-mapping">
+<h3>Thread mapping<a class="headerlink" href="#thread-mapping" title="Link to this heading">#</a></h3>
+<p>Each thread processes one lattice site <span class="math notranslate nohighlight">\((x, y)\)</span>:</p>
+<ul class="simple">
+<li><p><strong>Grid dimensions</strong> — Matches 2D domain: <code class="docutils literal notranslate"><span class="pre">(nx</span> <span class="pre">//</span> <span class="pre">threads_per_block_x,</span> <span class="pre">ny</span> <span class="pre">//</span> <span class="pre">threads_per_block_y)</span></code></p></li>
+<li><p><strong>Block dimensions</strong> — Typically <code class="docutils literal notranslate"><span class="pre">(8,</span> <span class="pre">8)</span></code> or <code class="docutils literal notranslate"><span class="pre">(16,</span> <span class="pre">16)</span></code> threads per block</p></li>
+<li><p><strong>Global ID</strong> — <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span> <span class="pre">=</span> <span class="pre">cuda.grid(2)</span></code> gives the 2D lattice coordinate</p></li>
+<li><p><strong>Out-of-bounds handling</strong> — <code class="docutils literal notranslate"><span class="pre">in_bounds(x,</span> <span class="pre">y,</span> <span class="pre">p_i)</span></code> checks if thread is within domain and domain-interior (beyond halo)</p></li>
+</ul>
+</section>
+<section id="kernel-examples">
+<h3>Kernel examples<a class="headerlink" href="#kernel-examples" title="Link to this heading">#</a></h3>
+<section id="finite-difference-derivatives">
+<h4>Finite-difference derivatives<a class="headerlink" href="#finite-difference-derivatives" title="Link to this heading">#</a></h4>
+<p>Fourth-order central finite differences are computed per-thread:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_derivative_first</span><span class="p">(</span><span class="n">d1fd1x</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute first derivative of field component a at (x, y).&quot;&quot;&quot;</span>
+    <span class="n">xlen</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ylen</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">halo</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">lsx</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># Lattice spacing x</span>
+    <span class="n">lsy</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>  <span class="c1"># Lattice spacing y</span>
+    
+    <span class="c1"># Fourth-order stencil: [-1/12, 2/3, 0, -2/3, 1/12] * f</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="n">halo</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">xlen</span> <span class="o">-</span> <span class="n">halo</span><span class="p">:</span>
+        <span class="n">d1fd1x</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">12.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span>
+            <span class="o">-</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span>
+            <span class="o">+</span> <span class="p">(</span><span class="mf">2.0</span><span class="o">/</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span>
+            <span class="o">-</span> <span class="p">(</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">12.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">lsx</span>
+</pre></div>
+</div>
+<p>Each thread independently loads neighboring field values and computes the derivative.</p>
+</section>
+<section id="gradient-computation">
+<h4>Gradient computation<a class="headerlink" href="#gradient-computation" title="Link to this heading">#</a></h4>
+<p>Theory-specific gradients use derivatives computed per-thread:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">make_do_gradient_step_kernel</span><span class="p">(</span><span class="n">do_gradient_step_point</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory creating a gradient computation kernel.&quot;&quot;&quot;</span>
+    <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_kernel</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># Compute derivatives</span>
+        <span class="n">number_total_fields</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number_total_fields</span><span class="p">):</span>
+            <span class="n">compute_derivative_first</span><span class="p">(</span><span class="n">d1fd1x</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">)</span>
+            <span class="n">compute_derivative_second</span><span class="p">(</span><span class="n">d2fd2x</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">)</span>
+        
+        <span class="c1"># Theory-specific gradient update</span>
+        <span class="n">do_gradient_step_point</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> 
+                              <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">_kernel</span>
+</pre></div>
+</div>
+<p>The per-thread <code class="docutils literal notranslate"><span class="pre">do_gradient_step_point</span></code> implements the theory-specific energy gradient <span class="math notranslate nohighlight">\(\nabla E[\phi]\)</span>.</p>
+</section>
+</section>
+</section>
+<section id="shared-memory">
+<h2>Shared Memory<a class="headerlink" href="#shared-memory" title="Link to this heading">#</a></h2>
+<p>While the current kernels do not explicitly use shared memory (they rely on L1/L2 caches), shared memory optimization is suitable for future improvements:</p>
+<section id="shared-memory-layout">
+<h3>Shared memory layout<a class="headerlink" href="#shared-memory-layout" title="Link to this heading">#</a></h3>
+<p>For a 2D stencil kernel with halo communication, shared memory can reduce global memory bandwidth:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stencil_with_shared_memory</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Example: shared memory optimization for finite-difference stencils.&quot;&quot;&quot;</span>
+    <span class="c1"># Allocate shared memory for a (block_x + 2*halo) × (block_y + 2*halo) region</span>
+    <span class="n">shared</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span>  <span class="c1"># For 8×8 + halo=1</span>
+    
+    <span class="n">tx</span><span class="p">,</span> <span class="n">ty</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">cuda</span><span class="o">.</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    
+    <span class="c1"># Cooperative load: all threads load neighboring values</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">nx</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">ny</span><span class="p">:</span>
+        <span class="n">shared</span><span class="p">[</span><span class="n">tx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ty</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span>
+    
+    <span class="c1"># Halo threads load boundaries</span>
+    <span class="k">if</span> <span class="n">tx</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">shared</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">ty</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">tx</span> <span class="o">==</span> <span class="mi">7</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">shared</span><span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="n">ty</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span>
+    
+    <span class="n">cuda</span><span class="o">.</span><span class="n">syncthreads</span><span class="p">()</span>
+    
+    <span class="c1"># Compute using shared memory (faster than global memory)</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">nx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">Output</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">shared</span><span class="p">[</span><span class="n">tx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ty</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">shared</span><span class="p">[</span><span class="n">tx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ty</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+</pre></div>
+</div>
+<p><strong>Benefits:</strong></p>
+<ul class="simple">
+<li><p>Reduced global memory bandwidth: <span class="math notranslate nohighlight">\(\sim 8\times\)</span> faster on modern GPUs</p></li>
+<li><p>Improved L1 cache locality</p></li>
+<li><p>Synchronization points for multi-step algorithms</p></li>
+</ul>
+<p><strong>Bank conflicts:</strong> NVIDIA GPUs organize shared memory into 32 banks. Stride-1 access minimizes conflicts; stride-32 causes maximum contention.</p>
+</section>
+</section>
+<section id="simt-execution-model">
+<h2>SIMT Execution Model<a class="headerlink" href="#simt-execution-model" title="Link to this heading">#</a></h2>
+<p>CUDA uses <strong>Single-Instruction Multiple-Thread (SIMT)</strong> execution. Understanding this improves kernel design:</p>
+<section id="warp-level-operations">
+<h3>Warp-level operations<a class="headerlink" href="#warp-level-operations" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Warp</strong> — 32 consecutive threads executing the same instruction</p></li>
+<li><p><strong>Warp scheduler</strong> — GPU assigns warps to cores; one warp per core per cycle</p></li>
+<li><p><strong>Thread divergence</strong> — If threads in a warp branch differently, paths execute serially, reducing parallelism</p></li>
+</ul>
+<p>Example of divergence (bad):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">divergent_kernel</span><span class="p">(</span><span class="n">Field</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Divergence: half the warp takes one path</span>
+        <span class="n">Field</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Field</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+</pre></div>
+</div>
+<p>Example without divergence (good):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">coalesced_kernel</span><span class="p">(</span><span class="n">Field</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">Field</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">-</span> <span class="mf">1.0</span>  <span class="c1"># No divergence</span>
+</pre></div>
+</div>
+</section>
+<section id="occupancy-and-resource-utilization">
+<h3>Occupancy and resource utilization<a class="headerlink" href="#occupancy-and-resource-utilization" title="Link to this heading">#</a></h3>
+<p><strong>Occupancy</strong> — Fraction of the GPU’s maximum concurrent threads.</p>
+<p>For a kernel using 32 registers per thread and 48 KB shared memory per block:</p>
+<ul class="simple">
+<li><p>Tesla A100 (108 SMs × 2560 threads/SM) — 1 block/SM (256 threads) → 10% occupancy</p></li>
+<li><p>A100 can run 40-80 active warps per SM → higher occupancy beneficial</p></li>
+</ul>
+<p><strong>Optimization:</strong></p>
+<ul class="simple">
+<li><p>Minimize register usage (fewer local variables)</p></li>
+<li><p>Minimize shared memory per block</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">&#64;cuda.jit(fastmath=True)</span></code> for faster-but-less-precise math when appropriate</p></li>
+</ul>
+</section>
+</section>
+<section id="arrested-newton-flow-algorithm">
+<h2>Arrested Newton Flow Algorithm<a class="headerlink" href="#arrested-newton-flow-algorithm" title="Link to this heading">#</a></h2>
+<p>The core minimization algorithm uses <strong>arrested Newton flow</strong> (ANF) — a second-order relaxation method combining fast descent with stability control.</p>
+<section id="algorithm-description">
+<h3>Algorithm description<a class="headerlink" href="#algorithm-description" title="Link to this heading">#</a></h3>
+<p>Given a discrete energy <span class="math notranslate nohighlight">\(E_h[\phi]\)</span>, the continuous ANF equation is:</p>
+<div class="math notranslate nohighlight">
+\[
+\ddot{\phi} = -\nabla_\phi E_h[\phi]
+\]</div>
+<p>Evolving this PDE toward equilibrium finds local minima. The algorithm is:</p>
+<ol class="arabic simple">
+<li><p><strong>Compute gradient</strong> — <span class="math notranslate nohighlight">\(\nabla E\)</span> at all lattice sites</p></li>
+<li><p><strong>RK4 step</strong> — Advance <span class="math notranslate nohighlight">\((φ, \dot{φ})\)</span> by time <span class="math notranslate nohighlight">\(\Delta t\)</span></p></li>
+<li><p><strong>Arrest check</strong> — If energy increased, set velocity to zero</p></li>
+<li><p><strong>Repeat</strong> until convergence</p></li>
+</ol>
+</section>
+<section id="convergence-properties">
+<h3>Convergence properties<a class="headerlink" href="#convergence-properties" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Second-order</strong> — Velocity assists motion along shallow directions</p></li>
+<li><p><strong>Energy stable</strong> — Velocity reset prevents oscillations</p></li>
+<li><p><strong>Faster than gradient descent</strong> — Particularly for multi-soliton configurations</p></li>
+<li><p><strong>Convergence criterion</strong> — Stop when <span class="math notranslate nohighlight">\(\|\nabla E\|_\infty &lt; \epsilon\)</span></p></li>
+</ul>
+</section>
+<section id="gpu-implementation">
+<h3>GPU implementation<a class="headerlink" href="#gpu-implementation" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">do_arrested_newton_flow</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span> 
+                           <span class="n">gradient_step_kernel</span><span class="p">,</span> <span class="n">rk4_kernel</span><span class="p">,</span> 
+                           <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">,</span> <span class="n">p_f_h</span><span class="p">,</span> 
+                           <span class="n">prev_energy</span><span class="p">,</span> <span class="n">compute_energy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One arrested Newton flow minimization step.&quot;&quot;&quot;</span>
+    
+    <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    
+    <span class="c1"># 1. Compute energy gradient: ∇E = ∂E/∂φ</span>
+    <span class="n">gradient_step_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
+        <span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span>
+    <span class="p">)</span>
+    <span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+    
+    <span class="c1"># 2. RK4 step: advance (φ, φ̇) = φ(t + Δt)</span>
+    <span class="n">do_rk4_step_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
+        <span class="n">k_out</span><span class="p">,</span> <span class="n">Velocity</span><span class="p">,</span> <span class="n">l_in</span><span class="p">,</span> <span class="n">Temp</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">k_prev</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span>
+    <span class="p">)</span>
+    <span class="c1"># ... (four RK4 stages)</span>
+    
+    <span class="n">rk4_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
+        <span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">k1</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">k3</span><span class="p">,</span> <span class="n">k4</span><span class="p">,</span> <span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">,</span> <span class="n">l3</span><span class="p">,</span> <span class="n">l4</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span>
+    <span class="p">)</span>
+    <span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+    
+    <span class="c1"># 3. Arrest check: ∫(φ̇ · ∇E) &gt; 0?</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">arresting_criteria</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    
+    <span class="n">new_energy</span> <span class="o">=</span> <span class="n">compute_energy</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">new_energy</span> <span class="o">&gt;</span> <span class="n">prev_energy</span><span class="p">:</span>  <span class="c1"># Energy increased</span>
+        <span class="c1"># Reset velocity: φ̇ ← 0</span>
+        <span class="n">set_field_zero_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">new_energy</span><span class="p">,</span> <span class="n">convergence_error</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="memory-layout-and-indexing">
+<h2>Memory layout and indexing<a class="headerlink" href="#memory-layout-and-indexing" title="Link to this heading">#</a></h2>
+<p>Field arrays are stored in <strong>flat 1D buffers</strong> with multi-dimensional indexing via helper functions.</p>
+<section id="flattened-indexing">
+<h3>Flattened indexing<a class="headerlink" href="#flattened-indexing" title="Link to this heading">#</a></h3>
+<p>For a multi-component field on an <span class="math notranslate nohighlight">\(n_x \times n_y\)</span> grid:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Field[a, i, j] → Field[(j) + (i) * ny + (a) * nx * ny]
+</pre></div>
+</div>
+<p>This layout ensures:</p>
+<ul class="simple">
+<li><p><strong>Coalesced memory access</strong> — Consecutive threads access consecutive memory locations</p></li>
+<li><p><strong>Cache efficiency</strong> — Sequential indices fit in L1/L2 caches</p></li>
+</ul>
+<p>Helper functions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">idx_field</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+    <span class="n">xlen</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ylen</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">j</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">ylen</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="n">xlen</span> <span class="o">*</span> <span class="n">ylen</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-benchmarks">
+<h2>Performance benchmarks<a class="headerlink" href="#performance-benchmarks" title="Link to this heading">#</a></h2>
+<p>Typical performance on NVIDIA A100 GPU:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Grid size</p></th>
+<th class="head"><p>Fields</p></th>
+<th class="head"><p>Kernel time</p></th>
+<th class="head"><p>Throughput</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>512×512</p></td>
+<td><p>2-4</p></td>
+<td><p>0.5–1 ms</p></td>
+<td><p>500+ M pts/s</p></td>
+</tr>
+<tr class="row-odd"><td><p>1024×1024</p></td>
+<td><p>4-8</p></td>
+<td><p>2–4 ms</p></td>
+<td><p>250+ M pts/s</p></td>
+</tr>
+<tr class="row-even"><td><p>2048×2048</p></td>
+<td><p>8-16</p></td>
+<td><p>8–15 ms</p></td>
+<td><p>300+ M pts/s</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Bottleneck:</strong> Global memory bandwidth (typically 2 TB/s on A100).</p>
+</section>
+<section id="profiling-and-optimization">
+<h2>Profiling and optimization<a class="headerlink" href="#profiling-and-optimization" title="Link to this heading">#</a></h2>
+<p>Profile CUDA kernels with <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code> and <code class="docutils literal notranslate"><span class="pre">nsys</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Profile GPU memory and kernel utilization</span>
+nvidia-smi<span class="w"> </span>dmon
+
+<span class="c1"># Detailed profiling with NVIDIA Systems Profiler</span>
+nsys<span class="w"> </span>profile<span class="w"> </span>--stats<span class="o">=</span><span class="nb">true</span><span class="w"> </span>my_simulation.py
+</pre></div>
+</div>
+<p>Common optimizations:</p>
+<ul class="simple">
+<li><p><strong>Reduce memory reads</strong> — Cache field derivatives locally</p></li>
+<li><p><strong>Increase arithmetic intensity</strong> — More computation per byte loaded</p></li>
+<li><p><strong>Minimize synchronization</strong> — Batch kernel launches between syncs</p></li>
+<li><p><strong>Use fast-math mode</strong> — Trade precision for speed if acceptable</p></li>
+</ul>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="out-of-memory-errors">
+<h3>Out-of-memory errors<a class="headerlink" href="#out-of-memory-errors" title="Link to this heading">#</a></h3>
+<p>If GPU memory is exhausted:</p>
+<ul class="simple">
+<li><p>Reduce grid size (<code class="docutils literal notranslate"><span class="pre">xlen</span></code>, <code class="docutils literal notranslate"><span class="pre">ylen</span></code>)</p></li>
+<li><p>Reduce number of fields</p></li>
+<li><p>Use smaller data type (float32 if accuracy allows)</p></li>
+</ul>
+</section>
+<section id="kernel-launch-failures">
+<h3>Kernel launch failures<a class="headerlink" href="#kernel-launch-failures" title="Link to this heading">#</a></h3>
+<p>Ensure kernel signature matches launch call. Numba CUDA catches most type mismatches at compile time.</p>
+</section>
+<section id="performance-degradation">
+<h3>Performance degradation<a class="headerlink" href="#performance-degradation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Check occupancy with profiler</p></li>
+<li><p>Verify coalesced memory access patterns</p></li>
+<li><p>Reduce register usage by refactoring</p></li>
+<li><p>Profile to identify bottleneck kernels</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="numerical_solver.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Numerical Solver</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="visualization.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Visualization with CUDA-OpenGL Interoperability</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cuda-kernels">CUDA Kernels</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-structure">Kernel structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#thread-mapping">Thread mapping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-examples">Kernel examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#finite-difference-derivatives">Finite-difference derivatives</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#gradient-computation">Gradient computation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shared-memory">Shared Memory</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shared-memory-layout">Shared memory layout</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simt-execution-model">SIMT Execution Model</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#warp-level-operations">Warp-level operations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#occupancy-and-resource-utilization">Occupancy and resource utilization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arrested-newton-flow-algorithm">Arrested Newton Flow Algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#algorithm-description">Algorithm description</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convergence-properties">Convergence properties</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gpu-implementation">GPU implementation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#memory-layout-and-indexing">Memory layout and indexing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flattened-indexing">Flattened indexing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-benchmarks">Performance benchmarks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profiling-and-optimization">Profiling and optimization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#out-of-memory-errors">Out-of-memory errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-launch-failures">Kernel launch failures</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-degradation">Performance degradation</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Paul Leask
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Paul Leask.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

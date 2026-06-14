@@ -58,6 +58,13 @@ dev = [
   "twine"
 ]
 
+docs = [
+  "sphinx>=4.0",
+  "sphinx-book-theme",
+  "myst-parser",
+  "sphinx-autodoc-typehints",
+]
+
 [tool.setuptools]
 include-package-data = true
 

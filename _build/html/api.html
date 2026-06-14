@@ -1,0 +1,1081 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API Reference &#8212; soliton_solver  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Extending the Solver" href="extending.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/soliton_solver_logo.png" class="logo__image only-light" alt="soliton_solver  documentation - Home"/>
+    <script>document.write(`<img src="_static/soliton_solver_logo.png" class="logo__image only-dark" alt="soliton_solver  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu_acceleration.html">GPU Acceleration via Numba CUDA</a></li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization with CUDA-OpenGL Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extending.html">Extending the Solver</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">API Reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/Paulnleask/soliton_solver" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/api.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>API Reference</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-a-theory-and-running-a-simulation">Loading a theory and running a simulation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#listing-available-theories">Listing available theories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-theories">soliton_solver.theories</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-simulation">soliton_solver.core.simulation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-class">Simulation class</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-params">soliton_solver.core.params</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Classes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-integrator">soliton_solver.core.integrator</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-derivatives">soliton_solver.core.derivatives</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-utils">soliton_solver.core.utils</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-colormaps">soliton_solver.core.colormaps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-visualization-gl-backend">soliton_solver.visualization.gl_backend</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#glbackend-class">GLBackend class</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Methods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theory-interface">Theory interface</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-submodules">Required submodules</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-submodules">Optional submodules</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-patterns">Common patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-minimization-loop">Running a minimization loop</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#computing-custom-observables">Computing custom observables</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interactive-visualization-with-custom-controls">Interactive visualization with custom controls</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extending-the-solver">Extending the solver</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h1>
+<p>Complete API documentation for <code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code>. This section documents the public interfaces for creating and running simulations.</p>
+<section id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
+<section id="loading-a-theory-and-running-a-simulation">
+<h3>Loading a theory and running a simulation<a class="headerlink" href="#loading-a-theory-and-running-a-simulation" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.theories</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_theory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
+
+<span class="c1"># Load a theory</span>
+<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create parameters</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">theory</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">default_params</span><span class="p">(</span>
+    <span class="n">xlen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">ylen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">xsize</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">ysize</span><span class="o">=</span><span class="mf">10.0</span>
+<span class="p">)</span>
+
+<span class="c1"># Create simulation</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+
+<span class="c1"># Run minimization step</span>
+<span class="n">energy</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">prev_energy</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy: </span><span class="si">{</span><span class="n">energy</span><span class="si">}</span><span class="s2">, Gradient norm: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="listing-available-theories">
+<h3>Listing available theories<a class="headerlink" href="#listing-available-theories" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">theories</span>
+
+<span class="c1"># List all theories</span>
+<span class="n">theories</span><span class="o">.</span><span class="n">print_table</span><span class="p">()</span>
+
+<span class="c1"># Get canonical names</span>
+<span class="n">available</span> <span class="o">=</span> <span class="n">theories</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
+
+<span class="c1"># Get theory description</span>
+<span class="n">theories</span><span class="o">.</span><span class="n">print_description</span><span class="p">(</span><span class="s2">&quot;Baby Skyrme&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="soliton-solver-theories">
+<h2>soliton_solver.theories<a class="headerlink" href="#soliton-solver-theories" title="Link to this heading">#</a></h2>
+<p>Theory registry and loading interface.</p>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">load_theory(name:</span> <span class="pre">str)</span> <span class="pre">→</span> <span class="pre">module</span></code></strong></p>
+<p>Load a theory by name.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Ginzburg-Landau superconductor&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> (str) — Canonical theory name or alias</p></li>
+</ul>
+</li>
+<li><p><strong>Returns:</strong> Theory module with submodules: <code class="docutils literal notranslate"><span class="pre">params</span></code>, <code class="docutils literal notranslate"><span class="pre">kernels</span></code>, <code class="docutils literal notranslate"><span class="pre">initial_config</span></code>, <code class="docutils literal notranslate"><span class="pre">observables</span></code>, <code class="docutils literal notranslate"><span class="pre">io</span></code>, <code class="docutils literal notranslate"><span class="pre">render_gl</span></code></p></li>
+<li><p><strong>Raises:</strong> KeyError if theory name not registered</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">list_theories()</span> <span class="pre">→</span> <span class="pre">tuple[str,</span> <span class="pre">...]</span></code></strong></p>
+<p>Return canonical names of all registered theories.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">theory_name</span> <span class="ow">in</span> <span class="n">theories</span><span class="o">.</span><span class="n">list</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">theory_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">list()</span> <span class="pre">→</span> <span class="pre">tuple[str,</span> <span class="pre">...]</span></code></strong></p>
+<p>Convenience alias for <code class="docutils literal notranslate"><span class="pre">list_theories()</span></code>.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">print_table()</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Print a formatted table of registered theories with descriptions.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">print_description(name:</span> <span class="pre">str)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Print detailed description of a theory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">theories</span><span class="o">.</span><span class="n">print_description</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">get_theory_spec(name:</span> <span class="pre">str)</span> <span class="pre">→</span> <span class="pre">TheorySpec</span></code></strong></p>
+<p>Get metadata for a theory.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">theories</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get_theory_spec</span><span class="p">(</span><span class="s2">&quot;Baby Skyrme&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">TheorySpec(name,</span> <span class="pre">import_path,</span> <span class="pre">description,</span> <span class="pre">version,</span> <span class="pre">aliases,</span> <span class="pre">required_submodules)</span></code></strong></p>
+<p>Immutable metadata for a theory.</p>
+<ul class="simple">
+<li><p><strong>Attributes:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> (str) — Canonical theory name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">import_path</span></code> (str) — Python import path</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> (str) — Short description</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">version</span></code> (str) — Version identifier</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aliases</span></code> (tuple[str]) — Alternative names</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">required_submodules</span></code> (tuple[str]) — Required submodules</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="soliton-solver-core-simulation">
+<h2>soliton_solver.core.simulation<a class="headerlink" href="#soliton-solver-core-simulation" title="Link to this heading">#</a></h2>
+<p>Main simulation interface.</p>
+<section id="simulation-class">
+<h3>Simulation class<a class="headerlink" href="#simulation-class" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">Simulation(params,</span> <span class="pre">theory)</span></code></strong></p>
+<p>High-level simulation wrapper binding a theory to the CUDA solver.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">params</span></code> (Params) — Parameter set</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">theory</span></code> (module) — Loaded theory module</p></li>
+</ul>
+</li>
+</ul>
+<section id="methods">
+<h4>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h4>
+<p><strong><code class="docutils literal notranslate"><span class="pre">initialize(init_config:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Set up the grid and apply initial field configuration.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>  <span class="c1"># Ground state</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;vortex&quot;</span><span class="p">})</span>  <span class="c1"># Vortex configuration</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">init_config</span></code> (dict, optional) — Initialization options (theory-specific)</p></li>
+</ul>
+</li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">step(prev_energy:</span> <span class="pre">float)</span> <span class="pre">→</span> <span class="pre">tuple[float,</span> <span class="pre">float]</span></code></strong></p>
+<p>Advance simulation by one arrested Newton flow step.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">energy</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">prev_energy</span><span class="o">=</span><span class="n">energy</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">prev_energy</span></code> (float) — Energy from previous step (used for arrest logic)</p></li>
+</ul>
+</li>
+<li><p><strong>Returns:</strong> Tuple (new_energy, gradient_norm_max)</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">observables()</span> <span class="pre">→</span> <span class="pre">dict</span></code></strong></p>
+<p>Compute theory-specific observables.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">observables</span><span class="p">()</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+<span class="n">topological_charge</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;topological_charge&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Returns:</strong> Dictionary of observable values</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">save_output(output_dir:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">precision:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">32)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Write simulation results to disk.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">save_output</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str, optional) — Output directory (defaults to theory results dir)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">precision</span></code> (int) — Number of significant figures for formatting</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="attributes">
+<h4>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Field</span></code> (CUDA device array) — Current field configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Velocity</span></code> (CUDA device array) — Current velocity field</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grid</span></code> (CUDA device array) — Physical coordinate grid</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p_i_h</span></code>, <code class="docutils literal notranslate"><span class="pre">p_f_h</span></code> (numpy arrays) — Integer and float parameters (host)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">p_i_d</span></code>, <code class="docutils literal notranslate"><span class="pre">p_f_d</span></code> (CUDA device arrays) — Integer and float parameters (device)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">theory</span></code> (module) — Theory module</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rp</span></code> (ResolvedParams) — Resolved parameters</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="soliton-solver-core-params">
+<h2>soliton_solver.core.params<a class="headerlink" href="#soliton-solver-core-params" title="Link to this heading">#</a></h2>
+<p>Parameter management.</p>
+<section id="id1">
+<h3>Classes<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">Params(xlen,</span> <span class="pre">ylen,</span> <span class="pre">halo,</span> <span class="pre">xsize,</span> <span class="pre">ysize,</span> <span class="pre">lsx,</span> <span class="pre">lsy,</span> <span class="pre">courant,</span> <span class="pre">time_step,</span> <span class="pre">killkinen,</span> <span class="pre">newtonflow,</span> <span class="pre">unit_magnetization)</span></code></strong></p>
+<p>User-facing parameter set.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">Params</span><span class="p">(</span>
+    <span class="n">xlen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">ylen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+    <span class="n">xsize</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">ysize</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span>
+    <span class="n">time_step</span><span class="o">=</span><span class="mf">0.01</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Attributes:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">xlen</span></code> (int) — Grid points along x (default: 256)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ylen</span></code> (int) — Grid points along y (default: 256)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">halo</span></code> (int) — Halo width for stencils (default: 2)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xsize</span></code> (float) — Physical domain size x (default: 80.0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ysize</span></code> (float) — Physical domain size y (default: 80.0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lsx</span></code>, <code class="docutils literal notranslate"><span class="pre">lsy</span></code> (float | None) — Lattice spacings (computed if None)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">courant</span></code> (float) — Courant number for adaptive time step (default: 0.5)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time_step</span></code> (float | None) — Explicit time step (if None, computed from Courant)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">killkinen</span></code> (bool) — Reset velocity on energy increase (default: True)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">newtonflow</span></code> (bool) — Enable Newton flow vs. gradient descent (default: True)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_magnetization</span></code> (bool) — Enforce unit magnetization constraint (default: False)</p></li>
+</ul>
+</li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">Params.with_(**kwargs)</span> <span class="pre">→</span> <span class="pre">Params</span></code></strong></p>
+<p>Create a modified copy.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">params2</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">with_</span><span class="p">(</span><span class="n">xlen</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">ylen</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">Params.resolved()</span> <span class="pre">→</span> <span class="pre">ResolvedParams</span></code></strong></p>
+<p>Derive solver-ready parameters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rp</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">resolved</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">lsx</span><span class="p">,</span> <span class="n">rp</span><span class="o">.</span><span class="n">lsy</span><span class="p">,</span> <span class="n">rp</span><span class="o">.</span><span class="n">time_step</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">ResolvedParams</span></code></strong></p>
+<p>Computed parameters ready for the solver.</p>
+<ul class="simple">
+<li><p><strong>Attributes:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">dim_grid</span></code> (int) — Total grid points</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dim_fields</span></code> (int) — Total field values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lsx</span></code>, <code class="docutils literal notranslate"><span class="pre">lsy</span></code> (float) — Lattice spacings</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grid_volume</span></code> (float) — Cell area</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time_step</span></code> (float) — Actual time step</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">killkinen</span></code>, <code class="docutils literal notranslate"><span class="pre">newtonflow</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_magnetization</span></code> (int) — Integer flags</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="soliton-solver-core-integrator">
+<h2>soliton_solver.core.integrator<a class="headerlink" href="#soliton-solver-core-integrator" title="Link to this heading">#</a></h2>
+<p>Time integration and minimization algorithms.</p>
+<section id="id2">
+<h3>Functions<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">make_do_gradient_step_kernel(do_gradient_step_point)</span> <span class="pre">→</span> <span class="pre">cuda.jit</span></code></strong></p>
+<p>Factory for creating a gradient computation kernel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">my_gradient_point</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+    <span class="c1"># Compute gradient at (x, y)</span>
+    <span class="o">...</span>
+
+<span class="n">gradient_kernel</span> <span class="o">=</span> <span class="n">make_do_gradient_step_kernel</span><span class="p">(</span><span class="n">my_gradient_point</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_gradient_step_point</span></code> (function) — Per-thread gradient computation</p></li>
+</ul>
+</li>
+<li><p><strong>Returns:</strong> CUDA kernel for computing gradients</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">make_do_rk4_kernel(compute_norm,</span> <span class="pre">project_orthogonal)</span> <span class="pre">→</span> <span class="pre">cuda.jit</span></code></strong></p>
+<p>Factory for creating an RK4 finalization kernel with constraint projection.</p>
+<ul class="simple">
+<li><p><strong>Parameters:</strong></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_norm</span></code> (function) — Field normalization (e.g., for magnetization)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">project_orthogonal</span></code> (function) — Constraint projection (e.g., unit norm)</p></li>
+</ul>
+</li>
+<li><p><strong>Returns:</strong> CUDA kernel for RK4 updates with constraints</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">do_arrested_newton_flow(...)</span> <span class="pre">→</span> <span class="pre">tuple[float,</span> <span class="pre">float]</span></code></strong></p>
+<p>Perform one arrested Newton flow step.</p>
+<p>Returns: (new_energy, convergence_error)</p>
+</section>
+</section>
+<section id="soliton-solver-core-derivatives">
+<h2>soliton_solver.core.derivatives<a class="headerlink" href="#soliton-solver-core-derivatives" title="Link to this heading">#</a></h2>
+<p>Finite-difference operators.</p>
+<section id="id3">
+<h3>Functions<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">compute_derivative_first(d1fd1x,</span> <span class="pre">Field,</span> <span class="pre">a,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">p_i,</span> <span class="pre">p_f)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Compute fourth-order first spatial derivatives at (x, y).</p>
+<p>Device function (for use inside CUDA kernels):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_kernel</span><span class="p">(</span><span class="n">d1fd1x</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+        <span class="n">compute_derivative_first</span><span class="p">(</span><span class="n">d1fd1x</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">compute_derivative_second(d2fd2x,</span> <span class="pre">Field,</span> <span class="pre">a,</span> <span class="pre">x,</span> <span class="pre">y,</span> <span class="pre">p_i,</span> <span class="pre">p_f)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Compute fourth-order second spatial derivatives (Laplacian + mixed) at (x, y).</p>
+</section>
+</section>
+<section id="soliton-solver-core-utils">
+<h2>soliton_solver.core.utils<a class="headerlink" href="#soliton-solver-core-utils" title="Link to this heading">#</a></h2>
+<p>GPU utilities and helpers.</p>
+<section id="id4">
+<h3>Functions<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">idx_field(a,</span> <span class="pre">i,</span> <span class="pre">j,</span> <span class="pre">p_i)</span> <span class="pre">→</span> <span class="pre">int</span></code></strong></p>
+<p>Map field component and lattice site to flattened index.</p>
+<p>Device function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">idx</span> <span class="o">=</span> <span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">idx_d1(coord,</span> <span class="pre">field,</span> <span class="pre">i,</span> <span class="pre">j,</span> <span class="pre">p_i)</span> <span class="pre">→</span> <span class="pre">int</span></code></strong></p>
+<p>Map coordinate, field component, and lattice site to first derivative index.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">idx_d2(coord1,</span> <span class="pre">coord2,</span> <span class="pre">field,</span> <span class="pre">i,</span> <span class="pre">j,</span> <span class="pre">p_i)</span> <span class="pre">→</span> <span class="pre">int</span></code></strong></p>
+<p>Map two coordinates, field component, and lattice site to second derivative index.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">launch_2d(p_i_h,</span> <span class="pre">threads=(8,</span> <span class="pre">8))</span> <span class="pre">→</span> <span class="pre">tuple</span></code></strong></p>
+<p>Construct a 2D CUDA launch configuration.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">my_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Returns:</strong> Tuple (grid, block) for CUDA kernel launch</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">in_bounds(x,</span> <span class="pre">y,</span> <span class="pre">p_i)</span> <span class="pre">→</span> <span class="pre">bool</span></code></strong></p>
+<p>Device function to check if (x, y) is within the interior domain (beyond halo).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_kernel</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+        <span class="c1"># Compute on interior points only</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">compute_sum(Field,</span> <span class="pre">gridsum_partial,</span> <span class="pre">dim_grid)</span> <span class="pre">→</span> <span class="pre">float</span></code></strong></p>
+<p>Reduce a field to a scalar sum.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">compute_max(Field,</span> <span class="pre">max_partial,</span> <span class="pre">dim_grid)</span> <span class="pre">→</span> <span class="pre">float</span></code></strong></p>
+<p>Reduce a field to the maximum absolute value.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">compute_min(Field,</span> <span class="pre">min_partial,</span> <span class="pre">dim_grid)</span> <span class="pre">→</span> <span class="pre">float</span></code></strong></p>
+<p>Reduce a field to the minimum value.</p>
+</section>
+</section>
+<section id="soliton-solver-core-colormaps">
+<h2>soliton_solver.core.colormaps<a class="headerlink" href="#soliton-solver-core-colormaps" title="Link to this heading">#</a></h2>
+<p>Color mapping for visualization.</p>
+<section id="id5">
+<h3>Functions<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">render_jet_density_to_rgba(pbo_rgba,</span> <span class="pre">density,</span> <span class="pre">min_val,</span> <span class="pre">max_val,</span> <span class="pre">p_i)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Map a density field to jet colormap and write to RGBA buffer.</p>
+<p>CUDA kernel:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">render_jet_density_to_rgba</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
+    <span class="n">pbo_rgba</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">p_i_d</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">render_gray_density_to_rgba(pbo_rgba,</span> <span class="pre">density,</span> <span class="pre">min_val,</span> <span class="pre">max_val,</span> <span class="pre">p_i)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Map a density field to grayscale.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">render_magnetization_to_rgba(pbo_rgba,</span> <span class="pre">magnetization,</span> <span class="pre">p_i)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Map a magnetization vector field (3-component) to HSV colormap.</p>
+</section>
+</section>
+<section id="soliton-solver-visualization-gl-backend">
+<h2>soliton_solver.visualization.gl_backend<a class="headerlink" href="#soliton-solver-visualization-gl-backend" title="Link to this heading">#</a></h2>
+<p>OpenGL and CUDA-OpenGL interoperability.</p>
+<section id="glbackend-class">
+<h3>GLBackend class<a class="headerlink" href="#glbackend-class" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">GLBackend(width,</span> <span class="pre">height,</span> <span class="pre">title=&quot;CUDA-OpenGL&quot;)</span></code></strong></p>
+<p>GLFW window and OpenGL-CUDA rendering backend.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Simulation&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="id6">
+<h4>Methods<a class="headerlink" href="#id6" title="Link to this heading">#</a></h4>
+<p><strong><code class="docutils literal notranslate"><span class="pre">map_pbo()</span> <span class="pre">→</span> <span class="pre">cuda_array</span></code></strong></p>
+<p>Map the pixel buffer object for CUDA access.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pbo_rgba</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">map_pbo</span><span class="p">()</span>
+<span class="n">my_render_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="n">pbo_rgba</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Returns:</strong> CUDA array view of the PBO (uint8, shape (height, width, 4))</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">unmap_pbo()</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Release the PBO back to OpenGL.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">upload_and_draw()</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Copy PBO to texture and display.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">should_close()</span> <span class="pre">→</span> <span class="pre">bool</span></code></strong></p>
+<p>Check if the user requested window close.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">set_title(text:</span> <span class="pre">str)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
+<p>Update the window title.</p>
+</section>
+</section>
+</section>
+<section id="theory-interface">
+<h2>Theory interface<a class="headerlink" href="#theory-interface" title="Link to this heading">#</a></h2>
+<p>Each theory module must provide:</p>
+<section id="required-submodules">
+<h3>Required submodules<a class="headerlink" href="#required-submodules" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">params</span></code></strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Params</span></code> class (extends core <code class="docutils literal notranslate"><span class="pre">Params</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">default_params(**kwargs)</span></code> function</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pack_device_params(params)</span></code> function returning (p_i_h, p_f_h) tuples</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">kernels</span></code></strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">do_gradient_step_kernel</span></code> — CUDA kernel for gradient computation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">do_rk4_kernel</span></code> (optional) — CUDA kernel for RK4 with constraints</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">initial_config</span></code></strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">initialize(Velocity,</span> <span class="pre">Field,</span> <span class="pre">...,</span> <span class="pre">config)</span></code> — Set up initial fields</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">observables</span></code></strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_energy(Field,</span> <span class="pre">d1fd1x,</span> <span class="pre">...)</span></code> — Compute total energy</p></li>
+<li><p>Theory-specific observable functions</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">io</span></code></strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">save_output(output_dir,</span> <span class="pre">h_Field,</span> <span class="pre">...)</span></code> — Write results to disk</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">render_gl</span></code></strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">run_viewer(sim,</span> <span class="pre">params,</span> <span class="pre">**kwargs)</span></code> — Launch interactive viewer</p></li>
+</ul>
+</section>
+<section id="optional-submodules">
+<h3>Optional submodules<a class="headerlink" href="#optional-submodules" title="Link to this heading">#</a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">instructions.py</span></code></strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">print_instructions()</span></code> — Print keyboard controls</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">results/plotting.py</span></code></strong></p>
+<ul class="simple">
+<li><p>Post-processing and analysis scripts</p></li>
+</ul>
+</section>
+</section>
+<section id="common-patterns">
+<h2>Common patterns<a class="headerlink" href="#common-patterns" title="Link to this heading">#</a></h2>
+<section id="running-a-minimization-loop">
+<h3>Running a minimization loop<a class="headerlink" href="#running-a-minimization-loop" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.theories</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_theory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
+
+<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">theory</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">default_params</span><span class="p">(</span><span class="n">xlen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">ylen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">xsize</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">ysize</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+
+<span class="c1"># Initial energy</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">observables_mod</span><span class="o">.</span><span class="n">compute_energy</span><span class="p">(</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">d1fd1x</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">en</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">entmp</span><span class="p">,</span> 
+    <span class="n">sim</span><span class="o">.</span><span class="n">gridsum_partial</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_i_d</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_f_d</span><span class="p">,</span> 
+    <span class="n">sim</span><span class="o">.</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_f_h</span>
+<span class="p">)</span>
+
+<span class="c1"># Minimize</span>
+<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">new_energy</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">prev_energy</span><span class="o">=</span><span class="n">energy</span><span class="p">)</span>
+    <span class="n">energy</span> <span class="o">=</span> <span class="n">new_energy</span>
+    
+    <span class="k">if</span> <span class="n">step</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Step </span><span class="si">{</span><span class="n">step</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">: E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">, ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">err</span> <span class="o">&lt;</span> <span class="mf">1e-4</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> steps&quot;</span><span class="p">)</span>
+        <span class="k">break</span>
+
+<span class="n">sim</span><span class="o">.</span><span class="n">save_output</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="computing-custom-observables">
+<h3>Computing custom observables<a class="headerlink" href="#computing-custom-observables" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda</span>
+
+<span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_observable_kernel</span><span class="p">(</span><span class="n">observable</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
+        <span class="c1"># Theory-specific computation</span>
+        <span class="n">observable</span><span class="p">[</span><span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)]</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="c1"># Compute</span>
+<span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">my_observable_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="n">observable_buffer</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_i_d</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">p_f_d</span><span class="p">)</span>
+<span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+
+<span class="c1"># Copy to host</span>
+<span class="n">h_observable</span> <span class="o">=</span> <span class="n">observable_buffer</span><span class="o">.</span><span class="n">copy_to_host</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">h_observable</span><span class="p">)</span>  <span class="c1"># Aggregate</span>
+</pre></div>
+</div>
+</section>
+<section id="interactive-visualization-with-custom-controls">
+<h3>Interactive visualization with custom controls<a class="headerlink" href="#interactive-visualization-with-custom-controls" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.visualization.gl_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLBackend</span>
+
+<span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Custom Viewer&quot;</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">backend</span><span class="o">.</span><span class="n">should_close</span><span class="p">():</span>
+    <span class="c1"># Map PBO for rendering</span>
+    <span class="n">pbo_rgba</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">map_pbo</span><span class="p">()</span>
+    
+    <span class="c1"># Render field density</span>
+    <span class="n">render_density_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="n">pbo_rgba</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">Field</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">cuda</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+    
+    <span class="c1"># Unmap and display</span>
+    <span class="n">backend</span><span class="o">.</span><span class="n">unmap_pbo</span><span class="p">()</span>
+    <span class="n">backend</span><span class="o">.</span><span class="n">upload_and_draw</span><span class="p">()</span>
+    
+    <span class="c1"># Advance solver</span>
+    <span class="n">energy</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+    
+    <span class="c1"># Update title with status</span>
+    <span class="n">backend</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2"> ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">backend</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="extending-the-solver">
+<h2>Extending the solver<a class="headerlink" href="#extending-the-solver" title="Link to this heading">#</a></h2>
+<p>To add a new theory, see <a class="reference internal" href="extending.html"><span class="std std-doc">Extending the Solver</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="extending.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Extending the Solver</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-a-theory-and-running-a-simulation">Loading a theory and running a simulation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#listing-available-theories">Listing available theories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-theories">soliton_solver.theories</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-simulation">soliton_solver.core.simulation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-class">Simulation class</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#methods">Methods</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-params">soliton_solver.core.params</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Classes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-integrator">soliton_solver.core.integrator</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-derivatives">soliton_solver.core.derivatives</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-utils">soliton_solver.core.utils</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-core-colormaps">soliton_solver.core.colormaps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#soliton-solver-visualization-gl-backend">soliton_solver.visualization.gl_backend</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#glbackend-class">GLBackend class</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Methods</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theory-interface">Theory interface</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#required-submodules">Required submodules</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-submodules">Optional submodules</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-patterns">Common patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-a-minimization-loop">Running a minimization loop</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#computing-custom-observables">Computing custom observables</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#interactive-visualization-with-custom-controls">Interactive visualization with custom controls</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extending-the-solver">Extending the solver</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Paul Leask
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Paul Leask.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
