@@ -10,6 +10,12 @@ GPU-based finite-difference PDE solver for topological solitons in 2D nonlinear 
 <a href="https://pypi.org/project/soliton_solver/">
   <img src="https://img.shields.io/pypi/v/soliton_solver.svg" alt="PyPI">
 </a>
+<a href="https://github.com/paulnleask/soliton_solver/actions/workflows/docs.yml">
+  <img src="https://github.com/paulnleask/soliton_solver/actions/workflows/docs.yml/badge.svg" alt="Docs">
+</a>
+<a href="https://github.com/paulnleask/soliton_solver/actions">
+  <img src="https://github.com/paulnleask/soliton_solver/actions/workflows/ci.yml/badge.svg" alt="Build">
+</a>
 <a href="https://github.com/paulnleask/soliton_solver/releases">
   <img src="https://img.shields.io/github/v/release/paulnleask/soliton_solver?include_prereleases&label=changelog" alt="Changelog">
 </a>
