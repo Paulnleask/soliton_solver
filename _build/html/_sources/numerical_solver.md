@@ -100,7 +100,6 @@ Fields satisfy **Dirichlet boundary conditions** on the computational domain. Th
 For a field with `halo=2`:
 - Interior points: `2 ≤ x < nx - 2`
 - Boundary points: `0 ≤ x < 2` or `nx - 2 ≤ x < nx`
-- Periodic wrap: `f(x + nx) = f(x)`
 
 ### Stability and accuracy
 
