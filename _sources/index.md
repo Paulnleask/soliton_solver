@@ -1,4 +1,4 @@
-# $\texttt{soliton_solver}$ documentation
+# `soliton_solver` documentation
 
 `soliton_solver` is a GPU-accelerated scientific computing framework for nonlinear
 partial differential equations describing topological solitons in two-dimensional
