@@ -26,6 +26,7 @@ installation
 quickstart
 theories
 numerical_solver
+validation
 gpu_acceleration
 visualization
 architecture

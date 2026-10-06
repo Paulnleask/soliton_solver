@@ -163,6 +163,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Supported Theories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpu_acceleration.html">GPU Acceleration via Numba CUDA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization with CUDA-OpenGL Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -334,77 +335,81 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ginzburg-landau-superconductor">Ginzburg-Landau superconductor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#physics-modeled">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fields-and-mappings">Fields and mappings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fields-and-parameters">Fields and parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensionless-formulation-used-in-the-implementation">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-conventions">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#euler-lagrange-equations">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eulerlagrange-equations">Euler–Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-implementation">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#anisotropic-superconductor">Anisotropic superconductor</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-anisotropic-s-id-model">The Anisotropic s+id Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mathbb-c-p-1-skyrmions"><span class="math notranslate nohighlight">\(\mathbb{C}P^1\)</span> Skyrmions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baby-skyrme-model">Baby Skyrme model</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Physics modeled</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Dimensionless formulation used in the implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-potential-terms">Supported potential terms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">References</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bose-einstein-condensate">Bose-Einstein condensate</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#units-and-parameters">Units and parameters</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensional-energy">Dimensional energy</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nondimensionalization">Nondimensionalization</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#thomas-fermi-profile">Thomas-Fermi profile</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Euler-Lagrange equations</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rotating-bec">Rotating BEC</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-method">Numerical method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rotating-bose-einstein-condensates">Rotating Bose-Einstein Condensates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-bec-model">The BEC Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-rotating-bec-model">The Rotating BEC Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-thomas-fermi-profile">The Thomas-Fermi Profile</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-numerical-implementation">The Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chern-simons-landau-ginzburg-theory-of-vortex-anyons">Chern-Simons-Landau-Ginzburg Theory of Vortex Anyons</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Fields and parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-cslg-model">The CSLG Model</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anyon-nature">Anyon Nature</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-implementation">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">References</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chiral-magnet">Chiral magnet</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Dimensional energy</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-local-interaction-and-poisson-equation">Non-local interaction and Poisson equation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Euler-Lagrange equations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chiral-magnet-with-demagnetization">Chiral Magnet with Demagnetization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-chiral-ferromagnet-model">The Chiral Ferromagnet Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#demagnetization">Demagnetization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variation-of-the-magnetostatic-energy">Variation of the Magnetostatic Energy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#liquid-crystal-with-flexoelectric-depolarization">Liquid Crystal with flexoelectric depolarization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Fields and parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-frank-oseen-energy">The Frank-Oseen energy</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flexoelectric-polarization">Flexoelectric polarization</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variation-of-the-flexoelectric-energy">Variation of the flexoelectric energy</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relation-to-chiral-magnets">Relation to chiral magnets</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Numerical implementation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#splay-and-bend-favored-neel-skyrmions">Splay and bend favored Neel skyrmions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ferromagnetic-superconductor">Ferromagnetic superconductor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-free-energy">The free energy</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#including-the-effects-of-spin-flip-scattering">Including the effects of spin-flip scattering</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spin-triplet-superconducting-magnet">Spin-triplet superconducting magnet</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-dimensionalisation">Non-dimensionalisation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Physics modeled</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#free-energy">Free energy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uniform-vacuum">Uniform vacuum</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#euler-lagrange-equations-and-numerical-implementation">Euler-Lagrange equations and numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vortices-and-skyrmions">Vortices and skyrmions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-configurations-and-multi-soliton-construction">Initial configurations and multi-soliton construction</a><ul class="nav section-nav flex-column">
@@ -490,395 +495,680 @@ document.write(`
 <h2>Ginzburg-Landau superconductor<a class="headerlink" href="#ginzburg-landau-superconductor" title="Link to this heading">#</a></h2>
 <section id="physics-modeled">
 <h3>Physics modeled<a class="headerlink" href="#physics-modeled" title="Link to this heading">#</a></h3>
-<p>This theory models a two-dimensional superconductor as a complex order parameter <span class="math notranslate nohighlight">\(\psi\)</span> coupled to a <span class="math notranslate nohighlight">\(U(1)\)</span> gauge field. It is the canonical model for vortex physics in superconductors and is the natural starting point for flux quantization and type-I/type-II vortex behavior.</p>
+<p>This theory models a two-dimensional superconducting condensate coupled to an abelian gauge field.
+The implementation uses a fully dimensionless Ginzburg–Landau functional and targets vortex physics (flux quantization, vortex cores, inter-vortex forces) in the same numerical framework used for the other gauged theories.</p>
 </section>
-<section id="fields-and-mappings">
-<h3>Fields and mappings<a class="headerlink" href="#fields-and-mappings" title="Link to this heading">#</a></h3>
+<section id="fields-and-parameters">
+<h3>Fields and parameters<a class="headerlink" href="#fields-and-parameters" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\psi(\vec{x}) \in \mathbb{C}\)</span>: the superconducting order parameter. In the code, the complex field is represented by two real components, one for the real part and one for the imaginary part.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\vec{A}(\vec{x}) \in \mathbb{R}^2\)</span>: the in-plane vector potential. The two real components are stored as gauge-field channels.</p></li>
-<li><p>The covariant derivative is <span class="math notranslate nohighlight">\(D_j = \partial_j - iA_j\)</span>.</p></li>
+<li><p>Order parameter: <span class="math notranslate nohighlight">\(\psi(\vec{x})\in\mathbb{C}\)</span></p></li>
+<li><p>Gauge field: <span class="math notranslate nohighlight">\(\vec{A}(\vec{x})\in\mathbb{R}^2\)</span></p></li>
+<li><p>Dimensionless Higgs mass: <span class="math notranslate nohighlight">\(m\in\mathbb{R}_{\geq0}\)</span></p></li>
+<li><p>Ginzburg-Landau parameter: <span class="math notranslate nohighlight">\(\lambda\in\mathbb{R}\)</span></p></li>
+<li><p>Gauge charge: <span class="math notranslate nohighlight">\(q\in\mathbb{R}\)</span></p></li>
 </ul>
 </section>
 <section id="dimensionless-formulation-used-in-the-implementation">
 <h3>Dimensionless formulation used in the implementation<a class="headerlink" href="#dimensionless-formulation-used-in-the-implementation" title="Link to this heading">#</a></h3>
-<p>The implementation works directly with the scaled fields <span class="math notranslate nohighlight">\(\varphi\)</span> and <span class="math notranslate nohighlight">\(\vec{A}'\)</span>, with the reduced functional</p>
+<p>The solver works directly with the following reduced, dimensionless energy functional:</p>
 <div class="math notranslate nohighlight">
 \[
-\mathcal{E}[\varphi,\vec{A}'] = \int d^2x'\left[
-\frac12 |(\nabla' - i\vec{A}')\varphi|^2 + \frac12 |\nabla'\times\vec{A}'|^2 + \frac{1}{8}\left(1 - |\varphi|^2\right)^2
-\right].
+    F[\psi,\vec{A}] = \int_{\mathbb{R}^2}\textup{d}^2x \left[ \frac{1}{2} |\vec{D}\psi|^2 + \frac{1}{2} |\nabla\times\vec{A}|^2 + \frac{\lambda}{8}(m^2-|\psi|^2)^2 \right].
 \]</div>
-<p>The scaling <span class="math notranslate nohighlight">\(\psi = u\,\varphi\)</span>, <span class="math notranslate nohighlight">\(\vec{x} = \ell_0\vec{x}'\)</span>, and <span class="math notranslate nohighlight">\(\vec{A} = \ell_0^{-1}\vec{A}'\)</span> is the standard rescaling used to pass from the physical variables to the implementation variables.</p>
+<p>where <span class="math notranslate nohighlight">\(\vec{D}=\nabla + iq\vec{A}\)</span> is the gauge covariant derivative.
+This is the standard unit-rescaled Ginzburg–Landau functional: the condensate amplitude tends to <span class="math notranslate nohighlight">\(|\psi|=m\)</span> in the uniform vacuum, and magnetic flux is measured in units where a single quantum corresponds to a <span class="math notranslate nohighlight">\(2\pi\)</span> phase winding.</p>
 </section>
-<section id="scaling-conventions">
-<h3>Scaling conventions<a class="headerlink" href="#scaling-conventions" title="Link to this heading">#</a></h3>
-<p>Choose the characteristic length <span class="math notranslate nohighlight">\(\ell_0\)</span> and energy scale <span class="math notranslate nohighlight">\(\mathcal{E}_0\)</span> so that</p>
+<section id="eulerlagrange-equations">
+<h3>Euler–Lagrange equations<a class="headerlink" href="#eulerlagrange-equations" title="Link to this heading">#</a></h3>
+<p>The stationary (static) Euler–Lagrange equations for the dimensionless functional are</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    D_i D_i \psi = \, &amp; 2\frac{\partial V}{\partial \bar{\psi}}, \\
+    \partial_j (\partial_j A_i - \partial_i A_j) = \, &amp;  J_i,
+\end{align*}
+\end{split}\]</div>
+<p>where the supercurrent is</p>
 <div class="math notranslate nohighlight">
 \[
-\psi = u\,\varphi, \qquad \vec{x} = \ell_0\vec{x}', \qquad \vec{A} = \frac{1}{\ell_0}\vec{A}',
+    J_i = \frac{iq}{2}(\psi \partial_i \bar{\psi} - \bar{\psi} \partial_i \psi) + q^2 A_i |\psi|^2.
 \]</div>
-<p>and define the dimensionless constants</p>
-<div class="math notranslate nohighlight">
-\[
-\alpha = \frac{\lambda u^2\ell_0^2}{2m_s}, \qquad \beta = \frac{\lambda u^4\ell_0^2}{8}\,\frac{1}{\mathcal{E}_0}.
-\]</div>
-<p>With the standard scaling above, the implementation functional is</p>
-<div class="math notranslate nohighlight">
-\[
-\mathcal{E}[\varphi,\vec{A}'] = \int d^2x'\left[
-\frac12 |(\nabla' - i\vec{A}')\varphi|^2 + \frac12 |\nabla'\times\vec{A}'|^2 + \frac{1}{8}\left(1 - |\varphi|^2\right)^2
-\right].
-\]</div>
+<p>These equations support quantized vortices with integer winding and localized magnetic flux.</p>
 </section>
-<section id="euler-lagrange-equations">
-<h3>Euler-Lagrange equations<a class="headerlink" href="#euler-lagrange-equations" title="Link to this heading">#</a></h3>
-<p>The stationary equations are</p>
+<section id="numerical-implementation">
+<h3>Numerical Implementation<a class="headerlink" href="#numerical-implementation" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> minimizes the dimensionless energy by integrating an arrested-Newton (second-order) flow and solve the second order coupled system
 <div class="math notranslate nohighlight">
-\[
-\left(\nabla' - i\vec{A}'\right)^2\varphi + \frac12\left(|\varphi|^2 - 1\right)\varphi = 0,
-\]</div>
-<p>and</p>
-<div class="math notranslate nohighlight">
-\[
--\nabla'^2\vec{A}' + \operatorname{Im}\left[\varphi^*\left(\nabla' - i\vec{A}'\right)\varphi \right] = 0.
-\]</div>
-<p>These equations admit quantized vortices with winding number <span class="math notranslate nohighlight">\(n\in\mathbb{Z}\)</span>, and the scalar field vanishes at the core while the phase winds around the vortex.</p>
+\[\begin{split}
+\begin{align*}
+    \frac{\textup{d}^2\psi}{\textup{d}t^2} = \, &amp; \frac{1}{2}D_i D_i \psi - \frac{\partial V}{\partial \bar{\psi}}, \\
+    \frac{\textup{d}^2 A_i}{\textup{d}t^2} = \, &amp; \partial_j (\partial_j A_i - \partial_i A_j) - J_i,
+\end{align*}
+\end{split}\]</div>
+
+where <span class="math notranslate nohighlight">\(t\)</span> is a fictitious time coordinate.</p>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>H. B. Nielsen and P. Olesen, <em>Vortex-line models for dual strings</em>,  <a class="reference external" href="https://doi.org/10.1016/0550-3213(73)90350-7">Nucl. Phys. B <strong>61</strong>, 45 (1973)</a></p></li>
+<li><p>M. B. Hindmarsh and T. W. B. Kibble, <em>Cosmic strings</em>, <a class="reference external" href="https://doi.org/10.1088/0034-4885/58/5/001">Rep. Prog. Phys. <strong>58</strong>, 477 (1995)</a></p></li>
+<li><p>L. M. A. Bettencourt and R. J. Rivers, <em>Interactions between U(1) cosmic strings: An analytical study</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.51.1842">Phys. Rev. D <strong>51</strong>, 1842 (1995)</a></p></li>
+<li><p>J. M. Speight, <em>Static intervortex forces</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.55.3830">Phys. Rev. D <strong>55</strong>, 3830 (1997)</a></p></li>
+<li><p>N. S. Manton and J. M. Speight, <em>Asymptotic interactions of critically coupled vortices</em>, <a class="reference external" href="https://doi.org/10.1007/s00220-003-0842-4">Commun. Math. Phys. <strong>236</strong>, 535 (2003)</a></p></li>
+<li><p>A. Abrikosov, <em>The magnetic properties of superconducting alloys</em>, <a class="reference external" href="https://doi.org/10.1016/0022-3697(57)90083-5">J. Phys. Chem. Solids <strong>2</strong>, 199 (1957)</a></p></li>
+</ul>
 </section>
 </section>
 <section id="anisotropic-superconductor">
 <h2>Anisotropic superconductor<a class="headerlink" href="#anisotropic-superconductor" title="Link to this heading">#</a></h2>
+<section id="the-anisotropic-s-id-model">
+<h3>The Anisotropic s+id Model<a class="headerlink" href="#the-anisotropic-s-id-model" title="Link to this heading">#</a></h3>
+<p>The model consists of a two-component complex order parameter <span class="math notranslate nohighlight">\(\psi_\alpha\in\mathbb{C}\)</span> with <span class="math notranslate nohighlight">\(\alpha=1,2\)</span> and an electromagnetic vector gauge field <span class="math notranslate nohighlight">\(\vec{A}=(A_1,A_2)\in\mathbb{R}^2\)</span>.
+Let the local coordinate be <span class="math notranslate nohighlight">\(x=(x_1,x_2)\in\mathbb{R}^2\)</span> and define the local frame <span class="math notranslate nohighlight">\(\partial_j=\partial/\partial x_j\)</span> for <span class="math notranslate nohighlight">\(j=1,2\)</span>.
+The Ginzburg–Landau energy functional in index notation is
+<div class="math notranslate nohighlight">
+\[
+    F[\psi,\vec{A}] = \int_{\mathbb{R}^2}\textup{d}^2x \left\{ \frac{1}{2} \gamma_{jk}^{\alpha\beta} \overline{D_j \psi_\alpha} D_k \psi_\beta + \frac{1}{2}|\textup{curl}\vec{A}|^2 + F_{p}(\psi_1,\psi_2) \right\},
+\]</div>
+
+where <span class="math notranslate nohighlight">\(\alpha,\beta,j,k=1,2\)</span> and the gauge covariant derivative is defined by the vector <span class="math notranslate nohighlight">\(\vec{D}=\vec{\nabla}+iQ\vec{A}\)</span>, and <span class="math notranslate nohighlight">\(\vec{\nabla}=(\partial_1,\partial_2)\)</span> is the gradient operator.
+Note that we define
+<div class="math notranslate nohighlight">
+\[
+    \overline{D_j\psi_\alpha} = \partial_j \bar{\psi}_\alpha -iQA_j\bar{\psi}_\alpha,
+\]</div>
+
+and set <span class="math notranslate nohighlight">\(Q=2q\)</span> since it describes the motion of a Cooper pair.
+The anisotropy matrices for a <span class="math notranslate nohighlight">\(s+id\)</span> order parameter are given by
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \gamma_{11} = 2
+    \begin{pmatrix}
+        \gamma_1 &amp; -\gamma_{12} \\
+        -\gamma_{12} &amp; \gamma_2
+    \end{pmatrix},
+    \quad
+    \gamma_{22} = 2
+    \begin{pmatrix}
+        \gamma_1 &amp; \gamma_{12} \\
+        \gamma_{12} &amp; \gamma_2
+    \end{pmatrix}.
+\end{split}\]</div>
+
+The potential energy we are considering is defined by
+<div class="math notranslate nohighlight">
+\[
+    F_{p}(\psi_1,\psi_2) = \alpha_1 |\psi_1|^2 + \alpha_2 |\psi_2|^2 + \beta_1 |\psi_1|^4 + \beta_2 |\psi_2|^4 + \beta_3 |\psi_1|^2 |\psi_2|^2 + \beta_4 \left( \psi_1^2 \bar{\psi}_2^2 + \bar{\psi}_1^2 \psi_2^2 \right).
+\]</div>
+</p>
+<p>To minimize the potential energy <span class="math notranslate nohighlight">\(F_p\)</span> with respect to the order parameters <span class="math notranslate nohighlight">\(\psi_\alpha\)</span>, let us write the order parameters as
+<div class="math notranslate nohighlight">
+\[
+    \psi_1 = \rho_1 e^{i\theta_1}, \quad \psi_2 = \rho_2    e^{i\theta_2}.
+\]</div>
+
+Then, the only term in the potential energy that has angular dependence is the biquadratic Josephson term
+<div class="math notranslate nohighlight">
+\[
+    \psi_1^2 \bar{\psi}_2^2 + \bar{\psi}_1^2 \psi_2^2 = 2 \rho_1^2 \rho_2^2 \cos[2(\theta_1 - \theta_2)].
+\]</div>
+
+So the potential becomes
+<div class="math notranslate nohighlight">
+\[
+    F_p = \alpha_1 \rho_1^2 + \alpha_2 \rho_2^2 + \beta_1 \rho_1^4 + \beta_2 \rho_2^4 + \beta_3 \rho_1^2 \rho_2^2 + 2\beta_4 \rho_1^2 \rho_2^2 \cos[2(\theta_1 - \theta_2)].
+\]</div>
+
+Consider now the phase difference <span class="math notranslate nohighlight">\(\theta_{12} = \theta_1 - \theta_2\)</span>.
+The only term depending on the phase difference is
+<div class="math notranslate nohighlight">
+\[
+    2\beta_4 \rho_1^2 \rho_2^2 \cos(2\theta_{12}).
+\]</div>
+
+If <span class="math notranslate nohighlight">\(\beta_4 &lt; 0\)</span>, the minimum occurs at <span class="math notranslate nohighlight">\(\cos(2\theta_{12}) = 1 \Rightarrow \theta_{12} = 0, \pi\)</span>.
+If <span class="math notranslate nohighlight">\(\beta_4 &gt; 0\)</span>, the minimum occurs at <span class="math notranslate nohighlight">\(\cos(2\theta_{12}) = -1 \Rightarrow \theta_{12} = \pm \pi/2\)</span>.
+So we choose
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \theta_{12} =
+    \begin{cases}
+        \pm\pi/2 &amp; \text{if } \beta_4 &gt; 0 \\
+        0,\pi &amp; \text{if } \beta_4 &lt; 0
+    \end{cases}.
+\end{split}\]</div>
+
+With the optimal phase chosen, the potential becomes
+<div class="math notranslate nohighlight">
+\[
+    F_p^{\text{min phase}}(\rho_1, \rho_2) = \alpha_1 \rho_1^2 + \alpha_2 \rho_2^2 + \beta_1 \rho_1^4 + \beta_2 \rho_2^4 + \left(\beta_3 + 2\epsilon|\beta_4|\right)\rho_1^2 \rho_2^2,
+\]</div>
+
+where <span class="math notranslate nohighlight">\(\epsilon = \operatorname{sign}(\beta_4)\)</span>.
+So, the effective potential is
+<div class="math notranslate nohighlight">
+\[
+    F_p^{\text{eff}}(\rho_1, \rho_2) = \alpha_1 \rho_1^2 + \alpha_2 \rho_2^2 + \beta_1 \rho_1^4 + \beta_2 \rho_2^4 + \tilde{\beta}_3 \rho_1^2 \rho_2^2,
+\]</div>
+
+with <span class="math notranslate nohighlight">\(\tilde{\beta}_3 = \beta_3 + 2\beta_4\cos2\theta_{12}\)</span>.</p>
+<p>Now we want to minimize <span class="math notranslate nohighlight">\(F_p^{\text{eff}}\)</span> with respect to <span class="math notranslate nohighlight">\(\rho_1^2, \rho_2^2 \geq 0\)</span>.
+We compute the variation of the potential energy, which yields
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+    \left.\frac{\partial F_p}{\partial \rho_1}\right|_{\rho_i=u_i} &amp;= 2\alpha_1 u_1 + 4\beta_1 u_1^3 + 2\tilde{\beta}_3 u_1 u_2^2 = 0, \\
+    \left.\frac{\partial F_p}{\partial \rho_2}\right|_{\rho_i=u_i} &amp;= 2\alpha_2 u_2 + 4\beta_2 u_2^3 + 2\tilde{\beta}_3 u_2 u_1^2 = 0.
+\end{aligned}
+\end{split}\]</div>
+
+Divide both by <span class="math notranslate nohighlight">\(u_1, u_2\)</span> (assume not zero), to get
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+    \alpha_1 + 2\beta_1 u_1^2 + \tilde{\beta}_3 u_2^2 &amp;= 0, \\
+    \alpha_2 + 2\beta_2 u_2^2 + \tilde{\beta}_3 u_1^2 &amp;= 0.
+\end{aligned}
+\end{split}\]</div>
+
+These are coupled nonlinear equations in <span class="math notranslate nohighlight">\(u_1^2, u_2^2\)</span>. Solutions (if real and non-negative) give minima candidates.
+We introduce the variables
+<div class="math notranslate nohighlight">
+\[
+    x = u_1^2, \quad y = u_2^2.
+\]</div>
+
+Then the equations become
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+    \alpha_1 + 2\beta_1 x + \tilde{\beta}_3 y = 0, \\
+    \alpha_2 + 2\beta_2 y + \tilde{\beta}_3 x = 0.
+\end{aligned}
+\end{split}\]</div>
+
+Solving the first equation for <span class="math notranslate nohighlight">\(y\)</span> gives
+<div class="math notranslate nohighlight">
+\[
+    y = -\frac{\alpha_1 + 2\beta_1 x}{\tilde{\beta}_3}.
+\]</div>
+
+Substitute this into the second equation,
+<div class="math notranslate nohighlight">
+\[
+    \alpha_2 + 2\beta_2 \left( -\frac{\alpha_1 + 2\beta_1 x}{\tilde{\beta}_3} \right) + \tilde{\beta}_3 x = 0.
+\]</div>
+
+Multiply through to simplify,
+<div class="math notranslate nohighlight">
+\[
+    \alpha_2 - \frac{2\beta_2 \alpha_1}{\tilde{\beta}_3} - \frac{4\beta_1\beta_2}{\tilde{\beta}_3} x + \tilde{\beta}_3 x = 0.
+\]</div>
+
+Multiply both sides by <span class="math notranslate nohighlight">\(\tilde{\beta}_3\)</span> to eliminate the denominator, such that we have
+<div class="math notranslate nohighlight">
+\[
+    \tilde{\beta}_3 \alpha_2 - 2\beta_2 \alpha_1 - 4\beta_1\beta_2 x + \tilde{\beta}_3^2 x = 0.
+\]</div>
+
+This can be solved for <span class="math notranslate nohighlight">\(x = u_1^2\)</span>, giving
+<div class="math notranslate nohighlight">
+\[
+    x = \frac{2\beta_2 \alpha_1 - \tilde{\beta}_3 \alpha_2}{\tilde{\beta}_3^2 - 4\beta_1 \beta_2}.
+\]</div>
+
+Similarly, using symmetry, we can solve for <span class="math notranslate nohighlight">\(y = u_2^2\)</span>,
+<div class="math notranslate nohighlight">
+\[
+    y = \frac{2\beta_1 \alpha_2 - \tilde{\beta}_3 \alpha_1}{\tilde{\beta}_3^2 - 4\beta_1 \beta_2}.
+\]</div>
+
+Therefore, the ground state is determined to be given by
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+    u_1^2 &amp;= \frac{2\beta_2 \alpha_1 - \tilde{\beta}_3 \alpha_2}{\tilde{\beta}_3^2 - 4\beta_1 \beta_2} \\
+    u_2^2 &amp;= \frac{2\beta_1 \alpha_2 - \tilde{\beta}_3 \alpha_1}{\tilde{\beta}_3^2 - 4\beta_1 \beta_2}
+\end{aligned}
+\quad \text{with } \tilde{\beta}_3 = \beta_3 + 2\beta_4\cos2\theta_{12}.
+\end{split}\]</div>
+</p>
+</section>
+<section id="mathbb-c-p-1-skyrmions">
+<h3><span class="math notranslate nohighlight">\(\mathbb{C}P^1\)</span> Skyrmions<a class="headerlink" href="#mathbb-c-p-1-skyrmions" title="Link to this heading">#</a></h3>
+<p>When integer flux vortices split into spatially separated fractional vortices in each order parameter <span class="math notranslate nohighlight">\(\psi_\alpha\)</span>, such that their cores (zeroes of the order parameters <span class="math notranslate nohighlight">\(\psi_\alpha=0\)</span>) are never coincident, skyrmions form.
+For such structures, we may construct a gauge invariant field <span class="math notranslate nohighlight">\(\phi:\mathbb{R}^2\rightarrow S^2\)</span>, given by
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \phi= \frac{1}{|\Delta_s|^2+|\Delta_d|^2} 
+    \begin{pmatrix}
+        \Delta_s^*\Delta_d + \Delta_s\Delta_d^* \\
+        i(\Delta_s^*\Delta_d - \Delta_s\Delta_d^*) \\
+        |\Delta_d|^2-|\Delta_s|^2        
+    \end{pmatrix}.
+\end{split}\]</div>
+
+We can describe the skyrmion field using the gauge invariant quantities <span class="math notranslate nohighlight">\(\phi\)</span>, <span class="math notranslate nohighlight">\(\rho=\sqrt{|\psi_1|^2+|\psi_2|^2}\)</span> and the supercurrent <span class="math notranslate nohighlight">\(J\)</span>, where we are regarding the supercurrent as a 1-form on <span class="math notranslate nohighlight">\(\mathbb{R}^2\)</span>.
+We can express the magnetic field (as a 2-form on <span class="math notranslate nohighlight">\(\mathbb{R}^2\)</span>) in terms of these gauge invariant quantities as
+<div class="math notranslate nohighlight">
+\[
+    B = \frac{1}{2}\phi^*\omega - \textup{d}\left( \frac{J}{\rho^2} \right),
+\]</div>
+
+where <span class="math notranslate nohighlight">\(\omega\)</span> is the usual area form on the target <span class="math notranslate nohighlight">\(S^2\)</span> and <span class="math notranslate nohighlight">\(\textup{d}\)</span> is the exterior derivative.
+Then, using Stoke’s Theorem, we observe that the skyrmion number is precisely the number of magnetic flux quanta in the field configuration, that is
+<div class="math notranslate nohighlight">
+\[
+    \int_{\mathbb{R}^2} B = \frac{1}{2}\int_{\mathbb{R}^2} \phi^*\omega = 2\pi \mathcal{Q}(\phi).
+\]</div>
+
+The skyrmion number <span class="math notranslate nohighlight">\(\mathcal{Q}\)</span> can be computed using the following integral representation,
+<div class="math notranslate nohighlight">
+\[
+    \mathcal{Q}(\phi) = \frac{i\epsilon_{ji}}{2\pi}\int_{\mathbb{R}^2} \textup{d}^2x \, \frac{1}{|\Psi|^4} \left( |\Psi|^2 \partial_i\Psi^\dagger \partial_j\Psi + \Psi^\dagger \partial_i \Psi \partial_j \Psi^\dagger \Psi \right),
+\]</div>
+
+where <span class="math notranslate nohighlight">\(\Psi=(\psi_1,\psi_2)\)</span>.</p>
+</section>
 <section id="id1">
-<h3>Physics modeled<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
-<p>This model describes a two-component superconductor with competing <span class="math notranslate nohighlight">\(s\)</span>-wave and <span class="math notranslate nohighlight">\(d\)</span>-wave pairing channels. It is used to model anisotropic pairing and mixed-parity defects, including fractional vortices and anisotropic vortex structures.</p>
+<h3>Numerical Implementation<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>The associated Ginzburg–Landau field equations are found to be
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    \frac{\delta F}{\delta \bar{\psi}_\alpha} = \, &amp; \frac{\partial F}{\partial \bar{\psi}_\alpha} - \frac{1}{2}\gamma_{jk}^{\alpha\beta}D_j D_k \psi_\beta, \\
+    \frac{\delta F}{\delta A_j} = \, &amp; \frac{iQ}{2} \left( \gamma_{kj}^{\alpha\beta} \psi_\beta \overline{D_k\psi_\alpha} - \gamma_{jk}^{\beta\alpha}\bar{\psi}_\beta D_k \psi_\alpha \right) + \partial_j \partial_k A_k - \partial_k \partial_k A_j.
+\end{align*}
+\end{split}\]</div>
+
+So, <code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> is solving the second order coupled system
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    \frac{\textup{d}^2\psi_\alpha}{\textup{d}t^2} = \, &amp; -\frac{\delta F}{\delta \bar{\psi}_\alpha}, \\
+    \frac{\textup{d}^2 A_j}{\textup{d}t^2} = \, &amp; -\frac{\delta F}{\delta A_j},
+\end{align*}
+\end{split}\]</div>
+
+where <span class="math notranslate nohighlight">\(t\)</span> is a fictitious time coordinate.</p>
 </section>
 <section id="id2">
-<h3>Fields and mappings<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<h3>References<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\Delta_s(\vec{x}) \in \mathbb{C}\)</span>: the <span class="math notranslate nohighlight">\(s\)</span>-wave condensate, stored as two real channels.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\Delta_d(\vec{x}) \in \mathbb{C}\)</span>: the <span class="math notranslate nohighlight">\(d\)</span>-wave condensate, stored as two real channels.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\vec{A}(\vec{x}) \in \mathbb{R}^2\)</span>: the gauge field, stored as two real channels.</p></li>
+<li><p>A. Talkachov, P. Leask and E. Babaev, <em>Multiple correlation lengths and type-1.5 superconductivity in <span class="math notranslate nohighlight">\(U(1)\)</span> superconductors due to hidden competition between irreducible representations of nonlocal pairing</em>, <a class="reference external" href="https://doi.org/10.1103/bf2v-wtkt">Phys. Rev. B <strong>113</strong>, 224520 (2026)</a></p></li>
+<li><p>L.-F. Zhang, Y.-Y. Zhang, G.-Q. Zha, M. V. Miloševi´c, and S.-P. Zhou, <em>Skyrmionic chains and lattices in <span class="math notranslate nohighlight">\(s + id\)</span> superconductors</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.101.064501">Phys. Rev. B <strong>101</strong>, 064501 (2020)</a></p></li>
+<li><p>E. Babaev and M. Speight, <em>Semi-Meissner state and neither type-I nor type-II superconductivity in multicomponent superconductors</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.72.180502">Phys. Rev. B <strong>72</strong>, 180502(R) (2005)</a>.</p></li>
+<li><p>T. Winyard, M. Silaev, and E. Babaev, <em>Skyrmion formation due to unconventional magnetic modes in anisotropic multiband superconductors</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.99.024501">Phys. Rev. B <strong>99</strong>, 024501 (2019)</a>.</p></li>
+<li><p>Y. Ren, J.-H. Xu, and C. S. Ting, <em>Ginzburg-Landau equations for mixed <span class="math notranslate nohighlight">\(s+d\)</span> symmetry superconductors</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.53.2249">Phys. Rev. B <strong>53</strong>, 2249 (1996)</a>.</p></li>
 </ul>
-</section>
-<section id="id3">
-<h3>Dimensionless formulation used in the implementation<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
-<p>A standard dimensionless functional used in the implementation is</p>
-<div class="math notranslate nohighlight">
-\[
-\mathcal{E}[\varphi_s,\varphi_d,\vec{A}'] = \int d^2x'\left[
-\frac12 \bar{\gamma}_{jk}^{\alpha\beta}(\bar{D}_j\varphi_\alpha)^*\bar{D}_k\varphi_\beta
-+ \frac12 |\nabla'\times\vec{A}'|^2
-+ \bar{\alpha}_1|\varphi_s|^2 + \bar{\alpha}_2|\varphi_d|^2
-+ \bar{\beta}_1|\varphi_s|^4 + \bar{\beta}_2|\varphi_d|^4 + \bar{\beta}_3|\varphi_s|^2|\varphi_d|^2
-+ \bar{\beta}_4\left(\varphi_s^2\bar{\varphi}_d^2 + \text{c.c.}\right)
-\right].
-\]</div>
-<p>The scaled coefficients <span class="math notranslate nohighlight">\(\bar{\alpha}_i\)</span>, <span class="math notranslate nohighlight">\(\bar{\beta}_i\)</span>, and <span class="math notranslate nohighlight">\(\bar{\gamma}_{jk}^{\alpha\beta}\)</span> encode the anisotropy and couplings in the implementation variables.</p>
-</section>
-<section id="id4">
-<h3>Scaling conventions<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
-<p>The implementation uses the scaled fields <span class="math notranslate nohighlight">\(\varphi_\alpha\)</span> and <span class="math notranslate nohighlight">\(\vec{A}'\)</span>, together with the corresponding dimensionless couplings <span class="math notranslate nohighlight">\(\bar{\alpha}_i\)</span>, <span class="math notranslate nohighlight">\(\bar{\beta}_i\)</span> and anisotropy tensor <span class="math notranslate nohighlight">\(\bar{\gamma}_{jk}^{\alpha\beta}\)</span>. The reduced functional is the weighted form written above, with the gradient term normalized to unit stiffness.</p>
-</section>
-<section id="id5">
-<h3>Euler-Lagrange equations<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
-<p>The field equations are a coupled system of gauged complex Ginzburg-Landau equations,</p>
-<div class="math notranslate nohighlight">
-\[
-\left(\bar{D}_j\bar{\gamma}_{jk}^{\alpha\beta}\bar{D}_k\right)\varphi_\beta
-+ \bar{\alpha}_\alpha\varphi_\alpha
-+ \bar{\beta}_\alpha|\varphi_\alpha|^2\varphi_\alpha
-+ \bar{\beta}_{sd}\,\varphi_{\bar{\alpha}}|\varphi_\beta|^2 + \bar{\beta}_4\,\varphi_\alpha^*\varphi_\beta^2 = 0,
-\]</div>
-<p>together with the gauge-field equation</p>
-<div class="math notranslate nohighlight">
-\[
--\nabla'^2\vec{A}' + \sum_{\alpha}\operatorname{Im}\left[\varphi_\alpha^*\left(\nabla' - i\vec{A}'\right)\varphi_\alpha\right] = 0.
-\]</div>
 </section>
 </section>
 <section id="baby-skyrme-model">
 <h2>Baby Skyrme model<a class="headerlink" href="#baby-skyrme-model" title="Link to this heading">#</a></h2>
+<section id="id3">
+<h3>Physics modeled<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<p>The Baby Skyrme model is a two-dimensional nonlinear sigma model augmented by a quartic (Skyrme) stabilizer and a potential.
+It describes unit-length magnetization textures that carry an integer-valued topological degree (skyrmion number) and supports stable skyrmions, antiskyrmions and related solitons.</p>
+</section>
+<section id="id4">
+<h3>Fields and parameters<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Magnetization: <span class="math notranslate nohighlight">\(\vec{m}(\vec{x})\in S^2\subset\mathbb{R}^3\)</span></p></li>
+<li><p>Dimensionless Skyrme coupling: <span class="math notranslate nohighlight">\(\kappa \ge 0\)</span></p></li>
+<li><p>Potential: <span class="math notranslate nohighlight">\(V(\vec{m})\)</span> (e.g. easy-axis or Zeeman-like terms)</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Dimensionless formulation used in the implementation<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>The solver uses the following dimensionless energy functional:</p>
+<div class="math notranslate nohighlight">
+\[
+    F[\vec{m}] = \int_{\mathbb{R}^2} \textup{d}^2x \left[ \frac{1}{2}|\nabla\vec{m}|^2 + \frac{\kappa}{4} |\partial_x\vec{m}\times\partial_y\vec{m}|^2 + V(\vec{m}) \right].
+\]</div>
+<p>The Skyrme term is the quartic topological stabilizer (squared area element of the map) and prevents scale collapse of solitons when <span class="math notranslate nohighlight">\(\kappa&gt;0\)</span>; <span class="math notranslate nohighlight">\(V(\vec{m})\)</span> selects energetically preferred orientations.</p>
+</section>
+<section id="supported-potential-terms">
+<h3>Supported potential terms<a class="headerlink" href="#supported-potential-terms" title="Link to this heading">#</a></h3>
+<p>The potential strength is controlled by <code class="docutils literal notranslate"><span class="pre">mpi</span></code> (the terms below are multiplied
+by <span class="math notranslate nohighlight">\(m_\pi^2\)</span>). The default and the choice in the Baby Skyrme example is
+<code class="docutils literal notranslate"><span class="pre">standard</span></code>. The selector accepts one name or a list of names.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Potential energy density <span class="math notranslate nohighlight">\(V(\vec{m})\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">standard</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(m_\pi^2(1-m_3)\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">holomorphic</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(m_\pi^2(1-m_3)^4\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">easyplane</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\tfrac{1}{2}m_\pi^2m_1^2\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dihedral2</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\tfrac{1}{2}m_\pi^2(1-m_1^2)(1-m_3^2)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aloof</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\tfrac{1}{2}m_\pi^2(1-m_3)\left[1+(1-m_3)^3\right]\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dihedral3</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(16m_\pi^2(1-m_3)(1+3m_3^2+3m_1m_2^2-m_1^3)\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">broken</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(m_\pi^2(1-m_3)\left|1-(m_1+im_2)^N\right|^2\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">doublevacua</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(m_\pi^2(1-m_3^2)\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Here <span class="math notranslate nohighlight">\(\vec{m}=(m_1,m_2,m_3)\)</span> is the unit magnetization and <code class="docutils literal notranslate"><span class="pre">N</span></code> is the integer
+exponent for the <code class="docutils literal notranslate"><span class="pre">broken</span></code> potential. Names are case-insensitive; for example,
+<code class="docutils literal notranslate"><span class="pre">&quot;easy</span> <span class="pre">plane&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;easyplane&quot;</span></code> both select <code class="docutils literal notranslate"><span class="pre">easyplane</span></code>.</p>
+</section>
 <section id="id6">
-<h3>Physics modeled<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
-<p>The Baby Skyrme model is the two-dimensional version of the Skyrme model and is used to model topological spin textures in magnetic systems. It supports Bloch, Néel and anti-skyrmions and is closely related to the magnetization textures stabilized in chiral magnets.</p>
+<h3>Numerical Implementation<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<p>Varying the functional under the unit-length constraint yields the constrained static equation (written in a manifestly tangent form):</p>
+<div class="math notranslate nohighlight">
+\[
+    P_{\vec{m}}\Big( -\Delta\vec{m} + \lambda\,\vec{J}[\vec{m}] + \nabla_{\vec{m}} V(\vec{m}) \Big) = 0,
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(P_{\vec{m}}(\vec{u})=\vec{u}-(\vec{u}\cdot\vec{m})\vec{m}\)</span> projects onto the tangent plane at <span class="math notranslate nohighlight">\(\vec{m}\)</span>, and <span class="math notranslate nohighlight">\(\vec{J}[\vec{m}]\)</span> is the Skyrme current obtained from the variation of the quartic term.</p>
+<p>In the equivalent cross-product form used during evolution, <code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> integrates</p>
+<div class="math notranslate nohighlight">
+\[
+    \frac{d^2\vec{m}}{dt^2} = -P_{\vec{m}}\Big( -\Delta\vec{m} + \lambda\,\vec{J}[\vec{m}] + \nabla_{\vec{m}}V(\vec{m}) \Big)
+\]</div>
+<p>with projection steps to maintain <span class="math notranslate nohighlight">\(|\vec{m}|=1\)</span>.</p>
 </section>
 <section id="id7">
-<h3>Fields and mappings<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<h3>References<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\vec{m}(\vec{x}) \in \mathbb{R}^3\)</span>: the magnetization vector. The solver stores three real components.</p></li>
-<li><p>The field is constrained to unit length, <span class="math notranslate nohighlight">\(|\vec{m}|=1\)</span>, by the non-linear dynamics.</p></li>
+<li><p>P. Leask, <em>Baby Skyrmion crystals</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.105.025010">Phys. Rev. D <strong>105</strong>, 025010 (2022)</a></p></li>
+<li><p>B. Piette, B. Schroers, and W. Zakrzewski, <em>Dynamics of baby Skyrmions</em>, <a class="reference external" href="https://doi.org/10.1016/0550-3213(95)00011-G">Nucl. Phys. <strong>B439</strong>, 205 (1995)</a></p></li>
+<li><p>J. Jäykkä and M. Speight, <em>Easy plane baby Skyrmions</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.82.125030">Phys. Rev. D <strong>82</strong>, 125030 (2010)</a></p></li>
+<li><p>P. Salmi and P. Sutcliffe, <em>Aloof baby Skyrmions</em>, <a class="reference external" href="https://doi.org/10.1088/1751-8113/48/3/035401">J. Phys. A <strong>48</strong>, 035401 (2015)</a></p></li>
+<li><p>J. Jäykkä, M. Speight, and P. Sutcliffe, <em>Broken baby Skyrmions</em>, <a class="reference external" href="https://doi.org/10.1098/rspa.2011.0543">Proc. R. Soc. A. <strong>468</strong>, 1085 (2012)</a></p></li>
+<li><p>R. Ward, <em>Planar Skyrmions at high and low density</em>, <a class="reference external" href="https://doi.org/10.1088/0951-7715/17/3/014">Nonlinearity <strong>17</strong>, 1033 (2004)</a></p></li>
+<li><p>T. Weidig, <em>The baby Skyrme models and their multiSkyrmions</em>, <a class="reference external" href="https://doi.org/10.1088/0951-7715/12/6/303">Nonlinearity <strong>12</strong>, 1489 (1999)</a></p></li>
+<li><p>D. Harland and R.S. Ward, <em>Walls and chains of planar Skyrmions</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.77.045009">Phys. Rev. D <strong>77</strong>, 045009 (2008)</a></p></li>
+<li><p>D. Foster, <em>Baby Skyrmion chains</em>, <a class="reference external" href="https://doi.org/10.1088/0951-7715/23/3/001">Nonlinearity <strong>23</strong>, 465 (2010)</a></p></li>
 </ul>
 </section>
+</section>
+<section id="rotating-bose-einstein-condensates">
+<h2>Rotating Bose-Einstein Condensates<a class="headerlink" href="#rotating-bose-einstein-condensates" title="Link to this heading">#</a></h2>
 <section id="id8">
-<h3>Dimensionless formulation used in the implementation<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
-<p>The implementation uses the dimensionless functional</p>
+<h3>Fields and parameters<a class="headerlink" href="#id8" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Condensate wavefunction amplitude: <span class="math notranslate nohighlight">\(\Psi \in \mathbb{C}\)</span>, <span class="math notranslate nohighlight">\([\Psi] = \mathrm{m}^{-3/2}\)</span></p></li>
+<li><p>Particle density: <span class="math notranslate nohighlight">\(n \in \mathbb{R}\)</span>,  <span class="math notranslate nohighlight">\([n] = \mathrm{m}^{-3}\)</span></p></li>
+<li><p>Atomic mass: <span class="math notranslate nohighlight">\([m] = \mathrm{kg}\)</span></p></li>
+<li><p>Trap frequency: <span class="math notranslate nohighlight">\([\omega] = \mathrm{s}^{-1}\)</span></p></li>
+<li><p>Short-range interaction strength: <span class="math notranslate nohighlight">\([g] = \mathrm{m}^{3}\,\mathrm{s}^{-2}\)</span></p></li>
+<li><p>S-wave scattering length: <span class="math notranslate nohighlight">\([a_s] = \mathrm{m}\)</span></p></li>
+<li><p>Rotation frequency: <span class="math notranslate nohighlight">\([\Omega] = \mathrm{s}^{-1}\)</span></p></li>
+</ul>
+</section>
+<section id="the-bec-model">
+<h3>The BEC Model<a class="headerlink" href="#the-bec-model" title="Link to this heading">#</a></h3>
+<p>This theory describes a dilute Bose-Einstein condensate as a complex order parameter in a harmonic trap.
+It is the standard mean-field model for trapped condensates, Thomas-Fermi profiles, and vortex formation under rotation.</p>
+<p>The order parameter for the Bose-Einstein condensate (BEC) is the single complex scalar field <span class="math notranslate nohighlight">\(\Psi \in \mathbb{C}\)</span>.
+The theory is built from the usual mean-field energy functional for a trapped, weakly interacting gas, with a short-range contact interaction parameter <span class="math notranslate nohighlight">\(g = \tfrac{4\pi \hbar^2 a_s}{m}\)</span> and a harmonic trapping potential.</p>
+<p>The Hamiltonian we are considering is given by
 <div class="math notranslate nohighlight">
 \[
-\mathcal{E}[\vec{m}] = \int d^2x'\left[
-\frac12 |\nabla'\vec{m}|^2 + \frac{\lambda}{4}\left(\partial_{x'}\vec{m}\times\partial_{y'}\vec{m}\right)^2 + \bar{V}(\vec{m})
-\right],
+    E[\Psi] = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \left\{ \frac{\hbar^2}{2m}|\vec{\nabla} \Psi|^2 + V_{\textup{trap}}(\vec{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\},
 \]</div>
-<p>where <span class="math notranslate nohighlight">\(\lambda = \kappa^2/(\ell_0^2\mathcal{J})\)</span> is the scaled Skyrme coupling and <span class="math notranslate nohighlight">\(\bar{V}\)</span> is the rescaled potential.</p>
+
+where <span class="math notranslate nohighlight">\(g=\tfrac{4\pi \hbar ^2 a_s}{m}\)</span> is known as the short-range interaction parameter, and the trapping potential we will consider is the harmonic trap
+<div class="math notranslate nohighlight">
+\[
+    V_{\textup{trap}}(\vec{r}) = \frac{1}{2}m \omega^2 |\vec{r}|^2.
+\]</div>
+
+There is a conserved quantity, the number of atoms <span class="math notranslate nohighlight">\(N\)</span>, which is defined by
+<div class="math notranslate nohighlight">
+\[
+    N = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \, |\Psi(\vec{r})|^2.
+\]</div>
+
+Hence, the number density of the BEC gas is
+<div class="math notranslate nohighlight">
+\[
+    n(\vec{r}) = |\Psi(\vec{r})|^2.
+\]</div>
+
+We see that, since <span class="math notranslate nohighlight">\(N\)</span> is the number of atoms and is therefore dimensionless, the order parameter necessarily has units <span class="math notranslate nohighlight">\([\Psi]=\textup{m}^{-3/2}\)</span> and <span class="math notranslate nohighlight">\([n]=\textup{m}^{-3}\)</span>.</p>
+<p>Let us consider the following energy, length and condensate rescalings
+<div class="math notranslate nohighlight">
+\[
+    E = E_0 H, \quad \vec{r}=L_0\vec{x}, \quad \Psi (\vec{r})=\Psi_0 \psi(\vec{x}),
+\]</div>
+
+where <span class="math notranslate nohighlight">\(H\)</span>, <span class="math notranslate nohighlight">\(\vec{x}\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> are dimensionless.
+Let us choose <span class="math notranslate nohighlight">\(\Psi_0 = \sqrt{N} L_0^{-3/2}\)</span> such that the normalization is now
+<div class="math notranslate nohighlight">
+\[
+    \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, |\psi|^2 = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \frac{1}{\Psi_0^2 L_0^3} |\Psi|^2 = \frac{N}{N} = 1.
+\]</div>
+
+The rescaled energy becomes
+<div class="math notranslate nohighlight">
+\[
+    H = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2} \frac{\hbar^2 L_0^3 \Psi_0^2}{m E_0 L_0^2} |\vec{\nabla}_{\vec{x}} \psi|^2 + \frac{1}{2}\frac{L_0^3 \Psi_0^2m \omega^2 L_0^2}{E_0}|\vec{x}|^2 |\psi|^2+ \frac{1}{2} \frac{L_0^3 \Psi_0^4 g}{E_0} |\psi|^4\right\}
+\]</div>
+
+Since we have chosen to fix <span class="math notranslate nohighlight">\(\Psi_0\)</span> by the normalization condition, we have freedom in choice of <span class="math notranslate nohighlight">\(L_0\)</span> and <span class="math notranslate nohighlight">\(E_0\)</span>.
+Let us choose these such that
+<div class="math notranslate nohighlight">
+\[
+    \frac{\hbar^2 L_0^3 \Psi_0^2}{m E_0 L_0^2} = \frac{L_0^3 \Psi_0^2m \omega^2 L_0^2}{E_0} = 1.
+\]</div>
+
+Therefore, the relevant rescalings are
+<div class="math notranslate nohighlight">
+\[
+    L_0 = \sqrt{\frac{\hbar}{m\omega}}, \quad E_0 = N \hbar \omega.
+\]</div>
+
+With these rescalings, the dimensionless energy reduces to
+<div class="math notranslate nohighlight">
+\[
+    H = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{\nabla}_{\vec{x}} \psi|^2 + \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
+\]</div>
+
+with the rescaled quartic potential
+<div class="math notranslate nohighlight">
+\[
+    \beta = \frac{L_0^3 \Psi_0^4}{E_0}g = 4\pi N a_s \sqrt{\frac{m\omega}{\hbar}}
+\]</div>
+
+A quick dimensional analysis shows that <span class="math notranslate nohighlight">\(\beta\)</span> is indeed dimensionless,
+<div class="math notranslate nohighlight">
+\[
+    [\beta] = [a_s][m]^{1/2}[\omega]^{1/2}[\hbar]^{-1/2} = \textup{m} \, \textup{kg}^{1/2} \, \textup{s}^{-1/2} (\textup{m}^2\,\textup{kg} \, \textup{s}^{-1})^{-1/2} = 1.
+\]</div>
+</p>
+</section>
+<section id="the-rotating-bec-model">
+<h3>The Rotating BEC Model<a class="headerlink" href="#the-rotating-bec-model" title="Link to this heading">#</a></h3>
+<p>If the condensate is rotated about the <span class="math notranslate nohighlight">\(z\)</span>-axis with angular frequency <span class="math notranslate nohighlight">\(\Omega\)</span>, then in the rotating frame the dimensional energy becomes
+<div class="math notranslate nohighlight">
+\[
+    E_\Omega[\Psi] = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \left\{ \frac{\hbar^2}{2m}|\vec{\nabla} \Psi|^2 + V_{\textup{trap}}(\vec{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\} - \Omega \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \, \left(\Psi^* \hat{L}_z \Psi \right)
+\]</div>
+
+where
+<div class="math notranslate nohighlight">
+\[
+    \hat{L}_z = -i\hbar \left( x \partial_y - y \partial_x \right).
+\]</div>
+</p>
+<p>Under the rescaling
+<div class="math notranslate nohighlight">
+\[
+    E = E_0 H, \quad \vec{r}=L_0\vec{x}, \quad \Psi (\vec{r})=\Psi_0 \psi(\vec{x}),
+\]</div>
+
+with
+<div class="math notranslate nohighlight">
+\[
+    \Psi_0 = \sqrt{N} L_0^{-3/2},
+\]</div>
+
+the rotational contribution becomes
+<div class="math notranslate nohighlight">
+\[
+    H_{\textup{rot}} = - \frac{\Omega L_0^3 \Psi_0^2 \hbar}{E_0} \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, \psi^* \hat{\ell}_z \psi = - \frac{\hbar \Omega N}{E_0} \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, \psi^* \hat{\ell}_z \psi,
+\]</div>
+
+where the dimensionless angular momentum operator is
+<div class="math notranslate nohighlight">
+\[
+    \hat{\ell}_z = -i\left( x \partial_y - y \partial_x \right).
+\]</div>
+</p>
+<p>Using
+<div class="math notranslate nohighlight">
+\[
+    E_0 = N \hbar \omega
+\]</div>
+
+we obtain
+<div class="math notranslate nohighlight">
+\[
+    \frac{\hbar \Omega N}{E_0} = \frac{\Omega}{\omega}.
+\]</div>
+
+Hence, the full dimensionless energy is
+<div class="math notranslate nohighlight">
+\[
+    H_\Omega = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{\nabla}_{\vec{x}} \psi|^2 + \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \frac{\Omega}{\omega} \psi^* \hat{\ell}_z \psi \right\},
+\]</div>
+
+with
+<div class="math notranslate nohighlight">
+\[
+    \beta = 4\pi N a_s \sqrt{\frac{m\omega}{\hbar}}.
+\]</div>
+</p>
+</section>
+<section id="the-thomas-fermi-profile">
+<h3>The Thomas-Fermi Profile<a class="headerlink" href="#the-thomas-fermi-profile" title="Link to this heading">#</a></h3>
+<p>Now that the energy is in a dimensionless form, we need to determine the ground state configuration for the condensate <span class="math notranslate nohighlight">\(\psi\)</span>.
+Consider the potential energy
+<div class="math notranslate nohighlight">
+\[
+    E_{\textup{pot}}[\psi]= \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
+\]</div>
+
+and now introduce a Lagrange multiplier to ensure the normalization condition,
+<div class="math notranslate nohighlight">
+\[
+    L[\psi,\lambda] = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \lambda|\psi|^2 \right\} + \lambda \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, |\psi|^2
+\]</div>
+
+Define the number density <span class="math notranslate nohighlight">\(n(\vec{x})=|\psi(\vec{x})|^2\)</span> such that
+<div class="math notranslate nohighlight">
+\[
+    L[n,\lambda] = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2n + \frac{\beta}{2}n^2 - \lambda n \right\} + \lambda,
+\]</div>
+
+where we have used the normalization condition.
+Variation of this with respect to the dimensionless condensate <span class="math notranslate nohighlight">\(\psi\)</span> gives the Karush–Kuhn–Tucker (KKT) condition
+<div class="math notranslate nohighlight">
+\[
+    \frac{\delta L}{\delta n} = \frac{1}{2}|\vec{x}|^2 + \beta n(\vec{x}) - \lambda = 0, \quad n &gt; 0.
+\]</div>
+
+Hence, the ground state configuration is given by the Thomas–Fermi (TF) profile
+<div class="math notranslate nohighlight">
+\[
+    n_{\textup{TF}}(\vec{x}) = \max\left(0, \frac{1}{\beta}\left[\lambda - \frac{1}{2}|\vec{x}|^2\right] \right).
+\]</div>
+</p>
+<p>Using the harmonic trapping potential, the TF profile is
+<div class="math notranslate nohighlight">
+\[
+    n_{\textup{TF}}(\vec{x}) = \frac{1}{\beta}\left(\lambda - \frac{1}{2}|\vec{x}|^2\right), \quad |\vec{x}|^2 \leq R^2 = 2\lambda.
+\]</div>
+
+We now need to determine the Lagrange multiplier <span class="math notranslate nohighlight">\(\lambda\)</span>.
+This depends on the dimension of the system we consider.
+We will be working in two dimensions, so our normalization condition for the ground state becomes
+<div class="math notranslate nohighlight">
+\[
+    \int_{\mathbb{R}^2} \textup{d}^2 \vec{x} \, |\psi(\vec{x})|^2 = \int_{\mathbb{R}^2} \textup{d}^2 \vec{x} \, n_{\textup{TF}}(\vec{x}) = 1.
+\]</div>
+
+We can use this to determine <span class="math notranslate nohighlight">\(\lambda\)</span>,
+<div class="math notranslate nohighlight">
+\[
+    1 = \frac{2\pi}{\beta} \int_0^R \textup{d}r \left( \lambda - \frac{1}{2}r^2 \right)r = \frac{\pi\lambda^2}{\beta}.
+\]</div>
+
+Hence, we see that the Lagrange multiplier <span class="math notranslate nohighlight">\(\lambda\)</span> and the TF radius <span class="math notranslate nohighlight">\(R\)</span> are
+<div class="math notranslate nohighlight">
+\[
+    \lambda = \sqrt{\frac{\beta}{\pi}}, \quad R^2 = 2\sqrt{\frac{\beta}{\pi}}.
+\]</div>
+
+Finally, the axially symmetric ground state configuration is given by the TF profile
+<div class="math notranslate nohighlight">
+\[
+    n_{\textup{TF}}(r) = \frac{1}{\sqrt{\beta\pi}} - \frac{1}{2\beta}r^2, \quad r^2 \leq 2\sqrt{\frac{\beta}{\pi}}.
+\]</div>
+</p>
+</section>
+<section id="the-numerical-implementation">
+<h3>The Numerical Implementation<a class="headerlink" href="#the-numerical-implementation" title="Link to this heading">#</a></h3>
+<p>The algorithm deals with solving the static BEC equation
+<div class="math notranslate nohighlight">
+\[
+    \frac{\delta H_\Omega}{\delta \psi^*} = -\frac{1}{2}\nabla^2\psi + \frac{1}{2}|\vec{x}|^2\psi + \beta \psi |\psi|^2 - \frac{\Omega}{\omega} \hat{\ell}_z \psi.
+\]</div>
+
+This is achieved using <code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code>.
+We formulate the minimization as a second order dynamical problem and solve the second order system
+<div class="math notranslate nohighlight">
+\[
+    \frac{\textup{d}^2\psi}{\textup{d}t^2} = -\frac{\delta H_\Omega}{\delta \psi^*} = \frac{1}{2}\nabla^2\psi - \frac{1}{2}|\vec{x}|^2\psi - \beta\psi |\psi|^2 + \frac{\Omega}{\omega} \hat{\ell}_z \psi,
+\]</div>
+
+where <span class="math notranslate nohighlight">\(t\)</span> is a fictitious time coordinate and with some appropriate initial configuration <span class="math notranslate nohighlight">\(\psi(0)=\psi_0\)</span>.
+This system can then be reduced to a coupled first order system, which we solve using a fourth order Runge-Kutta method.</p>
 </section>
 <section id="id9">
-<h3>Scaling conventions<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
-<p>The implementation uses the scaled coordinate <span class="math notranslate nohighlight">\(\vec{x}'\)</span> directly, and the corresponding dimensionless coupling is</p>
-<div class="math notranslate nohighlight">
-\[
-\lambda = \frac{\kappa^2}{\ell_0^2\mathcal{J}}.
-\]</div>
-<p>The reduced functional used by the solver is</p>
-<div class="math notranslate nohighlight">
-\[
-\mathcal{E}[\vec{m}] = \int d^2x'\left[
-\frac12 |\nabla'\vec{m}|^2 + \frac{\lambda}{4}\left(\partial_{x'}\vec{m}\times\partial_{y'}\vec{m}\right)^2 + \bar{V}(\vec{m})
-\right].
-\]</div>
-</section>
-<section id="id10">
-<h3>Euler-Lagrange equations<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
-<p>The corresponding field equation is</p>
-<div class="math notranslate nohighlight">
-\[
-\partial_t\vec{m} = \vec{m}\times\left(\nabla'^2\vec{m} - \lambda\,\vec{J}[\vec{m}] - \frac{\partial \bar{V}}{\partial \vec{m}}\right),
-\]</div>
-<p>where <span class="math notranslate nohighlight">\(\vec{J}[\vec{m}]\)</span> denotes the Skyrme current term generated by the quartic topological stabilizer. In the static limit, the right-hand side vanishes and the resulting equation describes the balance between gradient, Skyrme and potential terms.</p>
-</section>
-</section>
-<section id="bose-einstein-condensate">
-<h2>Bose-Einstein condensate<a class="headerlink" href="#bose-einstein-condensate" title="Link to this heading">#</a></h2>
-<section id="id11">
-<h3>Physics modeled<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
-<p>This theory describes a dilute Bose-Einstein condensate as a complex order parameter in a harmonic trap. It is the standard mean-field model for trapped condensates, Thomas-Fermi profiles, and vortex formation under rotation.</p>
-<p>The order parameter for the Bose-Einstein condensate (BEC) is the single complex scalar field <span class="math notranslate nohighlight">\(\Psi \in \mathbb{C}\)</span>. The theory is built from the usual mean-field energy functional for a trapped, weakly interacting gas, with a short-range contact interaction parameter <span class="math notranslate nohighlight">\(g = \tfrac{4\pi \hbar^2 a_s}{m}\)</span> and a harmonic trapping potential.</p>
-</section>
-<section id="id12">
-<h3>Fields and mappings<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
+<h3>References<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\Psi(\vec{r}) \in \mathbb{C}\)</span>: condensate wavefunction, stored as two real channels.</p></li>
-<li><p><span class="math notranslate nohighlight">\(n(\vec{r}) = |\Psi(\vec{r})|^2\)</span>: particle density.</p></li>
+<li><p>A. L. Fetter, <em>Rotating trapped Bose-Einstein condensates</em>, <a class="reference external" href="https://doi.org/10.1103/RevModPhys.81.647">Rev. Mod. Phys. <strong>81</strong>, 647 (2009)</a></p></li>
+<li><p>B. Weizhu and C. Yongyong, <em>Mathematical models and numerical methods for spinor Bose-Einstein condensates</em>, <a class="reference external" href="https://doi.org/10.3934/krm.2013.6.1">Kinet. Relat. Models. <strong>6</strong>, 1-135 (2013)</a></p></li>
+<li><p>J. O. Andersen, <em>Theory of the weakly interacting Bose gas</em>, <a class="reference external" href="https://doi.org/10.1103/RevModPhys.76.599">Rev. Mod. Phys. <strong>76</strong>, 599 (2004)</a></p></li>
+<li><p>R. Seiringer, <em>Gross-Pitaevskii Theory of the Rotating Bose Gas</em>, <a class="reference external" href="https://doi.org/10.1007/s00220-002-0695-2">Commun. Math. Phys. <strong>229</strong>, 491 (2002)</a></p></li>
+<li><p>R. Zeng and Y. Zhang, <em>Efficiently computing vortex lattices in rapid rotating Bose–Einstein condensates</em>, <a class="reference external" href="https://doi.org/10.1016/j.cpc.2008.12.003">Comput. Phys. Commun. <strong>180</strong>, 854-860 (2009)</a></p></li>
+<li><p>H. Chena, G. Dongb, W. Liuc, and Z. Xie, <em>Second-order flows for computing the ground states of rotating Bose-Einstein condensates</em>, <a class="reference external" href="https://doi.org/10.1016/j.jcp.2022.111872">J. Comput. Phys. <strong>475</strong>, 111872 (2023)</a></p></li>
 </ul>
-</section>
-<section id="units-and-parameters">
-<h3>Units and parameters<a class="headerlink" href="#units-and-parameters" title="Link to this heading">#</a></h3>
-<p>The conserved atom number is fixed by the normalization condition</p>
-<div class="math notranslate nohighlight">
-\[
-N = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{r}\,|\Psi(\vec{r})|^2,
-\]</div>
-<p>and the corresponding density is</p>
-<div class="math notranslate nohighlight">
-\[
-n(\vec{r}) = |\Psi(\vec{r})|^2.
-\]</div>
-<p>Since <span class="math notranslate nohighlight">\(N\)</span> is dimensionless, the order parameter necessarily has units <span class="math notranslate nohighlight">\([\Psi] = \mathrm{m}^{-3/2}\)</span> and <span class="math notranslate nohighlight">\([n] = \mathrm{m}^{-3}\)</span>.</p>
-<ul class="simple">
-<li><p><span class="math notranslate nohighlight">\([\Psi] = \mathrm{m}^{-3/2}\)</span>: condensate wavefunction amplitude.</p></li>
-<li><p><span class="math notranslate nohighlight">\([n] = \mathrm{m}^{-3}\)</span>: particle density.</p></li>
-<li><p><span class="math notranslate nohighlight">\([m] = \mathrm{kg}\)</span>: atomic mass.</p></li>
-<li><p><span class="math notranslate nohighlight">\([\omega] = \mathrm{s}^{-1}\)</span>: trap frequency.</p></li>
-<li><p><span class="math notranslate nohighlight">\([g] = \mathrm{m}^{3}\,\mathrm{s}^{-2}\)</span>: short-range interaction strength.</p></li>
-<li><p><span class="math notranslate nohighlight">\([a_s] = \mathrm{m}\)</span>: s-wave scattering length.</p></li>
-<li><p><span class="math notranslate nohighlight">\([\Omega] = \mathrm{s}^{-1}\)</span>: rotation frequency.</p></li>
-</ul>
-</section>
-<section id="dimensional-energy">
-<h3>Dimensional energy<a class="headerlink" href="#dimensional-energy" title="Link to this heading">#</a></h3>
-<p>The dimensional energy contains the usual kinetic term, the harmonic trapping potential, and a short-range contact interaction. Writing the condensate wavefunction as <span class="math notranslate nohighlight">\(\Psi\)</span>, the energy is</p>
-<div class="math notranslate nohighlight">
-\[
-E[\Psi] = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{r} \left\{ \frac{\hbar^2}{2m}|\nabla\Psi|^2 + V_{\mathrm{trap}}(\vec{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\},
-\]</div>
-<p>with</p>
-<div class="math notranslate nohighlight">
-\[
-V_{\mathrm{trap}}(\vec{r}) = \frac{1}{2}m\omega^2|\vec{r}|^2,
-\]</div>
-</section>
-<section id="nondimensionalization">
-<h3>Nondimensionalization<a class="headerlink" href="#nondimensionalization" title="Link to this heading">#</a></h3>
-<p>Let us consider the following energy, length and condensate rescalings</p>
-<div class="math notranslate nohighlight">
-\[
-E = E_0 H, \qquad \vec{r}=L_0\vec{x}, \qquad \Psi(\vec{r})=\Psi_0 \psi(\vec{x}),
-\]</div>
-<p>where <span class="math notranslate nohighlight">\(H\)</span>, <span class="math notranslate nohighlight">\(\vec{x}\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> are dimensionless. Let us choose <span class="math notranslate nohighlight">\(\Psi_0 = \sqrt{N}L_0^{-3/2}\)</span> such that the normalization is now</p>
-<div class="math notranslate nohighlight">
-\[
-\int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \, |\psi|^2 = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{r} \frac{1}{\Psi_0^2 L_0^3} |\Psi|^2 = \frac{N}{N} = 1.
-\]</div>
-<p>The rescaled energy becomes</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{aligned}
-H = \; &amp; \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \left\{ \frac{1}{2}\frac{\hbar^2 L_0^3 \Psi_0^2}{m E_0 L_0^2} |\nabla_{\vec{x}}\psi|^2 + \frac{1}{2}\frac{L_0^3 \Psi_0^2 m \omega^2 L_0^2}{E_0} |\vec{x}|^2 |\psi|^2 \right. \\
-&amp; \left. + \frac{1}{2}\frac{L_0^3 \Psi_0^4 g}{E_0} |\psi|^4 \right\}.
-\end{aligned}
-\end{split}\]</div>
-<p>Since we have chosen to fix <span class="math notranslate nohighlight">\(\Psi_0\)</span> by the normalization condition, we have freedom in the choice of <span class="math notranslate nohighlight">\(L_0\)</span> and <span class="math notranslate nohighlight">\(E_0\)</span>. Let us choose these such that</p>
-<div class="math notranslate nohighlight">
-\[
-\frac{\hbar^2 L_0^3 \Psi_0^2}{m E_0 L_0^2} = \frac{L_0^3 \Psi_0^2 m \omega^2 L_0^2}{E_0} = 1.
-\]</div>
-<p>Therefore, the relevant rescalings are</p>
-<div class="math notranslate nohighlight">
-\[
-L_0 = \sqrt{\frac{\hbar}{m\omega}}, \qquad E_0 = N\hbar\omega.
-\]</div>
-<p>With these rescalings, the dimensionless energy reduces to</p>
-<div class="math notranslate nohighlight">
-\[
-H = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \left\{ \frac{1}{2}|\nabla_{\vec{x}}\psi|^2 + \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
-\]</div>
-<p>with the rescaled quartic potential</p>
-<div class="math notranslate nohighlight">
-\[
-\beta = \frac{L_0^3 \Psi_0^4}{E_0}g = 4\pi N a_s \sqrt{\frac{m\omega}{\hbar}}.
-\]</div>
-<p>A quick dimensional analysis shows that <span class="math notranslate nohighlight">\(\beta\)</span> is indeed dimensionless,</p>
-<div class="math notranslate nohighlight">
-\[
-[\beta] = [a_s][m]^{1/2}[\omega]^{1/2}[\hbar]^{-1/2}
-= \mathrm{m}\,\mathrm{kg}^{1/2}\,\mathrm{s}^{-1/2}(\mathrm{m}^2\,\mathrm{kg}\,\mathrm{s}^{-1})^{-1/2} = 1.
-\]</div>
-</section>
-<section id="thomas-fermi-profile">
-<h3>Thomas-Fermi profile<a class="headerlink" href="#thomas-fermi-profile" title="Link to this heading">#</a></h3>
-<p>Now that the energy is in a dimensionless form, we need to determine the ground state configuration for the condensate <span class="math notranslate nohighlight">\(\psi\)</span>. Consider the potential energy</p>
-<div class="math notranslate nohighlight">
-\[
-E_{\mathrm{pot}}[\psi] = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
-\]</div>
-<p>and now introduce a Lagrange multiplier to ensure the normalization condition,</p>
-<div class="math notranslate nohighlight">
-\[
-L[\psi,\lambda] = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \lambda|\psi|^2 \right\} + \lambda \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x}\, |\psi|^2.
-\]</div>
-<p>Define the number density <span class="math notranslate nohighlight">\(n(\vec{x}) = |\psi(\vec{x})|^2\)</span> such that</p>
-<div class="math notranslate nohighlight">
-\[
-L[n,\lambda] = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2n + \frac{\beta}{2}n^2 - \lambda n \right\} + \lambda,
-\]</div>
-<p>where we have used the normalization condition. Variation of this with respect to the dimensionless condensate <span class="math notranslate nohighlight">\(\psi\)</span> gives the Karush–Kuhn–Tucker (KKT) condition</p>
-<div class="math notranslate nohighlight">
-\[
-\frac{\delta L}{\delta n} = \frac{1}{2}|\vec{x}|^2 + \beta n(\vec{x}) - \lambda = 0, \qquad n &gt; 0.
-\]</div>
-<p>Hence, the ground state configuration is given by the Thomas–Fermi (TF) profile</p>
-<div class="math notranslate nohighlight">
-\[
-n_{\mathrm{TF}}(\vec{x}) = \max\left(0, \frac{1}{\beta}\left[\lambda - \frac{1}{2}|\vec{x}|^2\right]\right).
-\]</div>
-<p>In the regime where interactions dominate over the kinetic energy, the gradient term is neglected and the density satisfies the Thomas-Fermi profile</p>
-<div class="math notranslate nohighlight">
-\[
-n_{\mathrm{TF}}(\vec{x}) = \max\left(0, \frac{1}{\beta}\left[\lambda - \frac{1}{2}|\vec{x}|^2\right]\right),
-\]</div>
-<p>with the radius determined by normalization. We now need to determine the Lagrange multiplier <span class="math notranslate nohighlight">\(\lambda\)</span>. This depends on the dimension of the system we consider. We will be working in two dimensions, so our normalization condition for the ground state becomes</p>
-<div class="math notranslate nohighlight">
-\[
-\int_{\mathbb{R}^2} \mathrm{d}^2\vec{x} \, |\psi(\vec{x})|^2 = \int_{\mathbb{R}^2} \mathrm{d}^2\vec{x} \, n_{\mathrm{TF}}(\vec{x}) = 1.
-\]</div>
-<p>We can use this to determine <span class="math notranslate nohighlight">\(\lambda\)</span>,</p>
-<div class="math notranslate nohighlight">
-\[
-1 = \frac{2\pi}{\beta} \int_0^R \mathrm{d}r \left( \lambda - \frac{1}{2}r^2 \right)r = \frac{\pi\lambda^2}{\beta}.
-\]</div>
-<p>Hence, we see that the Lagrange multiplier <span class="math notranslate nohighlight">\(\lambda\)</span> and the Thomas-Fermi radius <span class="math notranslate nohighlight">\(R\)</span> are</p>
-<div class="math notranslate nohighlight">
-\[
-\lambda = \sqrt{\frac{\beta}{\pi}}, \qquad R^2 = 2\sqrt{\frac{\beta}{\pi}}.
-\]</div>
-<p>Finally, the axially symmetric ground state configuration is given by the Thomas-Fermi profile</p>
-<div class="math notranslate nohighlight">
-\[
-n_{\mathrm{TF}}(r) = \frac{1}{\sqrt{\beta\pi}} - \frac{1}{2\beta}r^2, \qquad r^2 \leq 2\sqrt{\frac{\beta}{\pi}}.
-\]</div>
-</section>
-<section id="id13">
-<h3>Euler-Lagrange equations<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
-<p>The stationary equation is obtained from the variational derivative</p>
-<div class="math notranslate nohighlight">
-\[
-\frac{\delta H_\Omega}{\delta \psi^*} = -\frac{1}{2}\nabla^2\psi + \frac{1}{2}|\vec{x}|^2\psi + \beta \psi |\psi|^2 - \frac{\Omega}{\omega} \hat{\ell}_z \psi.
-\]</div>
-<p>The corresponding static equation is</p>
-<div class="math notranslate nohighlight">
-\[
--\frac{1}{2}\nabla^2\psi + \frac{1}{2}|\vec{x}|^2\psi + \beta|\psi|^2\psi = 0,
-\]</div>
-<p>and, in the rotating frame,</p>
-<div class="math notranslate nohighlight">
-\[
--\frac{1}{2}\nabla^2\psi + \frac{1}{2}|\vec{x}|^2\psi + \beta|\psi|^2\psi - \frac{\Omega}{\omega}\hat{\ell}_z\psi = 0,
-\]</div>
-<p>with</p>
-<div class="math notranslate nohighlight">
-\[
-\hat{\ell}_z = -i\left(x\partial_y - y\partial_x\right).
-\]</div>
-<p>This is the static variational equation for the condensate. Vortices arise when the rotational term is strong enough to compensate the energetic cost of phase winding.</p>
-</section>
-<section id="rotating-bec">
-<h3>Rotating BEC<a class="headerlink" href="#rotating-bec" title="Link to this heading">#</a></h3>
-<p>If the condensate is rotated about the <span class="math notranslate nohighlight">\(z\)</span>-axis with angular frequency <span class="math notranslate nohighlight">\(\Omega\)</span>, then in the rotating frame the dimensional energy becomes</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{aligned}
-E_\Omega[\Psi] = \; &amp; \int_{\mathbb{R}^3} \mathrm{d}^3\vec{r} \left\{ \frac{\hbar^2}{2m}|\nabla\Psi|^2 + V_{\mathrm{trap}}(\vec{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\} \\
-&amp; - \Omega \int_{\mathbb{R}^3} \mathrm{d}^3\vec{r}\, \left(\Psi^* \hat{L}_z \Psi \right),
-\end{aligned}
-\end{split}\]</div>
-<p>where</p>
-<div class="math notranslate nohighlight">
-\[
-\hat{L}_z = -i\hbar\left(x \partial_y - y \partial_x\right).
-\]</div>
-<p>Under the same rescaling as before, the rotational contribution becomes</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}
-\begin{aligned}
-H_{\mathrm{rot}} = \; &amp; - \frac{\Omega L_0^3 \Psi_0^2 \hbar}{E_0} \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \, \psi^* \hat{\ell}_z \psi \\
-= \; &amp; - \frac{\hbar \Omega N}{E_0} \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \, \psi^* \hat{\ell}_z \psi,
-\end{aligned}
-\end{split}\]</div>
-<p>where the dimensionless angular momentum operator is</p>
-<div class="math notranslate nohighlight">
-\[
-\hat{\ell}_z = -i\left(x \partial_y - y \partial_x\right).
-\]</div>
-<p>Using <span class="math notranslate nohighlight">\(E_0 = N\hbar\omega\)</span>, we obtain</p>
-<div class="math notranslate nohighlight">
-\[
-\frac{\hbar \Omega N}{E_0} = \frac{\Omega}{\omega}.
-\]</div>
-<p>Hence, the full dimensionless energy is</p>
-<div class="math notranslate nohighlight">
-\[
-H_\Omega = \int_{\mathbb{R}^3} \mathrm{d}^3\vec{x} \left\{ \frac{1}{2}|\nabla_{\vec{x}}\psi|^2 + \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \frac{\Omega}{\omega} \psi^* \hat{\ell}_z \psi \right\},
-\]</div>
-<p>with</p>
-<div class="math notranslate nohighlight">
-\[
-\beta = 4\pi N a_s \sqrt{\frac{m\omega}{\hbar}}.
-\]</div>
-</section>
-<section id="numerical-method">
-<h3>Numerical method<a class="headerlink" href="#numerical-method" title="Link to this heading">#</a></h3>
-<p>The algorithm solves the static BEC equation</p>
-<div class="math notranslate nohighlight">
-\[
-\frac{\delta H_\Omega}{\delta \psi^*} = -\frac{1}{2}\nabla^2\psi + \frac{1}{2}|\vec{x}|^2\psi + \beta \psi |\psi|^2 - \frac{\Omega}{\omega} \hat{\ell}_z \psi.
-\]</div>
-<p>This is achieved using arrested Newton flow. We formulate the minimization as a second-order dynamical problem and solve the system</p>
-<div class="math notranslate nohighlight">
-\[
-\frac{\mathrm{d}^2\psi}{\mathrm{d}t^2} = -\frac{\delta H_\Omega}{\delta \psi^*} = \frac{1}{2}\nabla^2\psi - \frac{1}{2}|\vec{x}|^2\psi - \beta \psi |\psi|^2 + \frac{\Omega}{\omega} \hat{\ell}_z \psi.
-\]</div>
 </section>
 </section>
 <section id="chern-simons-landau-ginzburg-theory-of-vortex-anyons">
 <h2>Chern-Simons-Landau-Ginzburg Theory of Vortex Anyons<a class="headerlink" href="#chern-simons-landau-ginzburg-theory-of-vortex-anyons" title="Link to this heading">#</a></h2>
+<section id="id10">
+<h3>Fields and parameters<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Order parameter: <span class="math notranslate nohighlight">\(\psi \in \mathbb{C}\)</span></p></li>
+<li><p>Gauge field: <span class="math notranslate nohighlight">\(\vec{A}=(A_0,A_1,A_2)\in\mathbb{R}^{2+1}\)</span></p></li>
+<li><p>Ginzburg-Landau parameter: <span class="math notranslate nohighlight">\(\lambda\)</span></p></li>
+<li><p>Dimensionless Higgs mass: <span class="math notranslate nohighlight">\(m\)</span></p></li>
+<li><p>Chern-Simons level: <span class="math notranslate nohighlight">\(\kappa\)</span></p></li>
+</ul>
+</section>
 <section id="the-cslg-model">
 <h3>The CSLG Model<a class="headerlink" href="#the-cslg-model" title="Link to this heading">#</a></h3>
 <p>The Chern-Simons-Landau-Ginzburg (CSLG) model is described by the superconducting order parameter <span class="math notranslate nohighlight">\(\psi: \mathbb{R}^{2+1}\rightarrow\mathbb{C}\)</span>, also known as the Higgs field, and an abelian gauge field <span class="math notranslate nohighlight">\(\vec{A}=(A_0,A_1,A_2)\in\mathbb{R}^{2+1}\)</span>.
@@ -1006,8 +1296,8 @@ This is the electric charge carried by the condensate relative to the internal <
 It shows that each unit of magnetic flux carries a quantized amount of Noether charge proportional to the CS level <span class="math notranslate nohighlight">\(\kappa\)</span>.
 This is the hallmark of anyon superconductivity: the non-trivial matter charge signals that vortices in this model are anyonic objects, with each magnetic flux quantum binding a fixed electric charge determined by the CS level.</p>
 </section>
-<section id="numerical-implementation">
-<h3>Numerical Implementation<a class="headerlink" href="#numerical-implementation" title="Link to this heading">#</a></h3>
+<section id="id11">
+<h3>Numerical Implementation<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
 <p>Static vortex anyons are critical points of the static energy, so we must solve the associated Euler-Lagrange field equations of the model and also satisfy the Gauss constraint.
 The Euler-Lagrange field equations are obtained by varying the unreduced static energy functional with respect to the Higgs field <span class="math notranslate nohighlight">\(\psi\)</span> and the gauge field <span class="math notranslate nohighlight">\((A_1,A_2)\)</span>.
 This gives us the static Ginzburg–Landau equations
@@ -1031,76 +1321,369 @@ We formulate the minimization as a second order dynamical problem and <code clas
 
 where <span class="math notranslate nohighlight">\(t\)</span> is a fictitious time coordinate.</p>
 </section>
-</section>
-<section id="chiral-magnet">
-<h2>Chiral magnet<a class="headerlink" href="#chiral-magnet" title="Link to this heading">#</a></h2>
-<section id="id14">
-<h3>Physics modeled<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
-<p>The chiral magnet describes a ferromagnet with a Dzyaloshinskii-Moriya interaction (DMI). The balance between exchange, anisotropy, field and DMI stabilizes skyrmion textures and helical states.</p>
-</section>
-<section id="id15">
-<h3>Fields and mappings<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<section id="id12">
+<h3>References<a class="headerlink" href="#id12" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\vec{n}(\vec{x})\in\mathbb{R}^3\)</span>: the magnetization vector, stored as three real components.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\psi(\vec{x})\in\mathbb{R}\)</span>: an auxiliary scalar potential used to represent the magnetostatic (demagnetization) field when the <code class="docutils literal notranslate"><span class="pre">demag</span></code> option is enabled.</p></li>
+<li><p>P. Leask, <em>Anyon Bound States and Hybrid Superconductivity</em>, <a class="reference external" href="https://doi.org/10.1103/15fc-r786">Phys. Rev. Lett. <strong>137</strong>, 026003 (2026)</a></p></li>
+<li><p>S. C. Zhang, T.H. Hansson, and S. Kivelson, <em>Effective field-theory model for the fractional quantum Hall effect</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.62.82">Phys. Rev. Lett. <strong>62</strong>, 82 (1989)</a></p></li>
+<li><p>S. C. Zhang, <em>The Chern-Simons-Landau-Ginzburg theory of the fractional quantum Hall effect</em>, <a class="reference external" href="https://doi.org/10.1142/S0217979292000037">Int. J. Mod. Phys. B <strong>06</strong>, 25 (1992)</a></p></li>
+<li><p>D.-H. Lee and M.P.A. Fisher, <em>Anyon superconductivity and the fractional quantum Hall effect</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.63.903">Phys. Rev. Lett. <strong>63</strong>, 903 (1989)</a></p></li>
+<li><p>D.-H. Lee and M.P.A. Fisher, <em>Anyon superconductivity and charge-vortex duality</em>, <a class="reference external" href="https://doi.org/10.1142/S0217979291001061">Int. J. Mod. Phys. B <strong>05</strong>, 2675 (1991)</a></p></li>
+<li><p>T. Hansson, V. Oganesyan, and S. Sondhi, <em>Superconductors are topologically ordered</em>, <a class="reference external" href="https://doi.org/10.1016/j.aop.2004.05.006">Ann. Phys. (Amsterdam) <strong>313</strong>, 497 (2004)</a></p></li>
+<li><p>J. Fröhlich and P. Marchetti, <em>Quantum field theories of vortices and anyons</em>, <a class="reference external" href="https://doi.org/10.1007/BF01217803">Commun. Math. Phys. <strong>121</strong>, 177 (1989)</a></p></li>
 </ul>
 </section>
-<section id="id16">
-<h3>Dimensional energy<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
-<p>The dimensional magnetic energy is</p>
-<div class="math notranslate nohighlight">
-\[
-E[\vec{n}] = \int d^2x\left[
-\frac{J}{2}|\nabla\vec{n}|^2 + \mathcal{D}\sum_{i=1}^2 \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + M_sV(\vec{n})
-\right] + \frac{1}{2\mu_0}\int d^2x\,|\nabla\psi|^2,
-\]</div>
-<p>where the last term is the magnetostatic energy and <span class="math notranslate nohighlight">\(\vec{d}_i\)</span> are the DMI vectors. The constants <span class="math notranslate nohighlight">\(J\)</span>, <span class="math notranslate nohighlight">\(\mathcal{D}\)</span>, <span class="math notranslate nohighlight">\(M_s\)</span> and <span class="math notranslate nohighlight">\(\mu_0\)</span> carry their usual magnetic units.</p>
 </section>
-<section id="id17">
-<h3>Dimensionless formulation used in the implementation<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
-<p>The implementation uses the corresponding dimensionless magnetic functional</p>
-<div class="math notranslate nohighlight">
-\[
-\mathcal{E}[\vec{n},\psi'] = \int d^2x'\left[
-\frac{J}{2}|\nabla'\vec{n}|^2 + \mathcal{D}\sum_{i=1}^2 \vec{d}_i\cdot(\vec{n}\times\partial_i'\vec{n}) + M_sV(\vec{n})
-\right] + \frac{1}{2\mu_0}\int d^2x'\,|\nabla'\psi'|^2,
-\]</div>
+<section id="chiral-magnet-with-demagnetization">
+<h2>Chiral Magnet with Demagnetization<a class="headerlink" href="#chiral-magnet-with-demagnetization" title="Link to this heading">#</a></h2>
+<section id="id13">
+<h3>Fields and parameters<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Magnetization order parameter: <span class="math notranslate nohighlight">\(\vec{m} \in \mathbb{R}^3\)</span>, <span class="math notranslate nohighlight">\([\vec{m}] = \textup{Am}^{-1}\)</span>.</p></li>
+<li><p>Magnetostatic potential: <span class="math notranslate nohighlight">\(\psi \in \mathbb{R}\)</span>, <span class="math notranslate nohighlight">\([\psi] = \textup{Tm}\)</span></p></li>
+<li><p>Exchange stiffness: <span class="math notranslate nohighlight">\(J\)</span>, <span class="math notranslate nohighlight">\([J]=\textup{Jm}^{-1}\)</span></p></li>
+<li><p>Dzyaloshinskii–Moriya interaction strength: <span class="math notranslate nohighlight">\(\mathcal{D}\)</span>, <span class="math notranslate nohighlight">\([\mathcal{D}]=\textup{Jm}^{-2}\)</span></p></li>
+<li><p>Magnetic saturation density: <span class="math notranslate nohighlight">\(M_s\)</span>, <span class="math notranslate nohighlight">\([M_s] = \textup{Am}^{-1}\)</span></p></li>
+<li><p>Anisotropy constant: <span class="math notranslate nohighlight">\(K_m\)</span>, <span class="math notranslate nohighlight">\([K_m] = \textup{Jm}^{-3}\)</span></p></li>
+<li><p>External magnetic field <span class="math notranslate nohighlight">\(B_{\textup{ext}}\)</span>, <span class="math notranslate nohighlight">\([B_{\textup{ext}}] = \textup{T}\)</span></p></li>
+<li><p>Permeability of free space: <span class="math notranslate nohighlight">\(\mu_0\)</span>, <span class="math notranslate nohighlight">\([\mu_0] = \textup{mkgs}^{-2}\textup{A}^{-2}\)</span></p></li>
+</ul>
 </section>
-<section id="non-local-interaction-and-poisson-equation">
-<h3>Non-local interaction and Poisson equation<a class="headerlink" href="#non-local-interaction-and-poisson-equation" title="Link to this heading">#</a></h3>
-<p>When the <code class="docutils literal notranslate"><span class="pre">demag</span></code> option is enabled, the scalar potential <span class="math notranslate nohighlight">\(\psi\)</span> is obtained from the magnetization through a Poisson equation,</p>
+<section id="the-chiral-ferromagnet-model">
+<h3>The Chiral Ferromagnet Model<a class="headerlink" href="#the-chiral-ferromagnet-model" title="Link to this heading">#</a></h3>
+<p>The model is a translationally invariant three-dimensional chiral ferromagnet whose magnetization field is assumed to vary smoothly and have constant magnitude, and so can be written <span class="math notranslate nohighlight">\(\vec{m}(\vec{x})=M_s\vec{n}(\vec{x})\)</span> where <span class="math notranslate nohighlight">\(|\vec{n}|=1\)</span> and <span class="math notranslate nohighlight">\(M_s\)</span> is a constant parameter called the magnetic saturation density.
+The total energy of such a field is assumed to take the form
 <div class="math notranslate nohighlight">
 \[
--\Delta\psi = \nabla\cdot\vec{M},
+    E = \int_{\mathbb{R}^3}\textup{d}^3x \left\{\frac{J}{2}\,|\textup{d}\vec{n}|^2 + \mathcal{D}  \sum_{i=1}^3 \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + K_m(1-n_3^2) + M_s B_{\textup{ext}}(1-n_3) \right\} +E_{\textup{DDI}},
 \]</div>
-<p>or equivalently</p>
+
+where <span class="math notranslate nohighlight">\(E_{\textup{DDI}}\)</span> is the dipole-dipole interaction energy.
+The potential has two terms: an intrinsic anisotropy term, with coupling constant <span class="math notranslate nohighlight">\(K_m\)</span> (which can be any real constant) and a Zeeman term representing the interaction of <span class="math notranslate nohighlight">\(\vec{m}\)</span> with a constant external applied magnetic field</p>
+<p>The DMI energy is determined by three constant vectors <span class="math notranslate nohighlight">\(\vec{d}_i\)</span>, <span class="math notranslate nohighlight">\(i=1,2,3\)</span>.
+Having restricted attention to translation invariant fields, only <span class="math notranslate nohighlight">\(\vec{d}_1\)</span>, <span class="math notranslate nohighlight">\(\vec{d}_2\)</span> are relevant.
+The overall
+DMI strength <span class="math notranslate nohighlight">\(\mathcal{D}\)</span> is set by choosing the longer of these two vectors, without loss of generality <span class="math notranslate nohighlight">\(\vec{d}_1\)</span>, to have length <span class="math notranslate nohighlight">\(1\)</span>.
+We will consider three different choices of the DMI vectors <span class="math notranslate nohighlight">\(\vec{d}_1,\vec{d}_2\)</span>.
+The most standard choice, deriving from Dresselhaus spin-obit coupling, yields the DMI vectors <span class="math notranslate nohighlight">\(\{\vec{d}_1=-\vec{e}_1, \, \vec{d}_2=-\vec{e}_2\}\)</span>, and the corresponding DMI term is
 <div class="math notranslate nohighlight">
 \[
-\Delta\psi = -\nabla\cdot(M_s\vec{n}).
+    \sum_{i}\vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) = \vec{n} \cdot \left( \vec{\nabla} \times \vec{n} \right) = \Lambda_{xz}^{(y)}-\Lambda_{yz}^{(x)},
 \]</div>
-<p>This is the magnetostatic contribution: the magnetic charges induced by the non-uniform magnetization create a long-range demagnetizing field that is non-local in the texture.</p>
+
+where we have introduced the Lifshitz invariants,
+<div class="math notranslate nohighlight">
+\[
+    \Lambda_{ij}^{(k)} = n_i \frac{\partial n_j}{\partial x_k} - n_j \frac{\partial n_i}{\partial x_k}.
+\]</div>
+
+Rashba spin orbit coupling corresponds to the DMI vectors <span class="math notranslate nohighlight">\(\{\vec{d}_1=\vec{e}_2, \, \vec{d}_2=-\vec{e}_1\}\)</span>, which gives
+<div class="math notranslate nohighlight">
+\[
+    \sum_{i}\vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) = n_3\left( \vec{\nabla}\cdot \vec{n}\right) - \vec{n}\cdot \vec{\nabla}n_3 = \Lambda_{zx}^{(x)}-\Lambda_{yz}^{(y)}.
+\]</div>
+
+The final DMI term we consider arises from the vectors <span class="math notranslate nohighlight">\(\{\vec{d}_1=\vec{e}_1, \, \vec{d}_2=-\vec{e}_2\}\)</span> and corresponds to tetragonal compounds with <span class="math notranslate nohighlight">\(D_{2d}\)</span> symmetry (such as Heusler compounds),
+<div class="math notranslate nohighlight">
+\[
+    \sum_{i}\vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) = \Lambda_{xz}^{(y)}+\Lambda_{yz}^{(x)}.
+\]</div>
+
+In the absence of <span class="math notranslate nohighlight">\(E_{\textup{DDI}}\)</span> all these choices are equivalent up to field redefinitions. That is,
+<div class="math notranslate nohighlight">
+\[\begin{split}
+    \begin{split}
+        E_\textup{Dresselhaus}(n_1,n_2,n_3)=E_\textup{Rashba}(n_2,-n_1,n_3),\\
+        E_\textup{Heusler}(n_1,n_2,n_3)=E_\textup{Rashba}(-n_2,-n_1,n_3).
+    \end{split}
+\end{split}\]</div>
+
+The Rashba DMI term favours skyrmions of N’eel type, that is,
+<div class="math notranslate nohighlight">
+\[
+    \vec{n}_{\textup{N\'eel}}(r,\theta)=(\sin f(r)\cos\theta,\sin f(r)\sin\theta,\cos f(r)),
+\]</div>
+
+where <span class="math notranslate nohighlight">\(f(r)\)</span> decreases monotonically from <span class="math notranslate nohighlight">\(\pi\)</span> to <span class="math notranslate nohighlight">\(0\)</span>.
+Note that this field has degree <span class="math notranslate nohighlight">\(N_{\textup{Sk}}=-1\)</span>, so we call it a skyrmion, following the standard convention in the magnetism literature.
+It follows that the Dresselhaus DMI term favours Bloch skyrmions
+<div class="math notranslate nohighlight">
+\[
+    \vec{n}_{\textup{Bloch}}(r,\theta)=(-\sin f(r)\sin\theta,\sin f(r)\cos\theta,\cos f(r)),
+\]</div>
+
+while the Heusler DMI term favours <em>antiskyrmions</em> of the form
+<div class="math notranslate nohighlight">
+\[
+    \vec{n}_{\textup{Heusler}}(r,\theta)=(-\sin f(r)\sin\theta,-\sin f(r)\cos\theta,\cos f(r)),
+\]</div>
+
+and that these three solutions are exactly degenerate in energy without the DDI accounted for.</p>
 </section>
-<section id="id18">
-<h3>Scaling conventions<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
-<p>A common choice is to use the scaled coordinate <span class="math notranslate nohighlight">\(\vec{x}'\)</span> and the corresponding reduced variables, yielding the dimensionless equation</p>
+<section id="demagnetization">
+<h3>Demagnetization<a class="headerlink" href="#demagnetization" title="Link to this heading">#</a></h3>
+<p>In this section we define the magnetostatic self-energy, or dipole-dipole interaction energy, <span class="math notranslate nohighlight">\(E_{\textup{DDI}}\)</span> and compute its first variation.
+The magnetic field induced by an isolated dipole of moment <span class="math notranslate nohighlight">\(\vec{m}\)</span> at <span class="math notranslate nohighlight">\(\vec{0}\)</span> is
 <div class="math notranslate nohighlight">
 \[
-\nabla'^2\vec{n} + \bar{\mathcal{D}}\,\nabla'\times\vec{n} + \bar{K}\vec{n} + \bar{B}\vec{e}_z = 0,
+    \vec{B} = - \frac{\mu_0}{4\pi r^3} \left( \vec{m} - 3 \frac{\vec{m}\cdot \vec{x}}{r^2}\vec{x}\right), 
 \]</div>
-<p>with the demagnetizing field entering via the scalar potential equation above.</p>
+
+where <span class="math notranslate nohighlight">\(\mu_0\)</span> is the permeability of free space.
+This is often referred to as the <em>demagnetizing</em> field and can be expressed as the gradient of a magnetic potential <span class="math notranslate nohighlight">\(\psi:\mathbb{R}^3\rightarrow\mathbb{R}\)</span>, that is,
+<div class="math notranslate nohighlight">
+\[
+    \vec{B} = -\vec{\nabla}\psi
+\]</div>
+
+where
+<div class="math notranslate nohighlight">
+\[
+    \psi = -\mu_0 \vec{m}\cdot \vec{\nabla}\left( \frac{1}{4\pi r}\right).
+\]</div>
+</p>
+<p>Consider now a continuous distribution of magnetic dipole density <span class="math notranslate nohighlight">\(\vec{m}: \Omega \rightarrow \mathbb{R}^3\)</span>, where <span class="math notranslate nohighlight">\(\Omega \subseteq \mathbb{R}^3\)</span> is some domain.
+The magnetic field it induces, at a point <span class="math notranslate nohighlight">\(\vec{x}\in\mathbb{R}^3\)</span>, is given by integrating the field induced at <span class="math notranslate nohighlight">\(\vec{x}\)</span> by <span class="math notranslate nohighlight">\(\vec{m}(\vec{y})\)</span> at <span class="math notranslate nohighlight">\(\vec{y}\in\Omega\)</span> over <span class="math notranslate nohighlight">\(\vec{y}\in\Omega\)</span>:
+<div class="math notranslate nohighlight">
+\[
+    \vec{B}(\vec{x}) = - \frac{\mu_0}{4\pi} \int_\Omega \textup{d}^3\vec{y} \frac{1}{|\vec{x}-\vec{y}|^3} \left\{ \vec{m}(\vec{y}) - 3 \frac{\vec{m}(\vec{y}) \cdot (\vec{x}-\vec{y})}{|\vec{x}-\vec{y}|^2} (\vec{x}-\vec{y}) \right\}.
+\]</div>
+
+Again, this is the gradient of the magnetic potential <span class="math notranslate nohighlight">\(\psi: \mathbb{R}^3 \rightarrow \mathbb{R}\)</span>,
+<div class="math notranslate nohighlight">
+\[
+    \psi(\vec{x}) = -\mu_0 \int_\Omega \textup{d}^3\vec{y} \, \left\{\vec{m}(\vec{y}) \cdot \vec{\nabla}_x \left( \frac{1}{4\pi|\vec{x}-\vec{y}|} \right) \right\}.
+\]</div>
+</p>
+<p>We now note that
+<div class="math notranslate nohighlight">
+\[
+    G(\vec{x},\vec{y})=\frac{1}{4\pi|\vec{x}-\vec{y}|}
+\]</div>
+
+is the Green’s function for the Laplacian <span class="math notranslate nohighlight">\(\Delta = -\nabla^2\)</span> on <span class="math notranslate nohighlight">\(\mathbb{R}^3\)</span>, that is
+<div class="math notranslate nohighlight">
+\[
+    \Delta_x G(\vec{x},\vec{y}) = \delta(\vec{x}-\vec{y}).
+\]</div>
+
+We see that the magnetic potential <span class="math notranslate nohighlight">\(\psi\)</span> satisfies the PDE
+<div class="math notranslate nohighlight">
+\[
+    \Delta\psi = -\nabla^2\psi = \mu_0 \rho, \quad  \rho = -(\vec{\nabla}\cdot\vec{m}),
+\]</div>
+
+that is, Poisson’s equation with source <span class="math notranslate nohighlight">\(\rho=-(\vec{\nabla}\cdot\vec{m})\)</span>. Up to a multiplicative constant, the magnetic field induced by the dipole distribution <span class="math notranslate nohighlight">\(\vec{m}\)</span> coincides, therefore, with the magnetic field induced by the charge distribution <span class="math notranslate nohighlight">\(-(\vec{\nabla}\cdot\vec{m})\)</span>.
+Roughly speaking, we may think of <span class="math notranslate nohighlight">\(-(\vec{\nabla}\cdot\vec{m})\)</span> as ``magnetic charge density’’.</p>
+<p>The interaction energy of a pair of magnetic dipoles <span class="math notranslate nohighlight">\(\vec{m}^{(1)}\)</span>, <span class="math notranslate nohighlight">\(\vec{m}^{(2)}\)</span>, is <span class="math notranslate nohighlight">\(-\vec{m}^{(1)}\cdot\vec{B}^{(2)}\)</span>, where <span class="math notranslate nohighlight">\(\vec{B}^{(2)}\)</span> is the magnetic field induced by <span class="math notranslate nohighlight">\(\vec{m}^{(2)}\)</span> at the position of <span class="math notranslate nohighlight">\(\vec{m}^{(1)}\)</span>. Hence, the total dipole-dipole interaction energy of a continuous dipole density distribution is the magnetostatic energy
+<div class="math notranslate nohighlight">
+\[
+    E_{\textup{DDI}} = -\frac{1}{2} \int_\Omega \textup{d}^3\vec{x} \, \left(\vec{B}(\vec{x}) \cdot \vec{m}(\vec{x}) \right),
+\]</div>
+
+where <span class="math notranslate nohighlight">\(\vec{B}\)</span> is the demagnetizing field induced by the magnetization <span class="math notranslate nohighlight">\(\vec{m}\)</span>.
+(The factor of <span class="math notranslate nohighlight">\(1/2\)</span> arises since we sum over dipole pairs.)
+It is useful to rewrite this as a functional of the magnetic potential <span class="math notranslate nohighlight">\(\psi\)</span>:
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    E_{\textup{DDI}} = \, &amp; \frac{1}{2} \int_\Omega \textup{d}^3\vec{x} \, \vec{m} \cdot \vec{\nabla}\psi -\frac{1}{2} \int_\Omega \textup{d}^3\vec{x} \, \left( \vec{\nabla} \cdot \vec{m} \right) \psi + \frac{1}{2} \oint_{\partial\Omega} \textup{d}\vec{s} \cdot \left( \psi\vec{m} \right) \\
+    = \, &amp; \frac{1}{2\mu_0} \int_\Omega \textup{d}^3\vec{x} \, \psi \Delta\psi + \frac{1}{2} \oint_{\partial\Omega} \textup{d}\vec{s} \cdot \left( \psi\vec{m} \right),
+\end{align*}
+\end{split}\]</div>
+
+by the Divergence Theorem.
+We will use this formula only in situations where the boundary conditions ensure that the boundary term vanishes.
+In this case, <span class="math notranslate nohighlight">\(E_{\textup{DDI}}\)</span> coincides with the magnetostatic self-energy of the “magnetic charge” distribution <span class="math notranslate nohighlight">\(-(\vec{\nabla}\cdot\vec{m})\)</span>.</p>
+<p>We now specialize to the case of immediate interest: the dipole-dipole interaction energy of a chiral ferromagnet in a translation invariant configuration.
+The dipole field has constant length <span class="math notranslate nohighlight">\(M_s\)</span>, so <span class="math notranslate nohighlight">\(\vec{m}=M_s\vec{n}\)</span> where <span class="math notranslate nohighlight">\(\vec{n}\)</span> is valued on the unit sphere.
+Further, we impose translation invariance in the direction <span class="math notranslate nohighlight">\(\vec{e}_3=(0,0,1)\)</span>, so <span class="math notranslate nohighlight">\(\vec{n}\)</span> is independent of <span class="math notranslate nohighlight">\(x_3\)</span>.
+The boundary conditions require some care.
+We assume that some anisotropy in the system (either intrinsic or generated by an external applied magnetic field) imposes an energetic preference for the dipole orientation <span class="math notranslate nohighlight">\(\vec{n}=\vec{e}_3\)</span>, and consider fields <span class="math notranslate nohighlight">\(\vec{n}:\mathbb{R}^2\rightarrow S^2\)</span> which have compact support in the sense that there exists <span class="math notranslate nohighlight">\(R_0&gt;0\)</span> such that, for all <span class="math notranslate nohighlight">\(r:=|(x_1,x_2)|\geq R_0\)</span>, <span class="math notranslate nohighlight">\(\vec{n}(x_1,x_2)=\vec{e}_3\)</span>.
+Since the field <span class="math notranslate nohighlight">\(\vec{n}\)</span> is translation invariant, the total dipole interaction energy either vanishes (for example, if <span class="math notranslate nohighlight">\(\vec{n}\)</span> is constant) or diverges.
+The energy per unit length (in the <span class="math notranslate nohighlight">\(\vec{e}_3\)</span> direction) may be finite however, and this coincides with the total energy of the slab <span class="math notranslate nohighlight">\(\Omega=\mathbb{R}^2\times[0,1]\)</span>, which we compute as the limit of the energy of the thick disk
+<span class="math notranslate nohighlight">\(\Omega_R=\{\vec{x}\: :\: x_1^2+x_2^2\leq R^2,\: 0\leq x_3\leq 1\}\)</span> as <span class="math notranslate nohighlight">\(R\rightarrow\infty\)</span>.
+Note that, in this case, the boundary term vanishes identically for all <span class="math notranslate nohighlight">\(R&gt;R_0\)</span>: the flux of <span class="math notranslate nohighlight">\(\psi\vec{m}\)</span> through the cylindrical wall vanishes since <span class="math notranslate nohighlight">\(\vec{m}\)</span> has no normal component on this part of the boundary, and the flux through the top disk (at <span class="math notranslate nohighlight">\(x_3=1\)</span>) is exactly canceled by the flux through the bottom disk (at <span class="math notranslate nohighlight">\(x_3=0\)</span>) since <span class="math notranslate nohighlight">\(\psi\vec{m}\)</span> is translation invariant.
+Hence
+<div class="math notranslate nohighlight">
+\[
+    E_{\textup{DDI}}=\frac{1}{2\mu_0}\int_{\mathbb{R}^2}\textup{d}^2x\, \psi\Delta\psi,
+\]</div>
+
+where <span class="math notranslate nohighlight">\(\Delta=-\partial_1^2-\partial_2^2\)</span> is the Laplacian on <span class="math notranslate nohighlight">\(\mathbb{R}^2\)</span>, and <span class="math notranslate nohighlight">\(\psi\)</span> satisfies
+<div class="math notranslate nohighlight">
+\[
+    \Delta\psi=-\mu_0 M_s\left(\frac{\partial n_1}{\partial x_1}+\frac{\partial n_2}{\partial x_2}\right).
+\]</div>
+</p>
+<p>Consider the large <span class="math notranslate nohighlight">\(r\)</span> behaviour of the magnetic potential <span class="math notranslate nohighlight">\(\psi:\mathbb{R}^2\rightarrow\mathbb{R}\)</span>.
+Any solution of the Poisson equation <span class="math notranslate nohighlight">\(\Delta\psi=\mu_0\rho\)</span> on the plane has a multipole expansion
+<div class="math notranslate nohighlight">
+\[
+\psi=-\frac{q\mu_0}{2\pi}\log r +O(r^{-1})
+\]</div>
+
+where <span class="math notranslate nohighlight">\(q=\int_{\mathbb{R}^2}\textup{d}^2x\,\rho\)</span> is the total ``charge’’.
+In general, such functions are logarithmically unbounded.
+In our case
+<div class="math notranslate nohighlight">
+\[
+\begin{align*}
+    q=\int_{\mathbb{R}^2}\textup{d}^2x\,\rho = -\int_{\mathbb{R}^2}\textup{d}^2x\, (\vec{\nabla} \cdot \vec{m}) = 0,
+\end{align*}
+\]</div>
+
+and we conclude that <span class="math notranslate nohighlight">\(\psi\)</span> is (at least) <span class="math notranslate nohighlight">\(1/r\)</span> localized.</p>
 </section>
-<section id="id19">
-<h3>Euler-Lagrange equations<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
-<p>The static equation is</p>
+<section id="variation-of-the-magnetostatic-energy">
+<h3>Variation of the Magnetostatic Energy<a class="headerlink" href="#variation-of-the-magnetostatic-energy" title="Link to this heading">#</a></h3>
+<p>Let us consider an energy and length rescaling with <span class="math notranslate nohighlight">\(E=\frac{J^2}{\mathcal{D}}\hat{E}\)</span> and <span class="math notranslate nohighlight">\(x=\frac{J}{\mathcal{D}}\hat{x}\)</span>.
+Further, let us also consider the rescaling of the magnetic potential <span class="math notranslate nohighlight">\(\psi = \frac{\mathcal{D}}{M_s} \hat\psi\)</span>.
+Then the dimensionless energy <span class="math notranslate nohighlight">\(\hat{E}\)</span> is (having dropped all <span class="math notranslate nohighlight">\(\hat{}\)</span> decorations)
 <div class="math notranslate nohighlight">
 \[
-\vec{n}\times\left(\nabla'^2\vec{n} + \bar{\mathcal{D}}\,\vec{f}_{\rm DMI}[\vec{n}] + \bar{K}\,\partial_\vec{n}V + \bar{H}\vec{e}_z\right)=0,
+    E = \int_{\mathbb{R}^3} \left\{ \frac{1}{2}|\textup{d}\vec{n}|^2 + \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + K(1-n_3^2) + h(1-n_3)  + \frac{1}{2}\vec{n} \cdot \vec{\nabla}\psi \right\} \textup{d}^3x,
 \]</div>
-<p>and the scalar potential satisfies the Poisson equation shown above.</p>
+
+where the magnetic potential satisfies the dimensionless Poisson equation
+<div class="math notranslate nohighlight">
+\[
+    \Delta \psi = -\mu \vec{\nabla} \cdot \vec{n}.
+\]</div>
+
+The dimensionless coupling constants are
+<div class="math notranslate nohighlight">
+\[
+    K = \frac{K_mJ}{\mathcal{D}^2}, \quad h = \frac{M_s B_\textup{ext}J}{\mathcal{D}^2}, \quad \mu = \frac{\mu_0JM_s^2}{\mathcal{D}^2}.
+\]</div>
+</p>
+<p>We now return to the case of interest where we have translation invariance in the <span class="math notranslate nohighlight">\(\vec{e}_3\)</span> direction.
+Before, we were considering the energy per unit length in the translation invariant direction.
+So, our domain was <span class="math notranslate nohighlight">\(\Omega=\mathbb{R}^2\times[0,1]\)</span>, which now becomes <span class="math notranslate nohighlight">\(\Omega'=\mathbb{R}^2\times[0,t]\)</span> where <span class="math notranslate nohighlight">\(t=L_0^{-1}\)</span> is the thickness of the slab under the rescaling.
+To maintain adimensionality, let us consider the energy per unit thickness <span class="math notranslate nohighlight">\(E/t\)</span>.
+Therefore, the adimensional energy functional we are really considering is
+<div class="math notranslate nohighlight">
+\[
+    E = \int_{\mathbb{R}^2} \left\{ \frac{1}{2}|\textup{d}\vec{n}|^2 + \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + K(1-n_3^2) + h(1-n_3) + \frac{1}{2}\vec{n} \cdot \vec{\nabla}\psi \right\} \textup{d}^2x.
+\]</div>
+</p>
+<p>We seek fields <span class="math notranslate nohighlight">\(\vec{n}:\mathbb{R}^2\rightarrow S^2\)</span> which (at least locally) minimize <span class="math notranslate nohighlight">\(E\)</span> so, for all smooth variations <span class="math notranslate nohighlight">\(\vec{n}_t\)</span> of <span class="math notranslate nohighlight">\(\vec{n}=\vec{n}_0\)</span> through fields of compact support, we require that
+<div class="math notranslate nohighlight">
+\[
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E(\vec{n}_t)=0.
+\]</div>
+
+This condition is equivalent to the Euler-Lagrange equations for <span class="math notranslate nohighlight">\(E\)</span>, which we now derive.</p>
+<p>Let <span class="math notranslate nohighlight">\(\vec{\epsilon}=\partial_t\vec{n}_t|_{t=0}\)</span>, the generator of the variation <span class="math notranslate nohighlight">\(\vec{n}_t\)</span>, and note that <span class="math notranslate nohighlight">\(\vec{\epsilon}\cdot\vec{n}= 0\)</span> everywhere since <span class="math notranslate nohighlight">\(|\vec{n}|=1\)</span>.
+The induced variations of <span class="math notranslate nohighlight">\(E_{\textup{exch}}\)</span>, <span class="math notranslate nohighlight">\(E_{\textup{DMI}}\)</span> and
+<span class="math notranslate nohighlight">\(E_{\textup{pot}}\)</span> are easily computed:
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{exch}}(\vec{n}_t) = &amp;\int_{\mathbb{R}^2} \textup{d}^2x\, \vec{\epsilon}\cdot\Delta\vec{n}, \\
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{DMI}}(\vec{n}_t) = &amp;\int_{\mathbb{R}^2}\textup{d}^2x\,\vec{\epsilon}\cdot(-2\vec{d}_i\times\partial_i\vec{n}), \\
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{pot}}(\vec{n}_t) = &amp;\int_{\mathbb{R}^2}\textup{d}^2x\, \vec{\epsilon}\cdot(0,0,-h-2Kn_3).
+\end{align*}
+\end{split}\]</div>
+
+We will also need the variation of <span class="math notranslate nohighlight">\(E_{\textup{DDI}}\)</span> which is rather more subtle.</p>
+<p>Denote by <span class="math notranslate nohighlight">\(\psi_t\)</span> the unique solution of with source <span class="math notranslate nohighlight">\(-\vec{\nabla} \cdot \vec{n}_t\)</span> decaying to <span class="math notranslate nohighlight">\(0\)</span> at infinity, and <span class="math notranslate nohighlight">\(\dot\psi=\partial_t\psi_t|_{t=0}\)</span>.
+It is important to note that, while <span class="math notranslate nohighlight">\(\vec{\epsilon}\)</span> has compact support, neither <span class="math notranslate nohighlight">\(\psi=\psi_0\)</span> nor <span class="math notranslate nohighlight">\(\dot\psi\)</span> do: as argued above, they are <span class="math notranslate nohighlight">\(1/r\)</span> localized. Care must be taken with boundary terms when computing the variation of <span class="math notranslate nohighlight">\(E_{\textup{DDI}}\)</span>, therefore.  The variation of <span class="math notranslate nohighlight">\(E_{\textup{DDI}}\)</span> induced by <span class="math notranslate nohighlight">\(\vec{n}_t\)</span> is
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    \frac{\textup{d}\: }{\textup{d}t}\bigg|_{t=0}E_{\textup{DDI}}(\vec{n}_t) = \, &amp;\frac{1}{2\mu} \int_{\mathbb{R}^2} \textup{d}^2x \left(\dot\psi\Delta\psi+\psi\Delta\dot\psi\right) \nonumber \\
+    = \, &amp;\frac{1}{\mu}\int_{\mathbb{R}^2}\textup{d}^2x\,\psi\Delta\dot\psi +\lim_{R\rightarrow\infty}\frac{1}{2\mu}\int_{\partial B_R(0)}(\dot\psi*\textup{d}\psi-\psi *\textup{d}\dot\psi) \nonumber \\
+    = \, &amp;\frac{1}{\mu}\int_{\mathbb{R}^2}\textup{d}^2x\,\psi\Delta\dot\psi +\lim_{R\rightarrow\infty}\frac{R}{2\mu_0}\int_0^{2\pi}(\dot\psi\psi_r-\psi\dot\psi_r) \textup{d}\theta\nonumber \\
+    = \, &amp;\frac{1}{\mu}\int_{\mathbb{R}^2}\textup{d}^2x\, \psi\Delta\dot\psi
+\end{align*}
+\end{split}\]</div>
+
+since <span class="math notranslate nohighlight">\(\psi,\dot\psi=O(r^{-1})\)</span> and <span class="math notranslate nohighlight">\(\psi_r,\dot\psi_r=O(r^{-2})\)</span>. Differentiating the Poisson equation with respect to <span class="math notranslate nohighlight">\(t\)</span>, we deduce that
+<div class="math notranslate nohighlight">
+\[
+    \Delta\dot\psi = -\mu\vec{\nabla}\cdot\vec{\epsilon},
+\]</div>
+
+and hence
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    \frac{\textup{d}\: }{\textup{d}t}\bigg|_{t=0}E_{\textup{DDI}}(\vec{n}_t)= \, &amp; -\int_{\mathbb{R}^2}\textup{d}^2x\, \psi \left(\vec{\nabla}\cdot\vec{\epsilon}\right) \nonumber \\
+    = \, &amp; \int_{\mathbb{R}^2}\textup{d}^2x\, {\vec{\epsilon}}\cdot\vec{\nabla}\psi-\lim_{R\rightarrow\infty}\int_{\partial B_R(0)}\psi *\varepsilon \nonumber \\
+    = \, &amp; \int_{\mathbb{R}^2}\textup{d}^2x\,\vec{\epsilon}\cdot\vec{\nabla}\psi
+\end{align*}
+\end{split}\]</div>
+
+by Stokes’s Theorem, since <span class="math notranslate nohighlight">\(\varepsilon=\varepsilon_1 \textup{d} x_1+\varepsilon_2\textup{d} x_2\)</span> has compact support.</p>
+<p>Therefore, we see that
+<div class="math notranslate nohighlight">
+\[
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E(\vec{n}_t) = \int_{\mathbb{R}^2}\textup{d}^2x\,\vec{\epsilon}\cdot (\Delta\vec{n}-2\vec{d}_i\times\partial_i\vec{n} -(h+2K\vec{n}\cdot\vec{e}_3)\vec{e}_3+\vec{\nabla}\psi)
+\]</div>
+
+and this must vanish for arbitrary <span class="math notranslate nohighlight">\(\vec{\epsilon}\)</span> pointwise orthogonal to <span class="math notranslate nohighlight">\(\vec{n}\)</span>.
+Hence, the Euler-Lagrange equation for <span class="math notranslate nohighlight">\(E\)</span> is
+<div class="math notranslate nohighlight">
+\[
+    \textup{grad} E(\vec{n}):=P_{\vec{n}}(\Delta\vec{n}-2\vec{d}_i\times\partial_i\vec{n}-(h+2Kn_3)\vec{e}_3+\vec{\nabla}\psi)=0,
+\]</div>
+
+where the projector <span class="math notranslate nohighlight">\(P_{\vec{n}}(\vec{u}):=\vec{u}-(\vec{u}\cdot\vec{n})\vec{n}\)</span> accounts for the constraint that <span class="math notranslate nohighlight">\(|\vec{n}|\equiv 1\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> is determined by the Poisson equation.
+Our notation calls attention to the fact that <span class="math notranslate nohighlight">\(\textup{grad} E\)</span> is formally the <span class="math notranslate nohighlight">\(L^2\)</span> gradient of <span class="math notranslate nohighlight">\(E\)</span>, that is, the direction in field space in which <span class="math notranslate nohighlight">\(E(\vec{n})\)</span> grows fastest.</p>
+</section>
+<section id="id14">
+<h3>Numerical Implementation<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<p>The Euler-Lagrange field equations are
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    \frac{\delta E}{\delta \vec{n}} = \, &amp; -\nabla^2\vec{n} - 2\vec{d}_i\times\partial_i\vec{n} - (h+2Kn_3)\vec{e}_3 + \vec{\nabla}\psi, \\
+    \frac{\delta E}{\delta \psi} = \, &amp; -\nabla^2 \psi + \mu \vec{\nabla} \cdot \vec{n},
+\end{align*}
+\end{split}\]</div>
+
+and, hence, <code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> is solving the coupled system of nonlinear equations
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align*}
+    \frac{\textup{d}^2 \vec{n}}{\textup{d}t^2} = \, &amp; -\frac{\delta E}{\delta \vec{n}} = \nabla^2\vec{n} + 2\vec{d}_i\times\partial_i\vec{n} + (h+2Kn_3)\vec{e}_3 - \vec{\nabla}\psi, \\
+    \frac{\textup{d}^2 \psi}{\textup{d}t^2} = \, &amp; -\frac{\delta E}{\delta \psi} = \nabla^2 \psi - \mu \vec{\nabla} \cdot \vec{n},
+\end{align*}
+\end{split}\]</div>
+
+where <span class="math notranslate nohighlight">\(t\)</span> is a ficticious time.</p>
+</section>
+<section id="id15">
+<h3>References<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>P. Leask and M. Speight, <em>Demagnetization in micromagnetics: Magnetostatic self-interactions of bulk chiral magnetic skyrmions</em>, <a class="reference external" href="https://doi.org/10.1103/zy2n-m4tn">Phys. Rev. B <strong>113</strong>, 064406 (2026)</a></p></li>
+<li><p>F. N. Rybakov and N.S. Kiselev, <em>Chiral magnetic Skyrmions with arbitrary topological charge</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.99.064437">Phys. Rev. B <strong>99</strong>, 064437 (2019)</a></p></li>
+<li><p>V. M. Kuchkin, B. Barton-Singer, F. N. Rybakov, S. Blügel, B. J. Schroers,and N. S. Kiselev, <em>Magnetic skyrmions, chiral kinks, and holomorphic functions</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.102.144422">Phys. Rev. B <strong>102</strong>, 144422 (2020)</a></p></li>
+<li><p>G. D. Fratta, C. B. Muratov, F. N. Rybakov, and V. V. Slastikov, <em>Variational principles of micromagnetics revisited</em>, <a class="reference external" href="https://doi.org/10.1137/19M1261365">SIAM J. Math. Anal. <strong>52</strong>, 3580 (2020)</a></p></li>
+<li><p>A. Bogdanov and A. Hubert, <em>Thermodynamically stable magnetic vortex states in magnetic crystals</em>, <a class="reference external" href="https://doi.org/10.1016/0304-8853(94)90046-9">J. Magn. Magn. Mater. <strong>138</strong>, 255 (1994)</a></p></li>
+<li><p>M. Ezawa, <em>Giant skyrmions stabilized by dipole-dipole interactions in thin ferromagnetic films</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.105.197202">Phys. Rev. Lett. <strong>105</strong>, 197202 (2010)</a></p></li>
+</ul>
 </section>
 </section>
 <section id="liquid-crystal-with-flexoelectric-depolarization">
 <h2>Liquid Crystal with flexoelectric depolarization<a class="headerlink" href="#liquid-crystal-with-flexoelectric-depolarization" title="Link to this heading">#</a></h2>
+<section id="id16">
+<h3>Fields and parameters<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Director order parameter: <span class="math notranslate nohighlight">\(\vec{n} \in \mathbb{R}^3\)</span>, <span class="math notranslate nohighlight">\([\vec{n}] = 1\)</span>.</p></li>
+<li><p>Electrostatic potential: <span class="math notranslate nohighlight">\(\varphi \in \mathbb{R}\)</span>, <span class="math notranslate nohighlight">\([\varphi] = \textup{V}\)</span></p></li>
+<li><p>Frank elastic constant: <span class="math notranslate nohighlight">\(K\)</span>, <span class="math notranslate nohighlight">\([K] = \textup{N}\)</span></p></li>
+<li><p>Cholestric pitch: <span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\([p] = \textup{m}\)</span></p></li>
+<li><p>Cholestric twist: <span class="math notranslate nohighlight">\(q_0\)</span>, <span class="math notranslate nohighlight">\([q_0] = \textup{m}^{-1}\)</span></p></li>
+<li><p>External electric field: <span class="math notranslate nohighlight">\(\vec{E}_{\textup{ext}}\)</span>, <span class="math notranslate nohighlight">\([\vec{E}_{\textup{ext}}] = \textup{Vm}^{-1}\)</span></p></li>
+<li><p>Vacuum permittivity: <span class="math notranslate nohighlight">\(\epsilon_0\)</span>, <span class="math notranslate nohighlight">\([\epsilon_0] = \textup{C}^2\textup{N}^{-1}\textup{m}^{-2}\)</span></p></li>
+<li><p>Dielectric anisotropy: <span class="math notranslate nohighlight">\(\Delta\epsilon\)</span>, <span class="math notranslate nohighlight">\([\Delta\epsilon] = 1\)</span></p></li>
+<li><p>Effective surface anchoring strength: <span class="math notranslate nohighlight">\(W_0\)</span>, <span class="math notranslate nohighlight">\([W_0] = \textup{Jm}^{-3}\)</span></p></li>
+<li><p>Flexoelectric polarization: <span class="math notranslate nohighlight">\(\vec{P}_f\)</span>, <span class="math notranslate nohighlight">\([\vec{P}_f] = \textup{Cm}^{-2}\)</span></p></li>
+<li><p>Piezoelectric constants: <span class="math notranslate nohighlight">\(e_1, e_3\)</span>, <span class="math notranslate nohighlight">\([e] = \textup{Cm}^{-1}\)</span></p></li>
+</ul>
+</section>
 <section id="the-frank-oseen-energy">
 <h3>The Frank-Oseen energy<a class="headerlink" href="#the-frank-oseen-energy" title="Link to this heading">#</a></h3>
 <p>The system that we wish to model is an apolar chiral liquid crystal, described by a director field <span class="math notranslate nohighlight">\(\vec{n}(\vec{x})\in \mathbb{R}P^2 \cong S^2/\mathbb{Z}_2\)</span>.
@@ -1327,8 +1910,8 @@ which holds for any unit vector <span class="math notranslate nohighlight">\(\ve
 This is the energy density of a chiral ferromagnet in the absence of an external magnetic field with the Dzyaloshinskii-Moriya interaction (DMI) arising from the Dresselhaus spin-orbit coupling (SOC).
 The dielectric anisotropy energy in liquid crystals plays the same role as uniaxial anisotropy in chiral magnets.</p>
 </section>
-<section id="id20">
-<h3>Numerical implementation<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<section id="id17">
+<h3>Numerical implementation<a class="headerlink" href="#id17" title="Link to this heading">#</a></h3>
 <p>Our interests lie in computing the self-induced flexoelectric polarization of topological solitons in the above system.
 For simplicity, the one constant approximation is implemented.
 Topological solitons in this model are minimizers of the adimensional flexoelectric Frank-Oseen free energy
@@ -1421,6 +2004,21 @@ We note that if the flexoelectric coefficients are equal, <span class="math notr
 
 So, they will generate the same electrostatic potential and, thus, they will be energy degenerate for equal flexoelectric coefficients.
 For unequal flexoelectric coefficients, <span class="math notranslate nohighlight">\(e_1 \neq e_3\)</span>, the associated self-induced polarizations yield different electric scalar potentials and, hence, distinct skyrmions.</p>
+</section>
+<section id="id18">
+<h3>References<a class="headerlink" href="#id18" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>P. Leask, <em>Topological transition from a hopfion to a toron via flexoelectric self-polarization in chiral liquid crystals</em>, <a class="reference external" href="https://doi.org/10.1103/gy6m-m7ck">Phys. Rev. Res. <strong>7</strong>, 043001 (2025)</a></p></li>
+<li><p>A. O. Leonov, I. E. Dragunov, U. K. Rößler, and A. N. Bogdanov, <em>Theory of skyrmion states in liquid crystals</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevE.90.042502">Phys. Rev. E <strong>90</strong>, 042502 (2014)</a></p></li>
+<li><p>S. Afghah and J. V. Selinger, <em>Theory of helicoids and skyrmions in confined cholesteric liquid crystals</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevE.96.012708">Phys. Rev. E <strong>96</strong>, 012708 (2017)</a></p></li>
+<li><p>A. N. Bogdanov, U. K. Rößler, and A. A. Shestakov, <em>Skyrmions in nematic liquid crystals</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevE.67.016602">Phys. Rev. E <strong>67</strong>, 016602 (2003)</a></p></li>
+<li><p>R. B. Meyer, <em>Piezoelectric effects in liquid crystals</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.22.918">Phys. Rev. Lett. <strong>22</strong>, 918 (1969)</a></p></li>
+<li><p>J. S. Patel and R. B. Meyer, <em>Flexoelectric electro-optics of a cholesteric liquid crystal</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.58.1538">Phys. Rev. Lett. <strong>58</strong>, 1538 (1987)</a></p></li>
+<li><p>J. V. Selinger, <em>Interpretation of saddle-splay and the Oseen Frank free energy in liquid crystals</em>, <a class="reference external" href="https://doi.org/10.1080/21680396.2019.1581103">Liq. Cryst. Rev. <strong>6</strong>, 129 (2018)</a></p></li>
+<li><p>P. J. Ackerman, R. P. Trivedi, B. Senyuk, J. van de Lagemaat, and I. I. Smalyukh, <em>Two-dimensional skyrmions and other solitonic structures in confinement-frustrated chiral nematics</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevE.90.012505">Phys. Rev. E <strong>90</strong>, 012505 (2014)</a></p></li>
+<li><p>A. Duzgun, J. V. Selinger, and A. Saxena, <em>Comparing skyrmions and merons in chiral liquid crystals and magnets</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevE.97.062706">Phys. Rev. E <strong>97</strong>, 062706 (2018)</a></p></li>
+<li><p>J.-S. B. Tai and I. I. Smalyukh, <em>Surface anchoring as a control parameter for stabilizing torons, skyrmions, twisted walls, fingers, and their hybrids in chiral nematics</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevE.101.042702">Phys. Rev. E <strong>101</strong>, 042702 (2020)</a></p></li>
+</ul>
 </section>
 </section>
 <section id="ferromagnetic-superconductor">
@@ -1599,8 +2197,8 @@ The associated Euler–Lagrange field equations including the spin-flip scatteri
 \end{split}\]</div>
 </p>
 </section>
-<section id="id21">
-<h3>Numerical implementation<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<section id="id19">
+<h3>Numerical implementation<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
 <p>In terms of the order parameters, the arrested Newton flow algorithm is reformulating the minimization as a second order dynamical problem.
 That is, <code class="docutils literal notranslate"><span class="pre">soliton_solver</span></code> is solving the second order coupled system
 <div class="math notranslate nohighlight">
@@ -1614,50 +2212,135 @@ That is, <code class="docutils literal notranslate"><span class="pre">soliton_so
 
 where <span class="math notranslate nohighlight">\(t\)</span> is a fictitious time coordinate.</p>
 </section>
+<section id="id20">
+<h3>References<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>P. Leask, C. Ross and E. Babaev, <em>Interactions of composite magnetic-skyrmion–superconducting vortex pairs in ferromagnetic superconductors</em>, <a class="reference external" href="https://doi.org/10.1103/crwr-b57q">Phys. Rev. B. <strong>114</strong>, 014509 (2026)</a></p></li>
+<li><p>E. I. Blount and C. M. Varma, <em>Electromagnetic effects near the superconductor-to-ferromagnet transition</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.42.1079">Phys. Rev. Lett. <strong>42</strong>, 1079 (1979)</a></p></li>
+<li><p>H. S. Greenside, E. I. Blount, and C. M. Varma, <em>Possible coexisting superconducting and magnetic states</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.46.49">Phys. Rev. Lett. <strong>46</strong>, 49 (1981)</a></p></li>
+<li><p>E. S. Andriyakhina and I. S. Burmistrov, <em>Interaction of a Néel type skyrmion with a superconducting vortex</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.103.174519">Phys. Rev. B <strong>103</strong>, 174519 (2021)</a></p></li>
+<li><p>S. S. Pershoguba, S. Nakosai, and A. V. Balatsky, <em>Skyrmion induced bound states in a superconductor</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.94.064513">Phys. Rev. B <strong>94</strong>, 064513 (2016)</a></p></li>
+<li><p>K. M. D. Hals, M. Schecter, and M. S. Rudner, <em>Composite topological excitations in ferromagnet-superconductor heterostructures</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.117.017001">Phys. Rev. Lett. <strong>117</strong>, 017001 (2016)</a></p></li>
+<li><p>A. P. Petrovi´c, M. Raju, X. Y. Tee, A. Louat, I. Maggio-Aprile, R. M. Menezes, M. J. Wyszy´nski, N. K. Duong, M. Reznikov, C. Renner, M. V. Miloševi´c, and C. Panagopoulos, <em>Skyrmion (anti)vortex coupling in a chiral magnet-superconductor heterostructure</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.126.117205">Phys. Rev. Lett. <strong>126</strong>, 117205 (2021)</a></p></li>
+<li><p>Y.-J. Xie, A. Qian, B. He, Y.-B. Wu, S. Wang, B. Xu, G. Yu, X. Han, and X. G. Qiu, <em>Visualization of skyrmion-superconducting vortex pairs in a chiral-magnet–superconductor heterostructure</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevLett.133.166706">Phys. Rev. Lett. <strong>133</strong>, 166706 (2024)</a></p></li>
+<li><p>S. Mukherjee and A. Lahiri, <em>Skyrmion-vortex hybrid and spin wave solutions in ferromagnetic superconductors</em>, <a class="reference external" href="https://doi.org/10.21468/SciPostPhys.19.1.022">SciPost Phys. <strong>19</strong>, 022 (2025)</a></p></li>
+<li><p>S.-Z. Lin, L. N. Bulaevskii, and C. D. Batista, <em>Vortex dynamics in ferromagnetic superconductors: Vortex clusters, domain walls, and enhanced viscosity</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.86.180506">Phys. Rev. B <strong>86</strong>, 180506 (2012)</a></p></li>
+</ul>
+</section>
 </section>
 <section id="spin-triplet-superconducting-magnet">
 <h2>Spin-triplet superconducting magnet<a class="headerlink" href="#spin-triplet-superconducting-magnet" title="Link to this heading">#</a></h2>
-<section id="id22">
-<h3>Physics modeled<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
-<p>This model describes a ferromagnet coupled to two superconducting components. It is a natural extension of the ferromagnetic superconductor in which both spin-triplet pairing channels interact with the magnetization texture.</p>
+<section id="id21">
+<h3>Physics modeled<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<p>This model extends the ferromagnetic superconductor to two equal-spin triplet
+pairing components. It describes the coupled interaction of a magnetic
+skyrmion texture, two superconducting condensates, and the electromagnetic
+field, including composite skyrmion-vortex states and their interactions.
+Translation invariance is imposed along the third spatial direction, leaving
+the fields to vary over the two-dimensional <span class="math notranslate nohighlight">\((x,y)\)</span> plane.</p>
 </section>
-<section id="id23">
-<h3>Fields and mappings<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<section id="id22">
+<h3>Fields and parameters<a class="headerlink" href="#id22" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\vec{m}(\vec{x})\in\mathbb{R}^3\)</span>: the magnetization vector, stored as three real components.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\psi_1(\vec{x})\in\mathbb{C}\)</span> and <span class="math notranslate nohighlight">\(\psi_2(\vec{x})\in\mathbb{C}\)</span>: two complex order parameters, stored as four real channels.</p></li>
-<li><p><span class="math notranslate nohighlight">\(\vec{A}(\vec{x})\in\mathbb{R}^3\)</span>: the gauge field, stored as three real channels.</p></li>
+<li><p>Magnetization: <span class="math notranslate nohighlight">\(\vec{m}(x,y)=(m_1,m_2,m_3)\in\mathbb{R}^3\)</span>, constrained to <span class="math notranslate nohighlight">\(|\vec{m}|=m_0\)</span>.</p></li>
+<li><p>Superconducting order parameters: <span class="math notranslate nohighlight">\(\psi_1,\psi_2\in\mathbb{C}\)</span>, represented by four real field components.</p></li>
+<li><p>Gauge field: <span class="math notranslate nohighlight">\(\vec{A}(x,y)=(A_1,A_2,A_3)\in\mathbb{R}^3\)</span>; all components are independent of the third coordinate.</p></li>
+<li><p>Gauge coupling: <span class="math notranslate nohighlight">\(q\)</span>.</p></li>
+<li><p>Superconducting coefficients: <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(b_1\)</span>, <span class="math notranslate nohighlight">\(b_2\)</span>, and <span class="math notranslate nohighlight">\(c\)</span>, controlling the quadratic, self-quartic, inter-component quartic, and Josephson terms.</p></li>
+<li><p>Magnetic coefficients: <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span>, and <span class="math notranslate nohighlight">\(\gamma\)</span>, controlling the magnetic potential and gradient energy.</p></li>
 </ul>
 </section>
-<section id="id24">
-<h3>Dimensionless formulation used in the implementation<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
-<p>A dimensionless functional used in the implementation is</p>
+<section id="free-energy">
+<h3>Free energy<a class="headerlink" href="#free-energy" title="Link to this heading">#</a></h3>
+<p>The model energy used by the implementation is the normalized two-dimensional
+functional</p>
 <div class="math notranslate nohighlight">
-\[
-\mathcal{E}[\vec{m},\varphi_1,\varphi_2,\vec{A}'] = \int d^2x'\left[
-\frac12\sum_{\alpha=1}^2|D_i'\varphi_\alpha|^2 + \frac12|\nabla'\times\vec{A}'|^2
-+ \frac{\bar{\alpha}}{2}|\vec{m}|^2 + \frac{\bar{\beta}}{4}|\vec{m}|^4 + \frac{\bar{\gamma}^2}{2}|\nabla'\vec{m}|^2
-+ \frac{\bar{a}}{2}\sum_{\alpha}|\varphi_\alpha|^2 + \frac{\bar{b}_1}{4}\sum_{\alpha}|\varphi_\alpha|^4 + \bar{b}_2|\varphi_1|^2|\varphi_2|^2 + \bar{c}(\varphi_1\varphi_2^* + \varphi_1^*\varphi_2)
-\right].
-\]</div>
-<p>The couplings <span class="math notranslate nohighlight">\(b_1,b_2,c\)</span> encode the inter-component structure of the two superconducting order parameters.</p>
+\[\begin{split}
+\begin{align*}
+    E = \, &amp; \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2} |\vec{D}\psi_\alpha|^2 + \frac{1}{2}|\textup{curl}\vec{A}|^2 + \frac{a}{2} |\psi_\alpha|^2 + \frac{b_1}{4} |\psi_\alpha|^4  + b_2 |\psi_1|^2 |\psi_2|^2 + c \left( \psi_1 \psi_2^* + \psi_1^* \psi_2 \right) + \frac{\alpha}{2}|\vec{m}|^2 + \frac{\beta}{4}|\vec{m}|^4 \right. \nonumber \\
+    \, &amp; \left.+ \frac{\gamma^2}{2}|\nabla\vec{m}|^2 - \vec{m} \cdot (\vec{\nabla}\times\vec{A}) +\frac{(a+2c)^2}{2(b_1+2b_2)} +\frac{\alpha^2}{4\beta} \right\}.
+\end{align*}
+\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\vec{D}=\vec{\nabla}+iq\vec{A}\)</span> and the constant <span class="math notranslate nohighlight">\(\mathcal{F}_p^*\)</span> subtracts the homogeneous vacuum energy. The term proportional to <span class="math notranslate nohighlight">\(c\)</span> couples the two condensates and favors equal phases when <span class="math notranslate nohighlight">\(c&lt;0\)</span>.</p>
 </section>
-<section id="non-dimensionalisation">
-<h3>Non-dimensionalisation<a class="headerlink" href="#non-dimensionalisation" title="Link to this heading">#</a></h3>
-<p>After scaling with a characteristic length and order-parameter amplitude, the result is a coupled non-linear system for <span class="math notranslate nohighlight">\(\varphi_1\)</span>, <span class="math notranslate nohighlight">\(\varphi_2\)</span> and <span class="math notranslate nohighlight">\(\vec{m}\)</span> with dimensionless parameters <span class="math notranslate nohighlight">\(\bar{a}\)</span>, <span class="math notranslate nohighlight">\(\bar{b}_1\)</span>, <span class="math notranslate nohighlight">\(\bar{b}_2\)</span>, <span class="math notranslate nohighlight">\(\bar{c}\)</span> and <span class="math notranslate nohighlight">\(\bar{\gamma}\)</span>.</p>
+<section id="uniform-vacuum">
+<h3>Uniform vacuum<a class="headerlink" href="#uniform-vacuum" title="Link to this heading">#</a></h3>
+<p>For the symmetric, phase-locked vacuum, the two condensates have equal
+amplitude <span class="math notranslate nohighlight">\(u_1=u_2=u\)</span>, and the magnetization has amplitude <span class="math notranslate nohighlight">\(m_0\)</span>. Minimizing
+the homogeneous potential gives</p>
+<div class="math notranslate nohighlight">
+\[
+u_1^2=u_2^2=u^2=-\frac{a+2c}{b_1+2b_2},
+\qquad
+m_0^2=-\frac{\alpha}{\beta}.
+\]</div>
+<p>The corresponding vacuum energy density is</p>
+<div class="math notranslate nohighlight">
+\[
+\mathcal{F}_p^*=-\frac{(a+2c)^2}{2(b_1+2b_2)}
+-\frac{\alpha^2}{4\beta}.
+\]</div>
+<p>The implementation resolves these vacuum amplitudes from the model
+coefficients unless they are explicitly overridden. During relaxation, the
+magnetization constraint <span class="math notranslate nohighlight">\(|\vec{m}|=m_0\)</span> is maintained by projection.</p>
 </section>
-<section id="id25">
-<h3>Euler-Lagrange equations<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
-<p>The field equations are the natural two-component analogue of the ferromagnetic-superconductor equations,</p>
+<section id="euler-lagrange-equations-and-numerical-implementation">
+<h3>Euler-Lagrange equations and numerical implementation<a class="headerlink" href="#euler-lagrange-equations-and-numerical-implementation" title="Link to this heading">#</a></h3>
+<p>Writing <span class="math notranslate nohighlight">\(B_i=(\vec{\nabla}\times\vec{A})_i\)</span>, the stationary condensate
+equations are</p>
 <div class="math notranslate nohighlight">
 \[
-\left(\nabla' - i\vec{A}'\right)^2\varphi_\alpha + \bar{a}\varphi_\alpha + \bar{b}_1|\varphi_\alpha|^2\varphi_\alpha + \bar{b}_2|\varphi_{\bar{\alpha}}|^2\varphi_\alpha + \bar{c}\,\varphi_{\bar{\alpha}} = 0,
+\left[\frac{a}{2}+\frac{b_1}{2}|\psi_\alpha|^2
++b_2|\psi_{\bar{\alpha}}|^2\right]\psi_\alpha
++c\psi_{\bar{\alpha}}-\frac{1}{2}\vec{D}\cdot\vec{D}\psi_\alpha=0,
+\qquad \alpha=1,2,
 \]</div>
-<p>and</p>
+<p>where <span class="math notranslate nohighlight">\(\bar{\alpha}\)</span> denotes the other component. The gauge-field equation is</p>
 <div class="math notranslate nohighlight">
 \[
-\vec{m}\times\left(\bar{\gamma}\,\nabla'^2\vec{m} + \bar{\alpha}\vec{m} + \bar{\beta}|\vec{m}|^2\vec{m} - \nabla'\times\vec{A}'\right)=0.
+q^2\left(|\psi_1|^2+|\psi_2|^2\right)\vec{A}
++\frac{iq}{2}\sum_{\alpha=1}^2\left(\psi_\alpha\vec{\nabla}\psi_\alpha^*
+-\psi_\alpha^*\vec{\nabla}\psi_\alpha\right)
++\vec{\nabla}\times\vec{\nabla}\times\vec{A}
+-\vec{\nabla}\times\vec{m}=0.
 \]</div>
+<p>Under the fixed-length constraint, the magnetization equation is</p>
+<div class="math notranslate nohighlight">
+\[
+\vec{m}\times\left(
+\gamma^2\nabla^2\vec{m}+\alpha\vec{m}
++\beta|\vec{m}|^2\vec{m}-\vec{\nabla}\times\vec{A}
+\right)=0.
+\]</div>
+<p>The fields are evolved by arrested Newton flow using the fourth-order
+Runge–Kutta integrator and the shared finite-difference operators. During
+each step, the magnetization gradient is projected onto the tangent plane of
+the sphere <span class="math notranslate nohighlight">\(|\vec{m}|=m_0\)</span>.</p>
+</section>
+<section id="vortices-and-skyrmions">
+<h3>Vortices and skyrmions<a class="headerlink" href="#vortices-and-skyrmions" title="Link to this heading">#</a></h3>
+<p>Each condensate may have its own winding number <span class="math notranslate nohighlight">\(N_1\)</span> or <span class="math notranslate nohighlight">\(N_2\)</span>. The effective
+total vortex number used for the gauge-field ansatz is the vacuum-amplitude
+weighted average</p>
+<div class="math notranslate nohighlight">
+\[
+N_{\mathrm{v}}=\frac{u_1^2N_1+u_2^2N_2}{u_1^2+u_2^2},
+\qquad
+\Phi=N_{\mathrm{v}}\frac{2\pi}{q}.
+\]</div>
+<p>The magnetization supports Bloch, Néel, and antiskyrmion ansätze. With the
+orientation convention used in the implementation, a unit Bloch skyrmion has
+topological degree <span class="math notranslate nohighlight">\(n=-1\)</span>. This permits calculations of composite states in
+which the magnetic texture interacts with vortices in either or both
+condensates.</p>
+</section>
+<section id="id23">
+<h3>References<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>V. P. Mineev, <em>Theory of type-II superconductivity in ferromagnetic metals with triplet pairing</em>, <a class="reference external" href="https://doi.org/10.1063/1.5037553">Low Temp. Phys. <strong>44</strong>, 510–518 (2018)</a></p></li>
+<li><p>V. P. Mineev, <em>Phase diagram of UCoGe</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.95.104501">Phys. Rev. <strong>95</strong>, 104501 (2017)</a></p></li>
+<li><p>A. Knigavko and B. Rosenstein, <em>Spontaneous vortex state and ferromagnetic behavior of type-II p-wave superconductors</em>, <a class="reference external" href="https://doi.org/10.1103/PhysRevB.58.9354">Phys. Rev. B <strong>58</strong>, 9354 (1998)</a></p></li>
+</ul>
 </section>
 </section>
 <section id="initial-configurations-and-multi-soliton-construction">
@@ -1882,77 +2565,81 @@ python<span class="w"> </span>-m<span class="w"> </span>soliton_solver.examples.
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ginzburg-landau-superconductor">Ginzburg-Landau superconductor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#physics-modeled">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fields-and-mappings">Fields and mappings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fields-and-parameters">Fields and parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensionless-formulation-used-in-the-implementation">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaling-conventions">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#euler-lagrange-equations">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#eulerlagrange-equations">Euler–Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-implementation">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#anisotropic-superconductor">Anisotropic superconductor</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-anisotropic-s-id-model">The Anisotropic s+id Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mathbb-c-p-1-skyrmions"><span class="math notranslate nohighlight">\(\mathbb{C}P^1\)</span> Skyrmions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baby-skyrme-model">Baby Skyrme model</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Physics modeled</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Dimensionless formulation used in the implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-potential-terms">Supported potential terms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">References</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bose-einstein-condensate">Bose-Einstein condensate</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#units-and-parameters">Units and parameters</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensional-energy">Dimensional energy</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nondimensionalization">Nondimensionalization</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#thomas-fermi-profile">Thomas-Fermi profile</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Euler-Lagrange equations</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rotating-bec">Rotating BEC</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-method">Numerical method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rotating-bose-einstein-condensates">Rotating Bose-Einstein Condensates</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-bec-model">The BEC Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-rotating-bec-model">The Rotating BEC Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-thomas-fermi-profile">The Thomas-Fermi Profile</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-numerical-implementation">The Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chern-simons-landau-ginzburg-theory-of-vortex-anyons">Chern-Simons-Landau-Ginzburg Theory of Vortex Anyons</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Fields and parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-cslg-model">The CSLG Model</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anyon-nature">Anyon Nature</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#numerical-implementation">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">References</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chiral-magnet">Chiral magnet</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Dimensional energy</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-local-interaction-and-poisson-equation">Non-local interaction and Poisson equation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Scaling conventions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Euler-Lagrange equations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chiral-magnet-with-demagnetization">Chiral Magnet with Demagnetization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-chiral-ferromagnet-model">The Chiral Ferromagnet Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#demagnetization">Demagnetization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variation-of-the-magnetostatic-energy">Variation of the Magnetostatic Energy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Numerical Implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#liquid-crystal-with-flexoelectric-depolarization">Liquid Crystal with flexoelectric depolarization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Fields and parameters</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-frank-oseen-energy">The Frank-Oseen energy</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flexoelectric-polarization">Flexoelectric polarization</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#variation-of-the-flexoelectric-energy">Variation of the flexoelectric energy</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relation-to-chiral-magnets">Relation to chiral magnets</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Numerical implementation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#splay-and-bend-favored-neel-skyrmions">Splay and bend favored Neel skyrmions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ferromagnetic-superconductor">Ferromagnetic superconductor</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-free-energy">The free energy</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#including-the-effects-of-spin-flip-scattering">Including the effects of spin-flip scattering</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spin-triplet-superconducting-magnet">Spin-triplet superconducting magnet</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Physics modeled</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Fields and mappings</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Dimensionless formulation used in the implementation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#non-dimensionalisation">Non-dimensionalisation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Euler-Lagrange equations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Physics modeled</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Fields and parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#free-energy">Free energy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#uniform-vacuum">Uniform vacuum</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#euler-lagrange-equations-and-numerical-implementation">Euler-Lagrange equations and numerical implementation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vortices-and-skyrmions">Vortices and skyrmions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">References</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#initial-configurations-and-multi-soliton-construction">Initial configurations and multi-soliton construction</a><ul class="nav section-nav flex-column">
