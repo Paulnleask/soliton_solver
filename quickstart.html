@@ -161,6 +161,7 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpu_acceleration.html">GPU Acceleration via Numba CUDA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization with CUDA-OpenGL Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -381,7 +382,7 @@ document.write(`
 <h3>1. Load a theory<a class="headerlink" href="#load-a-theory" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.theories</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_theory</span>
 
-<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">"Chiral magnet"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -405,7 +406,7 @@ document.write(`
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
 
 <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"ground"</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">initialize</span></code> method sets up initial field conditions. The <code class="docutils literal notranslate"><span class="pre">&quot;ground&quot;</span></code> mode initializes fields in a topological configuration suitable for soliton relaxation.</p>
@@ -424,7 +425,7 @@ document.write(`
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.theories</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_theory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
 
-<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">"Chiral magnet"</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">run_gl_simulation</span><span class="p">():</span>
     <span class="n">params</span> <span class="o">=</span> <span class="n">theory</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">default_params</span><span class="p">(</span>
@@ -436,17 +437,17 @@ document.write(`
         <span class="n">M</span><span class="o">=</span><span class="mf">580e+3</span><span class="p">,</span> 
         <span class="n">B</span><span class="o">=</span><span class="mf">0e-3</span><span class="p">,</span>
         <span class="n">mu0</span><span class="o">=</span><span class="mf">1.25663706127e-6</span><span class="p">,</span>
-        <span class="n">dmi_term</span><span class="o">=</span><span class="s2">&quot;Heusler&quot;</span><span class="p">,</span> 
-        <span class="n">ansatz</span><span class="o">=</span><span class="s2">&quot;anti&quot;</span><span class="p">,</span>
+        <span class="n">dmi_term</span><span class="o">=</span><span class="s2">"Heusler"</span><span class="p">,</span> 
+        <span class="n">ansatz</span><span class="o">=</span><span class="s2">"anti"</span><span class="p">,</span>
         <span class="n">demag</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">newtonflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">unit_magnetization</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
     <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
-    <span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"ground"</span><span class="p">})</span>
     <span class="n">theory</span><span class="o">.</span><span class="n">render_gl</span><span class="o">.</span><span class="n">run_viewer</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">rp</span><span class="p">,</span> <span class="n">steps_per_frame</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">run_gl_simulation</span><span class="p">()</span>
 </pre></div>
 </div>

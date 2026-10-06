@@ -161,6 +161,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpu_acceleration.html">GPU Acceleration via Numba CUDA</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Visualization with CUDA-OpenGL Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -401,7 +402,7 @@ document.write(`
 </ol>
 <p>Implementation (from <code class="docutils literal notranslate"><span class="pre">gl_backend.py</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GLBackend</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;CUDA-OpenGL&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"CUDA-OpenGL"</span><span class="p">):</span>
         <span class="c1"># Create PBO</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pbo</span> <span class="o">=</span> <span class="n">GL</span><span class="o">.</span><span class="n">glGenBuffers</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">GL</span><span class="o">.</span><span class="n">glBindBuffer</span><span class="p">(</span><span class="n">GL</span><span class="o">.</span><span class="n">GL_PIXEL_UNPACK_BUFFER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pbo</span><span class="p">)</span>
@@ -419,12 +420,12 @@ document.write(`
         <span class="p">)</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">map_pbo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a CUDA device pointer to the PBO.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Get a CUDA device pointer to the PBO."""</span>
         <span class="n">ptr</span><span class="p">,</span> <span class="n">nbytes</span> <span class="o">=</span> <span class="n">_cuda_map_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cuda_array_from_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">unmap_pbo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Release the PBO for OpenGL.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Release the PBO for OpenGL."""</span>
         <span class="n">_cuda_unmap_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -465,7 +466,7 @@ document.write(`
 <p><strong>Energy density</strong> — Local energy at each grid point:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_energy_kernel</span><span class="p">(</span><span class="n">en</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute energy density.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute energy density."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="k">return</span>
@@ -478,7 +479,7 @@ document.write(`
 <p><strong>Skyrmion number</strong> — Topological charge density:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_skyrmion_number_kernel</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute skyrmion number density.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute skyrmion number density."""</span>
     <span class="c1"># Integrand of winding number formula</span>
     <span class="o">...</span>
 </pre></div>
@@ -486,7 +487,7 @@ document.write(`
 <p><strong>Field magnitude</strong> — Norm of complex/vector fields:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_norm_kernel</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute field magnitude.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute field magnitude."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="k">return</span>
@@ -505,7 +506,7 @@ document.write(`
 <p>Standard blue-cyan-green-yellow-red colormap. Used for scalar densities.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">render_jet_density_to_rgba</span><span class="p">(</span><span class="n">pbo_rgba</span><span class="p">,</span> <span class="n">density</span><span class="p">,</span> <span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map density to jet colormap.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Map density to jet colormap."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="k">return</span>
@@ -537,7 +538,7 @@ document.write(`
 <h4>HSV colormap<a class="headerlink" href="#hsv-colormap" title="Link to this heading">#</a></h4>
 <p>Hue-Saturation-Value colormap. Useful for vector fields (magnetization, etc.).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">magnetization_to_hsv</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">,</span> <span class="n">mz</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert magnetization vector to HSV.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Convert magnetization vector to HSV."""</span>
     <span class="c1"># Hue from in-plane angle: atan2(mx, my)</span>
     <span class="n">hue</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M_PI</span><span class="p">))</span> <span class="o">*</span> <span class="n">atan2</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">))</span> <span class="o">*</span> <span class="mf">360.0</span>
     
@@ -604,7 +605,7 @@ document.write(`
 <h3>Mouse interaction<a class="headerlink" href="#mouse-interaction" title="Link to this heading">#</a></h3>
 <p><strong>Vortex placement mode</strong> — Click to place vortices at cursor position:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">on_mouse_click</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">vortex_type</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Place a vortex at (x, y).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Place a vortex at (x, y)."""</span>
     <span class="c1"># Convert pixel coords to lattice indices</span>
     <span class="n">pxi</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">xlen</span> <span class="o">/</span> <span class="n">window_width</span><span class="p">)</span>
     <span class="n">pxj</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">*</span> <span class="n">params</span><span class="o">.</span><span class="n">ylen</span> <span class="o">/</span> <span class="n">window_height</span><span class="p">)</span>
@@ -660,14 +661,14 @@ document.write(`
 <span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">cuda</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">GLRenderer</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom renderer for my_theory.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Custom renderer for my_theory."""</span>
     
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Theory&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"My Theory"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">display_mode</span> <span class="o">=</span> <span class="mi">1</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">display_frame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Render one frame.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Render one frame."""</span>
         <span class="c1"># 1. Compute observable (density field)</span>
         <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
         <span class="n">sim</span><span class="o">.</span><span class="n">kernels</span><span class="o">.</span><span class="n">compute_my_observable_kernel</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
@@ -691,7 +692,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">upload_and_draw</span><span class="p">()</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">run_viewer</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">steps_per_frame</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch interactive viewer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Launch interactive viewer."""</span>
     <span class="n">renderer</span> <span class="o">=</span> <span class="n">GLRenderer</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">xlen</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ylen</span><span class="p">)</span>
     
     <span class="k">while</span> <span class="ow">not</span> <span class="n">renderer</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">should_close</span><span class="p">():</span>

@@ -160,6 +160,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpu_acceleration.html">GPU Acceleration via Numba CUDA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization with CUDA-OpenGL Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -407,7 +408,7 @@ document.write(`
 <span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
 
 <span class="c1"># Load a theory</span>
-<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">"Chiral magnet"</span><span class="p">)</span>
 
 <span class="c1"># Create parameters</span>
 <span class="n">params</span> <span class="o">=</span> <span class="n">theory</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">default_params</span><span class="p">(</span>
@@ -416,11 +417,11 @@ document.write(`
 
 <span class="c1"># Create simulation</span>
 <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"ground"</span><span class="p">})</span>
 
 <span class="c1"># Run minimization step</span>
 <span class="n">energy</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">prev_energy</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy: </span><span class="si">{</span><span class="n">energy</span><span class="si">}</span><span class="s2">, Gradient norm: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Energy: </span><span class="si">{</span><span class="n">energy</span><span class="si">}</span><span class="s2">, Gradient norm: </span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -436,7 +437,7 @@ document.write(`
 <span class="nb">print</span><span class="p">(</span><span class="n">available</span><span class="p">)</span>
 
 <span class="c1"># Get theory description</span>
-<span class="n">theories</span><span class="o">.</span><span class="n">print_description</span><span class="p">(</span><span class="s2">&quot;Baby Skyrme&quot;</span><span class="p">)</span>
+<span class="n">theories</span><span class="o">.</span><span class="n">print_description</span><span class="p">(</span><span class="s2">"Baby Skyrme"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -448,7 +449,7 @@ document.write(`
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <p><strong><code class="docutils literal notranslate"><span class="pre">load_theory(name:</span> <span class="pre">str)</span> <span class="pre">→</span> <span class="pre">module</span></code></strong></p>
 <p>Load a theory by name.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Ginzburg-Landau superconductor&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">"Ginzburg-Landau superconductor"</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -472,12 +473,12 @@ document.write(`
 <p>Print a formatted table of registered theories with descriptions.</p>
 <p><strong><code class="docutils literal notranslate"><span class="pre">print_description(name:</span> <span class="pre">str)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
 <p>Print detailed description of a theory.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">theories</span><span class="o">.</span><span class="n">print_description</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">theories</span><span class="o">.</span><span class="n">print_description</span><span class="p">(</span><span class="s2">"Chiral magnet"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong><code class="docutils literal notranslate"><span class="pre">get_theory_spec(name:</span> <span class="pre">str)</span> <span class="pre">→</span> <span class="pre">TheorySpec</span></code></strong></p>
 <p>Get metadata for a theory.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">theories</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get_theory_spec</span><span class="p">(</span><span class="s2">&quot;Baby Skyrme&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">spec</span> <span class="o">=</span> <span class="n">theories</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">get_theory_spec</span><span class="p">(</span><span class="s2">"Baby Skyrme"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -522,8 +523,8 @@ document.write(`
 <h4>Methods<a class="headerlink" href="#methods" title="Link to this heading">#</a></h4>
 <p><strong><code class="docutils literal notranslate"><span class="pre">initialize(init_config:</span> <span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
 <p>Set up the grid and apply initial field configuration.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>  <span class="c1"># Ground state</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;vortex&quot;</span><span class="p">})</span>  <span class="c1"># Vortex configuration</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"ground"</span><span class="p">})</span>  <span class="c1"># Ground state</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"vortex"</span><span class="p">})</span>  <span class="c1"># Vortex configuration</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -549,8 +550,8 @@ document.write(`
 <p><strong><code class="docutils literal notranslate"><span class="pre">observables()</span> <span class="pre">→</span> <span class="pre">dict</span></code></strong></p>
 <p>Compute theory-specific observables.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">observables</span><span class="p">()</span>
-<span class="n">energy</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
-<span class="n">topological_charge</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;topological_charge&quot;</span><span class="p">)</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">"energy"</span><span class="p">]</span>
+<span class="n">topological_charge</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"topological_charge"</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -558,7 +559,7 @@ document.write(`
 </ul>
 <p><strong><code class="docutils literal notranslate"><span class="pre">save_output(output_dir:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">precision:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">32)</span> <span class="pre">→</span> <span class="pre">None</span></code></strong></p>
 <p>Write simulation results to disk.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">save_output</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;results&quot;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim</span><span class="o">.</span><span class="n">save_output</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">"results"</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -768,7 +769,7 @@ document.write(`
 <h3>GLBackend class<a class="headerlink" href="#glbackend-class" title="Link to this heading">#</a></h3>
 <p><strong><code class="docutils literal notranslate"><span class="pre">GLBackend(width,</span> <span class="pre">height,</span> <span class="pre">title=&quot;CUDA-OpenGL&quot;)</span></code></strong></p>
 <p>GLFW window and OpenGL-CUDA rendering backend.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Simulation&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"My Simulation"</span><span class="p">)</span>
 </pre></div>
 </div>
 <section id="id6">
@@ -847,10 +848,10 @@ document.write(`
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.theories</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_theory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
 
-<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Chiral magnet&quot;</span><span class="p">)</span>
+<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">"Chiral magnet"</span><span class="p">)</span>
 <span class="n">params</span> <span class="o">=</span> <span class="n">theory</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">default_params</span><span class="p">(</span><span class="n">xlen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">ylen</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">xsize</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">ysize</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
 <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"ground"</span><span class="p">})</span>
 
 <span class="c1"># Initial energy</span>
 <span class="n">energy</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">observables_mod</span><span class="o">.</span><span class="n">compute_energy</span><span class="p">(</span>
@@ -865,10 +866,10 @@ document.write(`
     <span class="n">energy</span> <span class="o">=</span> <span class="n">new_energy</span>
     
     <span class="k">if</span> <span class="n">step</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Step </span><span class="si">{</span><span class="n">step</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">: E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">, ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Step </span><span class="si">{</span><span class="n">step</span><span class="si">:</span><span class="s2">5d</span><span class="si">}</span><span class="s2">: E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">, ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.6e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="n">err</span> <span class="o">&lt;</span> <span class="mf">1e-4</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> steps&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Converged in </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> steps"</span><span class="p">)</span>
         <span class="k">break</span>
 
 <span class="n">sim</span><span class="o">.</span><span class="n">save_output</span><span class="p">()</span>
@@ -901,7 +902,7 @@ document.write(`
 <h3>Interactive visualization with custom controls<a class="headerlink" href="#interactive-visualization-with-custom-controls" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.visualization.gl_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLBackend</span>
 
-<span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Custom Viewer&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Custom Viewer"</span><span class="p">)</span>
 
 <span class="k">while</span> <span class="ow">not</span> <span class="n">backend</span><span class="o">.</span><span class="n">should_close</span><span class="p">():</span>
     <span class="c1"># Map PBO for rendering</span>
@@ -919,7 +920,7 @@ document.write(`
     <span class="n">energy</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
     
     <span class="c1"># Update title with status</span>
-    <span class="n">backend</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2"> ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">backend</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2"> ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="n">backend</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
 </pre></div>

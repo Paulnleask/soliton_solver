@@ -47,7 +47,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Visualization with CUDA-OpenGL Interoperability" href="visualization.html" />
-    <link rel="prev" title="Numerical Solver" href="numerical_solver.html" />
+    <link rel="prev" title="Validation" href="validation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -163,6 +163,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">GPU Acceleration via Numba CUDA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization with CUDA-OpenGL Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -403,7 +404,7 @@ document.write(`
 
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">my_kernel</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Update a field on the GPU.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Update a field on the GPU."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># Get (x, y) thread index</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="k">return</span>  <span class="c1"># Threads outside domain do nothing</span>
@@ -431,7 +432,7 @@ document.write(`
 <p>Fourth-order central finite differences are computed per-thread:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_derivative_first</span><span class="p">(</span><span class="n">d1fd1x</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute first derivative of field component a at (x, y).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute first derivative of field component a at (x, y)."""</span>
     <span class="n">xlen</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">ylen</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">halo</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
@@ -454,7 +455,7 @@ document.write(`
 <h4>Gradient computation<a class="headerlink" href="#gradient-computation" title="Link to this heading">#</a></h4>
 <p>Theory-specific gradients use derivatives computed per-thread:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">make_do_gradient_step_kernel</span><span class="p">(</span><span class="n">do_gradient_step_point</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory creating a gradient computation kernel.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Factory creating a gradient computation kernel."""</span>
     <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_kernel</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -486,7 +487,7 @@ document.write(`
 <p>For a 2D stencil kernel with halo communication, shared memory can reduce global memory bandwidth:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">stencil_with_shared_memory</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">Output</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Example: shared memory optimization for finite-difference stencils.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Example: shared memory optimization for finite-difference stencils."""</span>
     <span class="c1"># Allocate shared memory for a (block_x + 2*halo) × (block_y + 2*halo) region</span>
     <span class="n">shared</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">float64</span><span class="p">)</span>  <span class="c1"># For 8×8 + halo=1</span>
     
@@ -598,7 +599,7 @@ document.write(`
                            <span class="n">gradient_step_kernel</span><span class="p">,</span> <span class="n">rk4_kernel</span><span class="p">,</span> 
                            <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">,</span> <span class="n">p_f_h</span><span class="p">,</span> 
                            <span class="n">prev_energy</span><span class="p">,</span> <span class="n">compute_energy</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;One arrested Newton flow minimization step.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""One arrested Newton flow minimization step."""</span>
     
     <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
     
@@ -746,12 +747,12 @@ nsys<span class="w"> </span>profile<span class="w"> </span>--stats<span class="o
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="numerical_solver.html"
+       href="validation.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Numerical Solver</p>
+        <p class="prev-next-title">Validation</p>
       </div>
     </a>
     <a class="right-next"

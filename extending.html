@@ -161,6 +161,7 @@
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="theories.html">Supported Theories</a></li>
 <li class="toctree-l1"><a class="reference internal" href="numerical_solver.html">Numerical Solver</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gpu_acceleration.html">GPU Acceleration via Numba CUDA</a></li>
 <li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization with CUDA-OpenGL Interoperability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
@@ -416,14 +417,14 @@ document.write(`
 
 <span class="c1"># Define theory metadata</span>
 <span class="n">_spec</span> <span class="o">=</span> <span class="n">TheorySpec</span><span class="p">(</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Minimal model&quot;</span><span class="p">,</span>
-    <span class="n">import_path</span><span class="o">=</span><span class="s2">&quot;soliton_solver.theories.minimal_model&quot;</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Single complex scalar field with U(1) symmetry&quot;</span><span class="p">,</span>
-    <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">,</span>
-    <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;minimal&quot;</span><span class="p">,</span> <span class="s2">&quot;scalar&quot;</span><span class="p">),</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"Minimal model"</span><span class="p">,</span>
+    <span class="n">import_path</span><span class="o">=</span><span class="s2">"soliton_solver.theories.minimal_model"</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">"Single complex scalar field with U(1) symmetry"</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="s2">"1.0.0"</span><span class="p">,</span>
+    <span class="n">aliases</span><span class="o">=</span><span class="p">(</span><span class="s2">"minimal"</span><span class="p">,</span> <span class="s2">"scalar"</span><span class="p">),</span>
     <span class="n">required_submodules</span><span class="o">=</span><span class="p">(</span>
-        <span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="s2">&quot;kernels&quot;</span><span class="p">,</span> <span class="s2">&quot;initial_config&quot;</span><span class="p">,</span> 
-        <span class="s2">&quot;observables&quot;</span><span class="p">,</span> <span class="s2">&quot;io&quot;</span><span class="p">,</span> <span class="s2">&quot;render_gl&quot;</span>
+        <span class="s2">"params"</span><span class="p">,</span> <span class="s2">"kernels"</span><span class="p">,</span> <span class="s2">"initial_config"</span><span class="p">,</span> 
+        <span class="s2">"observables"</span><span class="p">,</span> <span class="s2">"io"</span><span class="p">,</span> <span class="s2">"render_gl"</span>
     <span class="p">)</span>
 <span class="p">)</span>
 
@@ -447,24 +448,24 @@ document.write(`
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Params</span><span class="p">(</span><span class="n">Params</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal model parameters.</span>
+<span class="w">    </span><span class="sd">"""Minimal model parameters.</span>
 <span class="sd">    </span>
 <span class="sd">    Energy functional:</span>
 <span class="sd">        E = ∫ dx dy [ |∇φ|² + V(|φ|) ]</span>
 <span class="sd">    </span>
 <span class="sd">    where V(|φ|) = λ(1 - |φ|²)² is the Higgs potential.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     
     <span class="c1"># Theory-specific parameters</span>
     <span class="n">lam</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Coupling strength of potential</span>
     <span class="n">phi_0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Vacuum expectation value</span>
     
     <span class="k">def</span><span class="w"> </span><span class="nf">pack_device_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pack parameters for GPU kernels.</span>
+<span class="w">        </span><span class="sd">"""Pack parameters for GPU kernels.</span>
 <span class="sd">        </span>
 <span class="sd">        Returns:</span>
 <span class="sd">            (p_i_h, p_f_h) — Integer and float parameter arrays for GPU</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Integers: [xlen, ylen, dim_grid, halo, killkinen, newtonflow, unit_magnetization]</span>
         <span class="n">p_i_h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xlen</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ylen</span><span class="p">,</span>
@@ -489,18 +490,18 @@ document.write(`
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">default_params</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Params</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create default parameters for Minimal model.</span>
+<span class="w">    </span><span class="sd">"""Create default parameters for Minimal model.</span>
 <span class="sd">    </span>
 <span class="sd">    Example:</span>
 <span class="sd">        params = default_params(xlen=512, ylen=512)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;xlen&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
-        <span class="s2">&quot;ylen&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
-        <span class="s2">&quot;xsize&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-        <span class="s2">&quot;ysize&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-        <span class="s2">&quot;lam&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-        <span class="s2">&quot;phi_0&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"xlen"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="s2">"ylen"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+        <span class="s2">"xsize"</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="s2">"ysize"</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="s2">"lam"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="s2">"phi_0"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">defaults</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Params</span><span class="p">(</span><span class="o">**</span><span class="n">defaults</span><span class="p">)</span>
@@ -534,11 +535,11 @@ document.write(`
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">do_gradient_step_point</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">EnergyGradient</span><span class="p">,</span>
                            <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute ∇E at point (x, y).</span>
+<span class="w">    </span><span class="sd">"""Compute ∇E at point (x, y).</span>
 <span class="sd">    </span>
 <span class="sd">    Energy: E = ∫ [ |∇φ|² + λ(1 - |φ|²)² ]</span>
 <span class="sd">    Gradient: ∂E/∂φ* = -∇²φ + 2λ(1 - |φ|²)φ</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">halo</span> <span class="o">=</span> <span class="n">p_i</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
     <span class="n">lsx</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">lsy</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -585,7 +586,7 @@ document.write(`
 <p>If your theory has constraints (e.g., unit magnetization), implement custom RK4:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">project_orthogonal</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enforce unit norm constraint: |φ| = φ_0.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Enforce unit norm constraint: |φ| = φ_0."""</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)</span>
     <span class="n">phi_0</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
     
@@ -599,7 +600,7 @@ document.write(`
 
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_norm</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the field norm for normalization.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Return the field norm for normalization."""</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)</span>
     <span class="n">phi_x</span><span class="p">,</span> <span class="n">phi_y</span> <span class="o">=</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">Field</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">phi_x</span> <span class="o">*</span> <span class="n">phi_x</span> <span class="o">+</span> <span class="n">phi_y</span> <span class="o">*</span> <span class="n">phi_y</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
@@ -621,7 +622,7 @@ document.write(`
 
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize_ground_state</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Uniform ground state: φ = φ₀.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Uniform ground state: φ = φ₀."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="n">phi_0</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
@@ -632,7 +633,7 @@ document.write(`
 
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize_vortex</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Vortex: φ = φ₀ exp(i*θ) where θ is angle from center.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Vortex: φ = φ₀ exp(i*θ) where θ is angle from center."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="n">phi_0</span> <span class="o">=</span> <span class="n">p_f</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
@@ -653,24 +654,24 @@ document.write(`
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="n">Velocity</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">,</span> <span class="n">p_f_h</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize fields according to config dict.</span>
+<span class="w">    </span><span class="sd">"""Initialize fields according to config dict.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
-<span class="sd">        config (dict) — Options: mode in [&quot;ground&quot;, &quot;vortex&quot;, &quot;random&quot;]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">mode</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="s2">&quot;ground&quot;</span><span class="p">)</span>
+<span class="sd">        config (dict) — Options: mode in ["ground", "vortex", "random"]</span>
+<span class="sd">    """</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mode"</span><span class="p">,</span> <span class="s2">"ground"</span><span class="p">)</span>
     
     <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
     
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;ground&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"ground"</span><span class="p">:</span>
         <span class="n">initialize_ground_state</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="n">Field</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;vortex&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"vortex"</span><span class="p">:</span>
         <span class="n">initialize_vortex</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="n">Field</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"random"</span><span class="p">:</span>
         <span class="c1"># Random initialization from host</span>
         <span class="n">Field</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="o">*</span><span class="n">Field</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown mode: </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown mode: </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     
     <span class="c1"># Zero initial velocity</span>
     <span class="n">Velocity</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -699,7 +700,7 @@ document.write(`
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">do_compute_energy_partial</span><span class="p">(</span><span class="n">energy_partial</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span>
                               <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute energy density: E = |∇φ|² + λ(1 - |φ|²)².&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute energy density: E = |∇φ|² + λ(1 - |φ|²)²."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)</span>
@@ -724,7 +725,7 @@ document.write(`
 
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_energy</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> <span class="n">energy_partial</span><span class="p">,</span>
                    <span class="n">gridsum_partial</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">,</span> <span class="n">p_f_h</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute total energy.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute total energy."""</span>
     <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
     <span class="n">do_compute_energy_partial</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span>
         <span class="n">energy_partial</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">d1fd1x</span><span class="p">,</span> <span class="n">d2fd2x</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span>
@@ -734,7 +735,7 @@ document.write(`
 
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">do_compute_field_norm_partial</span><span class="p">(</span><span class="n">norm_partial</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute |φ|.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute |φ|."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)</span>
@@ -744,7 +745,7 @@ document.write(`
 
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_field_norm</span><span class="p">(</span><span class="n">Field</span><span class="p">,</span> <span class="n">norm_partial</span><span class="p">,</span> <span class="n">gridsum_partial</span><span class="p">,</span>
                        <span class="n">p_i_h</span><span class="p">,</span> <span class="n">p_f_h</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute mean field norm.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Compute mean field norm."""</span>
     <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
     <span class="n">do_compute_field_norm_partial</span><span class="p">[</span><span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span><span class="p">](</span><span class="n">norm_partial</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">p_i_d</span><span class="p">,</span> <span class="n">p_f_d</span><span class="p">)</span>
     <span class="n">total</span> <span class="o">=</span> <span class="n">compute_sum</span><span class="p">(</span><span class="n">norm_partial</span><span class="p">,</span> <span class="n">gridsum_partial</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
@@ -762,41 +763,41 @@ document.write(`
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">save_output</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">h_Field</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">,</span> <span class="n">p_f_h</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save field configuration to disk.</span>
+<span class="w">    </span><span class="sd">"""Save field configuration to disk.</span>
 <span class="sd">    </span>
 <span class="sd">    Parameters:</span>
 <span class="sd">        output_dir (str) — Directory for output files</span>
 <span class="sd">        h_Field (ndarray) — Field on host (CPU)</span>
 <span class="sd">        p_i_h, p_f_h (ndarray) — Parameters</span>
 <span class="sd">        precision (int) — Single (32) or double (64) precision</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
     <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span> <span class="k">if</span> <span class="n">precision</span> <span class="o">==</span> <span class="mi">32</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
     
     <span class="c1"># Save field</span>
-    <span class="n">field_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;field.npy&quot;</span><span class="p">)</span>
+    <span class="n">field_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">"field.npy"</span><span class="p">)</span>
     <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">field_file</span><span class="p">,</span> <span class="n">h_Field</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
     
     <span class="c1"># Save parameters</span>
-    <span class="n">params_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;params.npz&quot;</span><span class="p">)</span>
+    <span class="n">params_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">"params.npz"</span><span class="p">)</span>
     <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">params_file</span><span class="p">,</span>
              <span class="n">p_i_h</span><span class="o">=</span><span class="n">p_i_h</span><span class="p">,</span>
              <span class="n">p_f_h</span><span class="o">=</span><span class="n">p_f_h</span><span class="p">)</span>
     
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved field to </span><span class="si">{</span><span class="n">field_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved parameters to </span><span class="si">{</span><span class="n">params_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved field to </span><span class="si">{</span><span class="n">field_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved parameters to </span><span class="si">{</span><span class="n">params_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">load_output</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load previously saved field and parameters.&quot;&quot;&quot;</span>
-    <span class="n">field_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;field.npy&quot;</span><span class="p">)</span>
-    <span class="n">params_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;params.npz&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Load previously saved field and parameters."""</span>
+    <span class="n">field_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">"field.npy"</span><span class="p">)</span>
+    <span class="n">params_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">"params.npz"</span><span class="p">)</span>
     
     <span class="n">h_Field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">field_file</span><span class="p">)</span>
     <span class="n">params_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">params_file</span><span class="p">)</span>
     
-    <span class="k">return</span> <span class="n">h_Field</span><span class="p">,</span> <span class="n">params_data</span><span class="p">[</span><span class="s2">&quot;p_i_h&quot;</span><span class="p">],</span> <span class="n">params_data</span><span class="p">[</span><span class="s2">&quot;p_f_h&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">h_Field</span><span class="p">,</span> <span class="n">params_data</span><span class="p">[</span><span class="s2">"p_i_h"</span><span class="p">],</span> <span class="n">params_data</span><span class="p">[</span><span class="s2">"p_f_h"</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
@@ -814,7 +815,7 @@ document.write(`
 
 <span class="nd">@cuda</span><span class="o">.</span><span class="n">jit</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">render_field_magnitude</span><span class="p">(</span><span class="n">pbo_rgba</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">p_i</span><span class="p">,</span> <span class="n">p_f</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render |φ| to screen.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Render |φ| to screen."""</span>
     <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">in_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">):</span>
         <span class="n">idx</span> <span class="o">=</span> <span class="n">idx_field</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">p_i</span><span class="p">)</span>
@@ -824,15 +825,15 @@ document.write(`
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">run_viewer</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch interactive viewer.</span>
+<span class="w">    </span><span class="sd">"""Launch interactive viewer.</span>
 <span class="sd">    </span>
 <span class="sd">    Controls:</span>
 <span class="sd">        n — Toggle Newton flow</span>
 <span class="sd">        k — Toggle arrest/kill kinetic energy</span>
 <span class="sd">        Esc — Exit</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">backend</span> <span class="o">=</span> <span class="n">GLBackend</span><span class="p">(</span><span class="n">params</span><span class="o">.</span><span class="n">xlen</span><span class="p">,</span> <span class="n">params</span><span class="o">.</span><span class="n">ylen</span><span class="p">,</span> 
-                       <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Minimal model - </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">×</span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">ylen</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                       <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Minimal model - </span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">xlen</span><span class="si">}</span><span class="s2">×</span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">ylen</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     
     <span class="n">grid2d</span><span class="p">,</span> <span class="n">block2d</span> <span class="o">=</span> <span class="n">launch_2d</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">p_i_h</span><span class="p">,</span> <span class="n">threads</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
     
@@ -856,8 +857,8 @@ document.write(`
             
             <span class="c1"># Update title</span>
             <span class="n">backend</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Minimal model | Step </span><span class="si">{</span><span class="n">step_count</span><span class="si">}</span><span class="s2"> | &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2"> | ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Minimal model | Step </span><span class="si">{</span><span class="n">step_count</span><span class="si">}</span><span class="s2"> | "</span>
+                <span class="sa">f</span><span class="s2">"E=</span><span class="si">{</span><span class="n">energy</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2"> | ||∇E||=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
     
     <span class="k">finally</span><span class="p">:</span>
@@ -879,8 +880,8 @@ document.write(`
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># soliton_solver/theories/minimal_model/instructions.py</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">print_instructions</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print keyboard and mouse controls.&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Print keyboard and mouse controls."""</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">    ╔══════════════════════════════════════════╗</span>
 <span class="s2">    ║         Minimal Model Controls           ║</span>
 <span class="s2">    ╚══════════════════════════════════════════╝</span>
@@ -892,7 +893,7 @@ document.write(`
 <span class="s2">    </span>
 <span class="s2">    The viewer renders |φ|, the magnitude of the complex field.</span>
 <span class="s2">    Color indicates magnitude (blue = 0, red = 2).</span>
-<span class="s2">    &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="s2">    """</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Post-processing:</p>
@@ -902,8 +903,8 @@ document.write(`
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_field</span><span class="p">(</span><span class="n">h_Field</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;figures&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot field configuration.&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_field</span><span class="p">(</span><span class="n">h_Field</span><span class="p">,</span> <span class="n">p_i_h</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">"figures"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Plot field configuration."""</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     
@@ -913,17 +914,17 @@ document.write(`
     <span class="n">field_2d</span> <span class="o">=</span> <span class="n">h_Field</span><span class="p">[:</span><span class="n">xlen</span><span class="o">*</span><span class="n">ylen</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">xlen</span><span class="p">,</span> <span class="n">ylen</span><span class="p">)</span>
     
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
-    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">field_2d</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;|φ|&quot;</span><span class="p">)</span>
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">field_2d</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">"viridis"</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"x"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"y"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"|φ|"</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
     
-    <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;field.png&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">&quot;tight&quot;</span><span class="p">)</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">"field.png"</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s2">"tight"</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved figure to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved figure to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -981,18 +982,18 @@ document.write(`
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.theories</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_theory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
 
-<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Minimal model&quot;</span><span class="p">)</span>
+<span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">"Minimal model"</span><span class="p">)</span>
 <span class="n">params</span> <span class="o">=</span> <span class="n">theory</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">default_params</span><span class="p">(</span><span class="n">xlen</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">ylen</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
 <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
-<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+<span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"ground"</span><span class="p">})</span>
 
-<span class="n">energy</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">observables</span><span class="p">()[</span><span class="s2">&quot;energy&quot;</span><span class="p">]</span>
+<span class="n">energy</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">observables</span><span class="p">()[</span><span class="s2">"energy"</span><span class="p">]</span>
 <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
     <span class="n">energy_new</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">prev_energy</span><span class="o">=</span><span class="n">energy</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">energy_new</span> <span class="o">&lt;=</span> <span class="n">energy</span> <span class="ow">or</span> <span class="n">energy_new</span> <span class="o">&lt;=</span> <span class="n">energy</span> <span class="o">+</span> <span class="mf">1e-3</span>  <span class="c1"># Allow small numerical error</span>
     <span class="n">energy</span> <span class="o">=</span> <span class="n">energy_new</span>
     <span class="k">if</span> <span class="n">err</span> <span class="o">&lt;</span> <span class="mf">1e-4</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converged in </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> steps&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Converged in </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> steps"</span><span class="p">)</span>
         <span class="k">break</span>
 </pre></div>
 </div>
@@ -1013,7 +1014,7 @@ document.write(`
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver</span><span class="w"> </span><span class="kn">import</span> <span class="n">theories</span>
 
 <span class="n">theories</span><span class="o">.</span><span class="n">print_table</span><span class="p">()</span>  <span class="c1"># Should list your theory</span>
-<span class="n">theory</span> <span class="o">=</span> <span class="n">theories</span><span class="o">.</span><span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;Minimal model&quot;</span><span class="p">)</span>
+<span class="n">theory</span> <span class="o">=</span> <span class="n">theories</span><span class="o">.</span><span class="n">load_theory</span><span class="p">(</span><span class="s2">"Minimal model"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">theory</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1047,22 +1048,22 @@ document.write(`
 <section id="example-contribution-file">
 <h3>Example contribution file<a class="headerlink" href="#example-contribution-file" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># soliton_solver/examples/my_new_theory_gl.py</span>
-<span class="sd">&quot;&quot;&quot;Interactive viewer for My New Theory.</span>
+<span class="sd">"""Interactive viewer for My New Theory.</span>
 
 <span class="sd">Usage:</span>
 <span class="sd">    python examples/my_new_theory_gl.py</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.theories</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_theory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soliton_solver.core.simulation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Simulation</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="c1"># Load and run with default parameters</span>
-    <span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">&quot;My new theory&quot;</span><span class="p">)</span>
+    <span class="n">theory</span> <span class="o">=</span> <span class="n">load_theory</span><span class="p">(</span><span class="s2">"My new theory"</span><span class="p">)</span>
     <span class="n">params</span> <span class="o">=</span> <span class="n">theory</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">default_params</span><span class="p">(</span><span class="n">xlen</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">ylen</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
     
     <span class="n">sim</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">theory</span><span class="p">)</span>
-    <span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;ground&quot;</span><span class="p">})</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">initialize</span><span class="p">({</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"ground"</span><span class="p">})</span>
     
     <span class="c1"># Launch interactive viewer</span>
     <span class="n">theory</span><span class="o">.</span><span class="n">render_gl</span><span class="o">.</span><span class="n">run_viewer</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>

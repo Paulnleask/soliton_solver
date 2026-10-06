@@ -26,63 +26,66 @@ The implementation uses the same numerical machinery for all models: a finite-di
 
 ### Physics modeled
 
-This theory models a two-dimensional superconductor as a complex order parameter $\psi$ coupled to a $U(1)$ gauge field. It is the canonical model for vortex physics in superconductors and is the natural starting point for flux quantization and type-I/type-II vortex behavior.
+This theory models a two-dimensional superconducting condensate coupled to an abelian gauge field.
+The implementation uses a fully dimensionless Ginzburg–Landau functional and targets vortex physics (flux quantization, vortex cores, inter-vortex forces) in the same numerical framework used for the other gauged theories.
 
-### Fields and mappings
+### Fields and parameters
 
-- $\psi(\vec{x}) \in \mathbb{C}$: the superconducting order parameter. In the code, the complex field is represented by two real components, one for the real part and one for the imaginary part.
-- $\vec{A}(\vec{x}) \in \mathbb{R}^2$: the in-plane vector potential. The two real components are stored as gauge-field channels.
-- The covariant derivative is $D_j = \partial_j - iA_j$.
+- Order parameter: $\psi(\vec{x})\in\mathbb{C}$
+- Gauge field: $\vec{A}(\vec{x})\in\mathbb{R}^2$
+- Dimensionless Higgs mass: $m\in\mathbb{R}_{\geq0}$
+- Ginzburg-Landau parameter: $\lambda\in\mathbb{R}$
+- Gauge charge: $q\in\mathbb{R}$
 
 ### Dimensionless formulation used in the implementation
 
-The implementation works directly with the scaled fields $\varphi$ and $\vec{A}'$, with the reduced functional
+The solver works directly with the following reduced, dimensionless energy functional:
 
 $$
-\mathcal{E}[\varphi,\vec{A}'] = \int d^2x'\left[
-\frac12 |(\nabla' - i\vec{A}')\varphi|^2 + \frac12 |\nabla'\times\vec{A}'|^2 + \frac{1}{8}\left(1 - |\varphi|^2\right)^2
-\right].
+    F[\psi,\vec{A}] = \int_{\mathbb{R}^2}\textup{d}^2x \left[ \frac{1}{2} |\vec{D}\psi|^2 + \frac{1}{2} |\nabla\times\vec{A}|^2 + \frac{\lambda}{8}(m^2-|\psi|^2)^2 \right].
 $$
 
-The scaling $\psi = u\,\varphi$, $\vec{x} = \ell_0\vec{x}'$, and $\vec{A} = \ell_0^{-1}\vec{A}'$ is the standard rescaling used to pass from the physical variables to the implementation variables.
+where $\vec{D}=\nabla + iq\vec{A}$ is the gauge covariant derivative.
+This is the standard unit-rescaled Ginzburg–Landau functional: the condensate amplitude tends to $|\psi|=m$ in the uniform vacuum, and magnetic flux is measured in units where a single quantum corresponds to a $2\pi$ phase winding.
 
-### Scaling conventions
+### Euler–Lagrange equations
 
-Choose the characteristic length $\ell_0$ and energy scale $\mathcal{E}_0$ so that
-
-$$
-\psi = u\,\varphi, \qquad \vec{x} = \ell_0\vec{x}', \qquad \vec{A} = \frac{1}{\ell_0}\vec{A}',
-$$
-
-and define the dimensionless constants
+The stationary (static) Euler–Lagrange equations for the dimensionless functional are
 
 $$
-\alpha = \frac{\lambda u^2\ell_0^2}{2m_s}, \qquad \beta = \frac{\lambda u^4\ell_0^2}{8}\,\frac{1}{\mathcal{E}_0}.
+\begin{align*}
+    D_i D_i \psi = \, & 2\frac{\partial V}{\partial \bar{\psi}}, \\
+    \partial_j (\partial_j A_i - \partial_i A_j) = \, &  J_i,
+\end{align*}
 $$
 
-With the standard scaling above, the implementation functional is
+where the supercurrent is
 
 $$
-\mathcal{E}[\varphi,\vec{A}'] = \int d^2x'\left[
-\frac12 |(\nabla' - i\vec{A}')\varphi|^2 + \frac12 |\nabla'\times\vec{A}'|^2 + \frac{1}{8}\left(1 - |\varphi|^2\right)^2
-\right].
+    J_i = \frac{iq}{2}(\psi \partial_i \bar{\psi} - \bar{\psi} \partial_i \psi) + q^2 A_i |\psi|^2.
 $$
 
-### Euler-Lagrange equations
+These equations support quantized vortices with integer winding and localized magnetic flux.
 
-The stationary equations are
+### Numerical Implementation
 
+`soliton_solver` minimizes the dimensionless energy by integrating an arrested-Newton (second-order) flow and solve the second order coupled system
 $$
-\left(\nabla' - i\vec{A}'\right)^2\varphi + \frac12\left(|\varphi|^2 - 1\right)\varphi = 0,
+\begin{align*}
+    \frac{\textup{d}^2\psi}{\textup{d}t^2} = \, & \frac{1}{2}D_i D_i \psi - \frac{\partial V}{\partial \bar{\psi}}, \\
+    \frac{\textup{d}^2 A_i}{\textup{d}t^2} = \, & \partial_j (\partial_j A_i - \partial_i A_j) - J_i,
+\end{align*}
 $$
+where $t$ is a fictitious time coordinate.
 
-and
+### References
 
-$$
--\nabla'^2\vec{A}' + \operatorname{Im}\left[\varphi^*\left(\nabla' - i\vec{A}'\right)\varphi \right] = 0.
-$$
-
-These equations admit quantized vortices with winding number $n\in\mathbb{Z}$, and the scalar field vanishes at the core while the phase winds around the vortex.
+- H. B. Nielsen and P. Olesen, *Vortex-line models for dual strings*,  [Nucl. Phys. B **61**, 45 (1973)](https://doi.org/10.1016/0550-3213(73)90350-7)
+- M. B. Hindmarsh and T. W. B. Kibble, *Cosmic strings*, [Rep. Prog. Phys. **58**, 477 (1995)](https://doi.org/10.1088/0034-4885/58/5/001)
+- L. M. A. Bettencourt and R. J. Rivers, *Interactions between U(1) cosmic strings: An analytical study*, [Phys. Rev. D **51**, 1842 (1995)](https://doi.org/10.1103/PhysRevD.51.1842)
+- J. M. Speight, *Static intervortex forces*, [Phys. Rev. D **55**, 3830 (1997)](https://doi.org/10.1103/PhysRevD.55.3830)
+- N. S. Manton and J. M. Speight, *Asymptotic interactions of critically coupled vortices*, [Commun. Math. Phys. **236**, 535 (2003)](https://doi.org/10.1007/s00220-003-0842-4)
+- A. Abrikosov, *The magnetic properties of superconducting alloys*, [J. Phys. Chem. Solids **2**, 199 (1957)](https://doi.org/10.1016/0022-3697(57)90083-5)
 
 ## Anisotropic superconductor
 
@@ -265,56 +268,85 @@ where $t$ is a fictitious time coordinate.
 
 ### References
 
-A. Talkachov, P. Leask and E. Babaev, *Multiple correlation lengths and type-1.5 superconductivity in U(1) superconductors due to hidden competition between irreducible representations of nonlocal pairing*, [Phys. Rev. B **113**, 224520 (2026)](https://doi.org/10.1103/bf2v-wtkt)
+- A. Talkachov, P. Leask and E. Babaev, *Multiple correlation lengths and type-1.5 superconductivity in $U(1)$ superconductors due to hidden competition between irreducible representations of nonlocal pairing*, [Phys. Rev. B **113**, 224520 (2026)](https://doi.org/10.1103/bf2v-wtkt)
+- L.-F. Zhang, Y.-Y. Zhang, G.-Q. Zha, M. V. Miloševi´c, and S.-P. Zhou, *Skyrmionic chains and lattices in $s + id$ superconductors*, [Phys. Rev. B **101**, 064501 (2020)](https://doi.org/10.1103/PhysRevB.101.064501)
+- E. Babaev and M. Speight, *Semi-Meissner state and neither type-I nor type-II superconductivity in multicomponent superconductors*, [Phys. Rev. B **72**, 180502(R) (2005)](https://doi.org/10.1103/PhysRevB.72.180502).
+- T. Winyard, M. Silaev, and E. Babaev, *Skyrmion formation due to unconventional magnetic modes in anisotropic multiband superconductors*, [Phys. Rev. B **99**, 024501 (2019)](https://doi.org/10.1103/PhysRevB.99.024501).
+- Y. Ren, J.-H. Xu, and C. S. Ting, *Ginzburg-Landau equations for mixed $s+d$ symmetry superconductors*, [Phys. Rev. B **53**, 2249 (1996)](https://doi.org/10.1103/PhysRevB.53.2249).
 
 ## Baby Skyrme model
 
 ### Physics modeled
 
-The Baby Skyrme model is the two-dimensional version of the Skyrme model and is used to model topological spin textures in magnetic systems. It supports Bloch, Néel and anti-skyrmions and is closely related to the magnetization textures stabilized in chiral magnets.
+The Baby Skyrme model is a two-dimensional nonlinear sigma model augmented by a quartic (Skyrme) stabilizer and a potential.
+It describes unit-length magnetization textures that carry an integer-valued topological degree (skyrmion number) and supports stable skyrmions, antiskyrmions and related solitons.
 
-### Fields and mappings
+### Fields and parameters
 
-- $\vec{m}(\vec{x}) \in \mathbb{R}^3$: the magnetization vector. The solver stores three real components.
-- The field is constrained to unit length, $|\vec{m}|=1$, by the non-linear dynamics.
+- Magnetization: $\vec{m}(\vec{x})\in S^2\subset\mathbb{R}^3$
+- Dimensionless Skyrme coupling: $\kappa \ge 0$
+- Potential: $V(\vec{m})$ (e.g. easy-axis or Zeeman-like terms)
 
 ### Dimensionless formulation used in the implementation
 
-The implementation uses the dimensionless functional
+The solver uses the following dimensionless energy functional:
 
 $$
-\mathcal{E}[\vec{m}] = \int d^2x'\left[
-\frac12 |\nabla'\vec{m}|^2 + \frac{\lambda}{4}\left(\partial_{x'}\vec{m}\times\partial_{y'}\vec{m}\right)^2 + \bar{V}(\vec{m})
-\right],
+    F[\vec{m}] = \int_{\mathbb{R}^2} \textup{d}^2x \left[ \frac{1}{2}|\nabla\vec{m}|^2 + \frac{\kappa}{4} |\partial_x\vec{m}\times\partial_y\vec{m}|^2 + V(\vec{m}) \right].
 $$
 
-where $\lambda = \kappa^2/(\ell_0^2\mathcal{J})$ is the scaled Skyrme coupling and $\bar{V}$ is the rescaled potential.
+The Skyrme term is the quartic topological stabilizer (squared area element of the map) and prevents scale collapse of solitons when $\kappa>0$; $V(\vec{m})$ selects energetically preferred orientations.
 
-### Scaling conventions
+### Supported potential terms
 
-The implementation uses the scaled coordinate $\vec{x}'$ directly, and the corresponding dimensionless coupling is
+The potential strength is controlled by `mpi` (the terms below are multiplied
+by $m_\pi^2$). The default and the choice in the Baby Skyrme example is
+`standard`. The selector accepts one name or a list of names.
+
+| Name | Potential energy density $V(\vec{m})$ |
+|---|---|
+| `standard` | $m_\pi^2(1-m_3)$ |
+| `holomorphic` | $m_\pi^2(1-m_3)^4$ |
+| `easyplane` | $\tfrac{1}{2}m_\pi^2m_1^2$ |
+| `dihedral2` | $\tfrac{1}{2}m_\pi^2(1-m_1^2)(1-m_3^2)$ |
+| `aloof` | $\tfrac{1}{2}m_\pi^2(1-m_3)\left[1+(1-m_3)^3\right]$ |
+| `dihedral3` | $16m_\pi^2(1-m_3)(1+3m_3^2+3m_1m_2^2-m_1^3)$ |
+| `broken` | $m_\pi^2(1-m_3)\left\|1-(m_1+im_2)^N\right\|^2$ |
+| `doublevacua` | $m_\pi^2(1-m_3^2)$ |
+
+Here $\vec{m}=(m_1,m_2,m_3)$ is the unit magnetization and `N` is the integer
+exponent for the `broken` potential. Names are case-insensitive; for example,
+`"easy plane"` and `"easyplane"` both select `easyplane`.
+
+### Numerical Implementation
+
+Varying the functional under the unit-length constraint yields the constrained static equation (written in a manifestly tangent form):
 
 $$
-\lambda = \frac{\kappa^2}{\ell_0^2\mathcal{J}}.
+    P_{\vec{m}}\Big( -\Delta\vec{m} + \lambda\,\vec{J}[\vec{m}] + \nabla_{\vec{m}} V(\vec{m}) \Big) = 0,
 $$
 
-The reduced functional used by the solver is
+where $P_{\vec{m}}(\vec{u})=\vec{u}-(\vec{u}\cdot\vec{m})\vec{m}$ projects onto the tangent plane at $\vec{m}$, and $\vec{J}[\vec{m}]$ is the Skyrme current obtained from the variation of the quartic term.
+
+In the equivalent cross-product form used during evolution, `soliton_solver` integrates
 
 $$
-\mathcal{E}[\vec{m}] = \int d^2x'\left[
-\frac12 |\nabla'\vec{m}|^2 + \frac{\lambda}{4}\left(\partial_{x'}\vec{m}\times\partial_{y'}\vec{m}\right)^2 + \bar{V}(\vec{m})
-\right].
+    \frac{d^2\vec{m}}{dt^2} = -P_{\vec{m}}\Big( -\Delta\vec{m} + \lambda\,\vec{J}[\vec{m}] + \nabla_{\vec{m}}V(\vec{m}) \Big)
 $$
 
-### Euler-Lagrange equations
+with projection steps to maintain $|\vec{m}|=1$.
 
-The corresponding field equation is
+### References
 
-$$
-\partial_t\vec{m} = \vec{m}\times\left(\nabla'^2\vec{m} - \lambda\,\vec{J}[\vec{m}] - \frac{\partial \bar{V}}{\partial \vec{m}}\right),
-$$
-
-where $\vec{J}[\vec{m}]$ denotes the Skyrme current term generated by the quartic topological stabilizer. In the static limit, the right-hand side vanishes and the resulting equation describes the balance between gradient, Skyrme and potential terms.
+- P. Leask, *Baby Skyrmion crystals*, [Phys. Rev. D **105**, 025010 (2022)](https://doi.org/10.1103/PhysRevD.105.025010)
+- B. Piette, B. Schroers, and W. Zakrzewski, *Dynamics of baby Skyrmions*, [Nucl. Phys. **B439**, 205 (1995)](https://doi.org/10.1016/0550-3213(95)00011-G)
+- J. Jäykkä and M. Speight, *Easy plane baby Skyrmions*, [Phys. Rev. D **82**, 125030 (2010)](https://doi.org/10.1103/PhysRevD.82.125030)
+- P. Salmi and P. Sutcliffe, *Aloof baby Skyrmions*, [J. Phys. A **48**, 035401 (2015)](https://doi.org/10.1088/1751-8113/48/3/035401)
+- J. Jäykkä, M. Speight, and P. Sutcliffe, *Broken baby Skyrmions*, [Proc. R. Soc. A. **468**, 1085 (2012)](https://doi.org/10.1098/rspa.2011.0543)
+- R. Ward, *Planar Skyrmions at high and low density*, [Nonlinearity **17**, 1033 (2004)](https://doi.org/10.1088/0951-7715/17/3/014)
+- T. Weidig, *The baby Skyrme models and their multiSkyrmions*, [Nonlinearity **12**, 1489 (1999)](https://doi.org/10.1088/0951-7715/12/6/303)
+- D. Harland and R.S. Ward, *Walls and chains of planar Skyrmions*, [Phys. Rev. D **77**, 045009 (2008)](https://doi.org/10.1103/PhysRevD.77.045009)
+- D. Foster, *Baby Skyrmion chains*, [Nonlinearity **23**, 465 (2010)](https://doi.org/10.1088/0951-7715/23/3/001)
 
 ## Rotating Bose-Einstein Condensates
 
@@ -338,34 +370,34 @@ The theory is built from the usual mean-field energy functional for a trapped, w
 
 The Hamiltonian we are considering is given by
 $$
-    E[\Psi] = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{r} \left\{ \frac{\hbar^2}{2m}|\bm{\nabla} \Psi|^2 + V_{\textup{trap}}(\mathbf{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\},
+    E[\Psi] = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \left\{ \frac{\hbar^2}{2m}|\vec{\nabla} \Psi|^2 + V_{\textup{trap}}(\vec{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\},
 $$
 where $g=\tfrac{4\pi \hbar ^2 a_s}{m}$ is known as the short-range interaction parameter, and the trapping potential we will consider is the harmonic trap
 $$
-    V_{\textup{trap}}(\mathbf{r}) = \frac{1}{2}m \omega^2 |\mathbf{r}|^2.
+    V_{\textup{trap}}(\vec{r}) = \frac{1}{2}m \omega^2 |\vec{r}|^2.
 $$
 There is a conserved quantity, the number of atoms $N$, which is defined by
 $$
-    N = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{r} \, |\Psi(\mathbf{r})|^2.
+    N = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \, |\Psi(\vec{r})|^2.
 $$
 Hence, the number density of the BEC gas is
 $$
-    n(\mathbf{r}) = |\Psi(\mathbf{r})|^2.
+    n(\vec{r}) = |\Psi(\vec{r})|^2.
 $$
 We see that, since $N$ is the number of atoms and is therefore dimensionless, the order parameter necessarily has units $[\Psi]=\textup{m}^{-3/2}$ and $[n]=\textup{m}^{-3}$.
 
 Let us consider the following energy, length and condensate rescalings
 $$
-    E = E_0 H, \quad \mathbf{r}=L_0\mathbf{x}, \quad \Psi (\mathbf{r})=\Psi_0 \psi(\mathbf{x}),
+    E = E_0 H, \quad \vec{r}=L_0\vec{x}, \quad \Psi (\vec{r})=\Psi_0 \psi(\vec{x}),
 $$
-where $H$, $\mathbf{x}$ and $\psi$ are dimensionless.
+where $H$, $\vec{x}$ and $\psi$ are dimensionless.
 Let us choose $\Psi_0 = \sqrt{N} L_0^{-3/2}$ such that the normalization is now
 $$
-    \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \, |\psi|^2 = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{r} \frac{1}{\Psi_0^2 L_0^3} |\Psi|^2 = \frac{N}{N} = 1.
+    \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, |\psi|^2 = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \frac{1}{\Psi_0^2 L_0^3} |\Psi|^2 = \frac{N}{N} = 1.
 $$
 The rescaled energy becomes
 $$
-    H = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \left\{ \frac{1}{2} \frac{\hbar^2 L_0^3 \Psi_0^2}{m E_0 L_0^2} |\bm{\nabla}_{\mathbf{x}} \psi|^2 + \frac{1}{2}\frac{L_0^3 \Psi_0^2m \omega^2 L_0^2}{E_0}|\mathbf{x}|^2 |\psi|^2+ \frac{1}{2} \frac{L_0^3 \Psi_0^4 g}{E_0} |\psi|^4\right\}
+    H = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2} \frac{\hbar^2 L_0^3 \Psi_0^2}{m E_0 L_0^2} |\vec{\nabla}_{\vec{x}} \psi|^2 + \frac{1}{2}\frac{L_0^3 \Psi_0^2m \omega^2 L_0^2}{E_0}|\vec{x}|^2 |\psi|^2+ \frac{1}{2} \frac{L_0^3 \Psi_0^4 g}{E_0} |\psi|^4\right\}
 $$
 Since we have chosen to fix $\Psi_0$ by the normalization condition, we have freedom in choice of $L_0$ and $E_0$.
 Let us choose these such that
@@ -378,7 +410,7 @@ $$
 $$
 With these rescalings, the dimensionless energy reduces to
 $$
-    H = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \left\{ \frac{1}{2}|\bm{\nabla}_{\mathbf{x}} \psi|^2 + \frac{1}{2}|\mathbf{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
+    H = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{\nabla}_{\vec{x}} \psi|^2 + \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
 $$
 with the rescaled quartic potential
 $$
@@ -393,7 +425,7 @@ $$
 
 If the condensate is rotated about the $z$-axis with angular frequency $\Omega$, then in the rotating frame the dimensional energy becomes
 $$
-    E_\Omega[\Psi] = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{r} \left\{ \frac{\hbar^2}{2m}|\bm{\nabla} \Psi|^2 + V_{\textup{trap}}(\mathbf{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\} - \Omega \int_{\mathbb{R}^3} \textup{d}^3\mathbf{r} \, \left(\Psi^* \hat{L}_z \Psi \right)
+    E_\Omega[\Psi] = \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \left\{ \frac{\hbar^2}{2m}|\vec{\nabla} \Psi|^2 + V_{\textup{trap}}(\vec{r})|\Psi|^2 + \frac{g}{2}|\Psi|^4 \right\} - \Omega \int_{\mathbb{R}^3} \textup{d}^3\vec{r} \, \left(\Psi^* \hat{L}_z \Psi \right)
 $$
 where
 $$
@@ -402,7 +434,7 @@ $$
 
 Under the rescaling
 $$
-    E = E_0 H, \quad \mathbf{r}=L_0\mathbf{x}, \quad \Psi (\mathbf{r})=\Psi_0 \psi(\mathbf{x}),
+    E = E_0 H, \quad \vec{r}=L_0\vec{x}, \quad \Psi (\vec{r})=\Psi_0 \psi(\vec{x}),
 $$
 with
 $$
@@ -410,7 +442,7 @@ $$
 $$
 the rotational contribution becomes
 $$
-    H_{\textup{rot}} = - \frac{\Omega L_0^3 \Psi_0^2 \hbar}{E_0} \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \, \psi^* \hat{\ell}_z \psi - \frac{\hbar \Omega N}{E_0} \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \, \psi^* \hat{\ell}_z \psi,
+    H_{\textup{rot}} = - \frac{\Omega L_0^3 \Psi_0^2 \hbar}{E_0} \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, \psi^* \hat{\ell}_z \psi = - \frac{\hbar \Omega N}{E_0} \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, \psi^* \hat{\ell}_z \psi,
 $$
 where the dimensionless angular momentum operator is
 $$
@@ -427,7 +459,7 @@ $$
 $$
 Hence, the full dimensionless energy is
 $$
-    H_\Omega = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \left\{ \frac{1}{2}|\bm{\nabla}_{\mathbf{x}} \psi|^2 + \frac{1}{2}|\mathbf{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \frac{\Omega}{\omega} \psi^* \hat{\ell}_z \psi \right\},
+    H_\Omega = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{\nabla}_{\vec{x}} \psi|^2 + \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \frac{\Omega}{\omega} \psi^* \hat{\ell}_z \psi \right\},
 $$
 with
 $$
@@ -439,35 +471,35 @@ $$
 Now that the energy is in a dimensionless form, we need to determine the ground state configuration for the condensate $\psi$.
 Consider the potential energy
 $$
-    E_{\textup{pot}}[\psi]= \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \left\{ \frac{1}{2}|\mathbf{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
+    E_{\textup{pot}}[\psi]= \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 \right\},
 $$
 and now introduce a Lagrange multiplier to ensure the normalization condition,
 $$
-    L[\psi,\lambda] = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \left\{ \frac{1}{2}|\mathbf{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \lambda|\psi|^2 \right\} + \lambda \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \, |\psi|^2
+    L[\psi,\lambda] = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2|\psi|^2 + \frac{\beta}{2}|\psi|^4 - \lambda|\psi|^2 \right\} + \lambda \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \, |\psi|^2
 $$
-Define the number density $n(\mathbf{x})=|\psi(\mathbf{x})|^2$ such that
+Define the number density $n(\vec{x})=|\psi(\vec{x})|^2$ such that
 $$
-    L[n,\lambda] = \int_{\mathbb{R}^3} \textup{d}^3\mathbf{x} \left\{ \frac{1}{2}|\mathbf{x}|^2n + \frac{\beta}{2}n^2 - \lambda n \right\} + \lambda,
+    L[n,\lambda] = \int_{\mathbb{R}^3} \textup{d}^3\vec{x} \left\{ \frac{1}{2}|\vec{x}|^2n + \frac{\beta}{2}n^2 - \lambda n \right\} + \lambda,
 $$
 where we have used the normalization condition.
 Variation of this with respect to the dimensionless condensate $\psi$ gives the Karush--Kuhn--Tucker (KKT) condition
 $$
-    \frac{\delta L}{\delta n} = \frac{1}{2}|\mathbf{x}|^2 + \beta n(\mathbf{x}) - \lambda = 0, \quad n > 0.
+    \frac{\delta L}{\delta n} = \frac{1}{2}|\vec{x}|^2 + \beta n(\vec{x}) - \lambda = 0, \quad n > 0.
 $$
 Hence, the ground state configuration is given by the Thomas--Fermi (TF) profile
 $$
-    n_{\textup{TF}}(\mathbf{x}) = \max\left(0, \frac{1}{\beta}\left[\lambda - \frac{1}{2}|\mathbf{x}|^2\right] \right).
+    n_{\textup{TF}}(\vec{x}) = \max\left(0, \frac{1}{\beta}\left[\lambda - \frac{1}{2}|\vec{x}|^2\right] \right).
 $$
 
 Using the harmonic trapping potential, the TF profile is
 $$
-    n_{\textup{TF}}(\mathbf{x}) = \frac{1}{\beta}\left(\lambda - \frac{1}{2}|\mathbf{x}|^2\right), \quad |\mathbf{x}|^2 \leq R^2 = 2\lambda.
+    n_{\textup{TF}}(\vec{x}) = \frac{1}{\beta}\left(\lambda - \frac{1}{2}|\vec{x}|^2\right), \quad |\vec{x}|^2 \leq R^2 = 2\lambda.
 $$
 We now need to determine the Lagrange multiplier $\lambda$.
 This depends on the dimension of the system we consider.
 We will be working in two dimensions, so our normalization condition for the ground state becomes
 $$
-    \int_{\mathbb{R}^2} \textup{d}^2 \mathbf{x} \, |\psi(\mathbf{x})|^2 = \int_{\mathbb{R}^2} \textup{d}^2 \mathbf{x} \, n_{\textup{TF}}(\mathbf{x}) = 1.
+    \int_{\mathbb{R}^2} \textup{d}^2 \vec{x} \, |\psi(\vec{x})|^2 = \int_{\mathbb{R}^2} \textup{d}^2 \vec{x} \, n_{\textup{TF}}(\vec{x}) = 1.
 $$
 We can use this to determine $\lambda$,
 $$
@@ -486,15 +518,24 @@ $$
 
 The algorithm deals with solving the static BEC equation
 $$
-    \frac{\delta H_\Omega}{\delta \psi^*} = -\frac{1}{2}\nabla^2\psi + \frac{1}{2}|\mathbf{x}|^2\psi + \beta \psi |\psi|^2 - \frac{\Omega}{\omega} \hat{\ell}_z \psi.
+    \frac{\delta H_\Omega}{\delta \psi^*} = -\frac{1}{2}\nabla^2\psi + \frac{1}{2}|\vec{x}|^2\psi + \beta \psi |\psi|^2 - \frac{\Omega}{\omega} \hat{\ell}_z \psi.
 $$
 This is achieved using `soliton_solver`.
 We formulate the minimization as a second order dynamical problem and solve the second order system
 $$
-    \frac{\textup{d}^2\psi}{\textup{d}t^2} = -\frac{\delta H_\Omega}{\delta \psi^*} = \frac{1}{2}\nabla^2\psi - \frac{1}{2}|\mathbf{x}|^2\psi - \beta\psi |\psi|^2 + \frac{\Omega}{\omega} \hat{\ell}_z \psi,
+    \frac{\textup{d}^2\psi}{\textup{d}t^2} = -\frac{\delta H_\Omega}{\delta \psi^*} = \frac{1}{2}\nabla^2\psi - \frac{1}{2}|\vec{x}|^2\psi - \beta\psi |\psi|^2 + \frac{\Omega}{\omega} \hat{\ell}_z \psi,
 $$
 where $t$ is a fictitious time coordinate and with some appropriate initial configuration $\psi(0)=\psi_0$.
 This system can then be reduced to a coupled first order system, which we solve using a fourth order Runge-Kutta method.
+
+### References
+
+- A. L. Fetter, *Rotating trapped Bose-Einstein condensates*, [Rev. Mod. Phys. **81**, 647 (2009)](https://doi.org/10.1103/RevModPhys.81.647)
+- B. Weizhu and C. Yongyong, *Mathematical models and numerical methods for spinor Bose-Einstein condensates*, [Kinet. Relat. Models. **6**, 1-135 (2013)](https://doi.org/10.3934/krm.2013.6.1)
+- J. O. Andersen, *Theory of the weakly interacting Bose gas*, [Rev. Mod. Phys. **76**, 599 (2004)](https://doi.org/10.1103/RevModPhys.76.599)
+- R. Seiringer, *Gross-Pitaevskii Theory of the Rotating Bose Gas*, [Commun. Math. Phys. **229**, 491 (2002)](https://doi.org/10.1007/s00220-002-0695-2)
+- R. Zeng and Y. Zhang, *Efficiently computing vortex lattices in rapid rotating Bose--Einstein condensates*, [Comput. Phys. Commun. **180**, 854-860 (2009)](https://doi.org/10.1016/j.cpc.2008.12.003)
+- H. Chena, G. Dongb, W. Liuc, and Z. Xie, *Second-order flows for computing the ground states of rotating Bose-Einstein condensates*, [J. Comput. Phys. **475**, 111872 (2023)](https://doi.org/10.1016/j.jcp.2022.111872)
 
 ## Chern-Simons-Landau-Ginzburg Theory of Vortex Anyons
 
@@ -630,7 +671,13 @@ where $t$ is a fictitious time coordinate.
 
 ### References
 
-P. Leask, *Anyon bound states and hybrid superconductivity*, [Phys. Rev. Lett. **137**, 026003 (2026)](https://doi.org/10.1103/15fc-r786)
+- P. Leask, *Anyon Bound States and Hybrid Superconductivity*, [Phys. Rev. Lett. **137**, 026003 (2026)](https://doi.org/10.1103/15fc-r786)
+- S. C. Zhang, T.H. Hansson, and S. Kivelson, *Effective field-theory model for the fractional quantum Hall effect*, [Phys. Rev. Lett. **62**, 82 (1989)](https://doi.org/10.1103/PhysRevLett.62.82)
+- S. C. Zhang, *The Chern-Simons-Landau-Ginzburg theory of the fractional quantum Hall effect*, [Int. J. Mod. Phys. B **06**, 25 (1992)](https://doi.org/10.1142/S0217979292000037)
+- D.-H. Lee and M.P.A. Fisher, *Anyon superconductivity and the fractional quantum Hall effect*, [Phys. Rev. Lett. **63**, 903 (1989)](https://doi.org/10.1103/PhysRevLett.63.903)
+- D.-H. Lee and M.P.A. Fisher, *Anyon superconductivity and charge-vortex duality*, [Int. J. Mod. Phys. B **05**, 2675 (1991)](https://doi.org/10.1142/S0217979291001061)
+- T. Hansson, V. Oganesyan, and S. Sondhi, *Superconductors are topologically ordered*, [Ann. Phys. (Amsterdam) **313**, 497 (2004)](https://doi.org/10.1016/j.aop.2004.05.006)
+- J. Fröhlich and P. Marchetti, *Quantum field theories of vortices and anyons*, [Commun. Math. Phys. **121**, 177 (1989)](https://doi.org/10.1007/BF01217803)
 
 ## Chiral Magnet with Demagnetization
 
@@ -817,7 +864,7 @@ $$
     E = \int_{\mathbb{R}^2} \left\{ \frac{1}{2}|\textup{d}\vec{n}|^2 + \vec{d}_i\cdot(\vec{n}\times\partial_i\vec{n}) + K(1-n_3^2) + h(1-n_3) + \frac{1}{2}\vec{n} \cdot \vec{\nabla}\psi \right\} \textup{d}^2x.
 $$
 
-We seek fields $\vec{n}:\R^2\rightarrow S^2$ which (at least locally) minimize $E$ so, for all smooth variations $\vec{n}_t$ of $\vec{n}=\vec{n}_0$ through fields of compact support, we require that
+We seek fields $\vec{n}:\mathbb{R}^2\rightarrow S^2$ which (at least locally) minimize $E$ so, for all smooth variations $\vec{n}_t$ of $\vec{n}=\vec{n}_0$ through fields of compact support, we require that
 $$
     \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E(\vec{n}_t)=0.
 $$
@@ -828,9 +875,9 @@ The induced variations of $E_{\textup{exch}}$, $E_{\textup{DMI}}$ and
 $E_{\textup{pot}}$ are easily computed:
 $$
 \begin{align*}
-    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{exch}}(\vec{n}_t)&=&\int_{\R^2} \textup{d}^2x\, \vec{\epsilon}\cdot\Delta\vec{n}, \\
-    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{DMI}}(\vec{n}_t)&=&\int_{\R^2}\textup{d}^2x\,\vec{\epsilon}\cdot(-2\vec{d}_i\times\partial_i\vec{n}), \\
-    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{pot}}(\vec{n}_t)&=&\int_{\R^2}\textup{d}^2x\, \vec{\epsilon}\cdot(0,0,-h-2Kn_3).
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{exch}}(\vec{n}_t) = &\int_{\mathbb{R}^2} \textup{d}^2x\, \vec{\epsilon}\cdot\Delta\vec{n}, \\
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{DMI}}(\vec{n}_t) = &\int_{\mathbb{R}^2}\textup{d}^2x\,\vec{\epsilon}\cdot(-2\vec{d}_i\times\partial_i\vec{n}), \\
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E_{\textup{pot}}(\vec{n}_t) = &\int_{\mathbb{R}^2}\textup{d}^2x\, \vec{\epsilon}\cdot(0,0,-h-2Kn_3).
 \end{align*}
 $$
 We will also need the variation of $E_{\textup{DDI}}$ which is rather more subtle. 
@@ -861,7 +908,7 @@ by Stokes's Theorem, since $\varepsilon=\varepsilon_1 \textup{d} x_1+\varepsilon
 
 Therefore, we see that
 $$
-    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E(\vec{n}_t) = \int_{\R^2}\textup{d}^2x\,\vec{\epsilon}\cdot (\Delta\vec{n}-2\vec{d}_i\times\partial_i\vec{n} -(h+2K\vec{n}\cdot\vec{e}_3)\vec{e}_3+\vec{\nabla}\psi)
+    \frac{\textup{d}}{\textup{d}t}\bigg|_{t=0}E(\vec{n}_t) = \int_{\mathbb{R}^2}\textup{d}^2x\,\vec{\epsilon}\cdot (\Delta\vec{n}-2\vec{d}_i\times\partial_i\vec{n} -(h+2K\vec{n}\cdot\vec{e}_3)\vec{e}_3+\vec{\nabla}\psi)
 $$
 and this must vanish for arbitrary $\vec{\epsilon}$ pointwise orthogonal to $\vec{n}$.
 Hence, the Euler-Lagrange equation for $E$ is
@@ -891,7 +938,12 @@ where $t$ is a ficticious time.
 
 ### References
 
-P. Leask and M. Speight, *Demagnetization in micromagnetics: Magnetostatic self-interactions of bulk chiral magnetic skyrmions*, [Phys. Rev. B **113**, 064406 (2026)](https://doi.org/10.1103/zy2n-m4tn)
+- P. Leask and M. Speight, *Demagnetization in micromagnetics: Magnetostatic self-interactions of bulk chiral magnetic skyrmions*, [Phys. Rev. B **113**, 064406 (2026)](https://doi.org/10.1103/zy2n-m4tn)
+- F. N. Rybakov and N.S. Kiselev, *Chiral magnetic Skyrmions with arbitrary topological charge*, [Phys. Rev. B **99**, 064437 (2019)](https://doi.org/10.1103/PhysRevB.99.064437)
+- V. M. Kuchkin, B. Barton-Singer, F. N. Rybakov, S. Blügel, B. J. Schroers,and N. S. Kiselev, *Magnetic skyrmions, chiral kinks, and holomorphic functions*, [Phys. Rev. B **102**, 144422 (2020)](https://doi.org/10.1103/PhysRevB.102.144422)
+- G. D. Fratta, C. B. Muratov, F. N. Rybakov, and V. V. Slastikov, *Variational principles of micromagnetics revisited*, [SIAM J. Math. Anal. **52**, 3580 (2020)](https://doi.org/10.1137/19M1261365)
+- A. Bogdanov and A. Hubert, *Thermodynamically stable magnetic vortex states in magnetic crystals*, [J. Magn. Magn. Mater. **138**, 255 (1994)](https://doi.org/10.1016/0304-8853(94)90046-9)
+- M. Ezawa, *Giant skyrmions stabilized by dipole-dipole interactions in thin ferromagnetic films*, [Phys. Rev. Lett. **105**, 197202 (2010)](https://doi.org/10.1103/PhysRevLett.105.197202)
 
 ## Liquid Crystal with flexoelectric depolarization
 
@@ -1172,7 +1224,16 @@ For unequal flexoelectric coefficients, $e_1 \neq e_3$, the associated self-indu
 
 ### References
 
-P. Leask, *Topological transition from a hopfion to a toron via flexoelectric self-polarization in chiral liquid crystals*, [Phys. Rev. Res. **7**, 043001 (2025)](https://doi.org/10.1103/gy6m-m7ck)
+- P. Leask, *Topological transition from a hopfion to a toron via flexoelectric self-polarization in chiral liquid crystals*, [Phys. Rev. Res. **7**, 043001 (2025)](https://doi.org/10.1103/gy6m-m7ck)
+- A. O. Leonov, I. E. Dragunov, U. K. Rößler, and A. N. Bogdanov, *Theory of skyrmion states in liquid crystals*, [Phys. Rev. E **90**, 042502 (2014)](https://doi.org/10.1103/PhysRevE.90.042502)
+- S. Afghah and J. V. Selinger, *Theory of helicoids and skyrmions in confined cholesteric liquid crystals*, [Phys. Rev. E **96**, 012708 (2017)](https://doi.org/10.1103/PhysRevE.96.012708)
+- A. N. Bogdanov, U. K. Rößler, and A. A. Shestakov, *Skyrmions in nematic liquid crystals*, [Phys. Rev. E **67**, 016602 (2003)](https://doi.org/10.1103/PhysRevE.67.016602)
+- R. B. Meyer, *Piezoelectric effects in liquid crystals*, [Phys. Rev. Lett. **22**, 918 (1969)](https://doi.org/10.1103/PhysRevLett.22.918)
+- J. S. Patel and R. B. Meyer, *Flexoelectric electro-optics of a cholesteric liquid crystal*, [Phys. Rev. Lett. **58**, 1538 (1987)](https://doi.org/10.1103/PhysRevLett.58.1538)
+- J. V. Selinger, *Interpretation of saddle-splay and the Oseen Frank free energy in liquid crystals*, [Liq. Cryst. Rev. **6**, 129 (2018)](https://doi.org/10.1080/21680396.2019.1581103)
+- P. J. Ackerman, R. P. Trivedi, B. Senyuk, J. van de Lagemaat, and I. I. Smalyukh, *Two-dimensional skyrmions and other solitonic structures in confinement-frustrated chiral nematics*, [Phys. Rev. E **90**, 012505 (2014)](https://doi.org/10.1103/PhysRevE.90.012505)
+- A. Duzgun, J. V. Selinger, and A. Saxena, *Comparing skyrmions and merons in chiral liquid crystals and magnets*, [Phys. Rev. E **97**, 062706 (2018)](https://doi.org/10.1103/PhysRevE.97.062706)
+- J.-S. B. Tai and I. I. Smalyukh, *Surface anchoring as a control parameter for stabilizing torons, skyrmions, twisted walls, fingers, and their hybrids in chiral nematics*, [Phys. Rev. E **101**, 042702 (2020)](https://doi.org/10.1103/PhysRevE.101.042702)
 
 ## Ferromagnetic superconductor
 
@@ -1327,51 +1388,133 @@ where $t$ is a fictitious time coordinate.
 
 ### References
 
-P. Leask, C. Ross and E. Babaev, *Interactions of composite magnetic-skyrmion–superconducting vortex pairs in ferromagnetic superconductors*, [Phys. Rev. B. **114**, 014509 (2026)](https://doi.org/10.1103/crwr-b57q)
+- P. Leask, C. Ross and E. Babaev, *Interactions of composite magnetic-skyrmion–superconducting vortex pairs in ferromagnetic superconductors*, [Phys. Rev. B. **114**, 014509 (2026)](https://doi.org/10.1103/crwr-b57q)
+- E. I. Blount and C. M. Varma, *Electromagnetic effects near the superconductor-to-ferromagnet transition*, [Phys. Rev. Lett. **42**, 1079 (1979)](https://doi.org/10.1103/PhysRevLett.42.1079)
+- H. S. Greenside, E. I. Blount, and C. M. Varma, *Possible coexisting superconducting and magnetic states*, [Phys. Rev. Lett. **46**, 49 (1981)](https://doi.org/10.1103/PhysRevLett.46.49)
+-  E. S. Andriyakhina and I. S. Burmistrov, *Interaction of a Néel type skyrmion with a superconducting vortex*, [Phys. Rev. B **103**, 174519 (2021)](https://doi.org/10.1103/PhysRevB.103.174519)
+- S. S. Pershoguba, S. Nakosai, and A. V. Balatsky, *Skyrmion induced bound states in a superconductor*, [Phys. Rev. B **94**, 064513 (2016)](https://doi.org/10.1103/PhysRevB.94.064513)
+- K. M. D. Hals, M. Schecter, and M. S. Rudner, *Composite topological excitations in ferromagnet-superconductor heterostructures*, [Phys. Rev. Lett. **117**, 017001 (2016)](https://doi.org/10.1103/PhysRevLett.117.017001)
+- A. P. Petrovi´c, M. Raju, X. Y. Tee, A. Louat, I. Maggio-Aprile, R. M. Menezes, M. J. Wyszy´nski, N. K. Duong, M. Reznikov, C. Renner, M. V. Miloševi´c, and C. Panagopoulos, *Skyrmion (anti)vortex coupling in a chiral magnet-superconductor heterostructure*, [Phys. Rev. Lett. **126**, 117205 (2021)](https://doi.org/10.1103/PhysRevLett.126.117205)
+- Y.-J. Xie, A. Qian, B. He, Y.-B. Wu, S. Wang, B. Xu, G. Yu, X. Han, and X. G. Qiu, *Visualization of skyrmion-superconducting vortex pairs in a chiral-magnet–superconductor heterostructure*, [Phys. Rev. Lett. **133**, 166706 (2024)](https://doi.org/10.1103/PhysRevLett.133.166706)
+- S. Mukherjee and A. Lahiri, *Skyrmion-vortex hybrid and spin wave solutions in ferromagnetic superconductors*, [SciPost Phys. **19**, 022 (2025)](https://doi.org/10.21468/SciPostPhys.19.1.022)
+- S.-Z. Lin, L. N. Bulaevskii, and C. D. Batista, *Vortex dynamics in ferromagnetic superconductors: Vortex clusters, domain walls, and enhanced viscosity*, [Phys. Rev. B **86**, 180506 (2012)](https://doi.org/10.1103/PhysRevB.86.180506)
 
 ## Spin-triplet superconducting magnet
 
 ### Physics modeled
 
-This model describes a ferromagnet coupled to two superconducting components. It is a natural extension of the ferromagnetic superconductor in which both spin-triplet pairing channels interact with the magnetization texture.
+This model extends the ferromagnetic superconductor to two equal-spin triplet
+pairing components. It describes the coupled interaction of a magnetic
+skyrmion texture, two superconducting condensates, and the electromagnetic
+field, including composite skyrmion-vortex states and their interactions.
+Translation invariance is imposed along the third spatial direction, leaving
+the fields to vary over the two-dimensional $(x,y)$ plane.
 
-### Fields and mappings
+### Fields and parameters
 
-- $\vec{m}(\vec{x})\in\mathbb{R}^3$: the magnetization vector, stored as three real components.
-- $\psi_1(\vec{x})\in\mathbb{C}$ and $\psi_2(\vec{x})\in\mathbb{C}$: two complex order parameters, stored as four real channels.
-- $\vec{A}(\vec{x})\in\mathbb{R}^3$: the gauge field, stored as three real channels.
+- Magnetization: $\vec{m}(x,y)=(m_1,m_2,m_3)\in\mathbb{R}^3$, constrained to $|\vec{m}|=m_0$.
+- Superconducting order parameters: $\psi_1,\psi_2\in\mathbb{C}$, represented by four real field components.
+- Gauge field: $\vec{A}(x,y)=(A_1,A_2,A_3)\in\mathbb{R}^3$; all components are independent of the third coordinate.
+- Gauge coupling: $q$.
+- Superconducting coefficients: $a$, $b_1$, $b_2$, and $c$, controlling the quadratic, self-quartic, inter-component quartic, and Josephson terms.
+- Magnetic coefficients: $\alpha$, $\beta$, and $\gamma$, controlling the magnetic potential and gradient energy.
 
-### Dimensionless formulation used in the implementation
+### Free energy
 
-A dimensionless functional used in the implementation is
-
-$$
-\mathcal{E}[\vec{m},\varphi_1,\varphi_2,\vec{A}'] = \int d^2x'\left[
-\frac12\sum_{\alpha=1}^2|D_i'\varphi_\alpha|^2 + \frac12|\nabla'\times\vec{A}'|^2
-+ \frac{\bar{\alpha}}{2}|\vec{m}|^2 + \frac{\bar{\beta}}{4}|\vec{m}|^4 + \frac{\bar{\gamma}^2}{2}|\nabla'\vec{m}|^2
-+ \frac{\bar{a}}{2}\sum_{\alpha}|\varphi_\alpha|^2 + \frac{\bar{b}_1}{4}\sum_{\alpha}|\varphi_\alpha|^4 + \bar{b}_2|\varphi_1|^2|\varphi_2|^2 + \bar{c}(\varphi_1\varphi_2^* + \varphi_1^*\varphi_2)
-\right].
-$$
-
-The couplings $b_1,b_2,c$ encode the inter-component structure of the two superconducting order parameters.
-
-### Non-dimensionalisation
-
-After scaling with a characteristic length and order-parameter amplitude, the result is a coupled non-linear system for $\varphi_1$, $\varphi_2$ and $\vec{m}$ with dimensionless parameters $\bar{a}$, $\bar{b}_1$, $\bar{b}_2$, $\bar{c}$ and $\bar{\gamma}$.
-
-### Euler-Lagrange equations
-
-The field equations are the natural two-component analogue of the ferromagnetic-superconductor equations,
+The model energy used by the implementation is the normalized two-dimensional
+functional
 
 $$
-\left(\nabla' - i\vec{A}'\right)^2\varphi_\alpha + \bar{a}\varphi_\alpha + \bar{b}_1|\varphi_\alpha|^2\varphi_\alpha + \bar{b}_2|\varphi_{\bar{\alpha}}|^2\varphi_\alpha + \bar{c}\,\varphi_{\bar{\alpha}} = 0,
+\begin{align*}
+    E = \, & \int_{\mathbb{R}^2} \textup{d}^2x \left\{ \frac{1}{2} |\vec{D}\psi_\alpha|^2 + \frac{1}{2}|\textup{curl}\vec{A}|^2 + \frac{a}{2} |\psi_\alpha|^2 + \frac{b_1}{4} |\psi_\alpha|^4  + b_2 |\psi_1|^2 |\psi_2|^2 + c \left( \psi_1 \psi_2^* + \psi_1^* \psi_2 \right) + \frac{\alpha}{2}|\vec{m}|^2 + \frac{\beta}{4}|\vec{m}|^4 \right. \nonumber \\
+    \, & \left.+ \frac{\gamma^2}{2}|\nabla\vec{m}|^2 - \vec{m} \cdot (\vec{\nabla}\times\vec{A}) +\frac{(a+2c)^2}{2(b_1+2b_2)} +\frac{\alpha^2}{4\beta} \right\}.
+\end{align*}
 $$
 
-and
+where $\vec{D}=\vec{\nabla}+iq\vec{A}$ and the constant $\mathcal{F}_p^*$ subtracts the homogeneous vacuum energy. The term proportional to $c$ couples the two condensates and favors equal phases when $c<0$.
+
+### Uniform vacuum
+
+For the symmetric, phase-locked vacuum, the two condensates have equal
+amplitude $u_1=u_2=u$, and the magnetization has amplitude $m_0$. Minimizing
+the homogeneous potential gives
 
 $$
-\vec{m}\times\left(\bar{\gamma}\,\nabla'^2\vec{m} + \bar{\alpha}\vec{m} + \bar{\beta}|\vec{m}|^2\vec{m} - \nabla'\times\vec{A}'\right)=0.
+u_1^2=u_2^2=u^2=-\frac{a+2c}{b_1+2b_2},
+\qquad
+m_0^2=-\frac{\alpha}{\beta}.
 $$
+
+The corresponding vacuum energy density is
+
+$$
+\mathcal{F}_p^*=-\frac{(a+2c)^2}{2(b_1+2b_2)}
+-\frac{\alpha^2}{4\beta}.
+$$
+
+The implementation resolves these vacuum amplitudes from the model
+coefficients unless they are explicitly overridden. During relaxation, the
+magnetization constraint $|\vec{m}|=m_0$ is maintained by projection.
+
+### Euler-Lagrange equations and numerical implementation
+
+Writing $B_i=(\vec{\nabla}\times\vec{A})_i$, the stationary condensate
+equations are
+
+$$
+\left[\frac{a}{2}+\frac{b_1}{2}|\psi_\alpha|^2
++b_2|\psi_{\bar{\alpha}}|^2\right]\psi_\alpha
++c\psi_{\bar{\alpha}}-\frac{1}{2}\vec{D}\cdot\vec{D}\psi_\alpha=0,
+\qquad \alpha=1,2,
+$$
+
+where $\bar{\alpha}$ denotes the other component. The gauge-field equation is
+
+$$
+q^2\left(|\psi_1|^2+|\psi_2|^2\right)\vec{A}
++\frac{iq}{2}\sum_{\alpha=1}^2\left(\psi_\alpha\vec{\nabla}\psi_\alpha^*
+-\psi_\alpha^*\vec{\nabla}\psi_\alpha\right)
++\vec{\nabla}\times\vec{\nabla}\times\vec{A}
+-\vec{\nabla}\times\vec{m}=0.
+$$
+
+Under the fixed-length constraint, the magnetization equation is
+
+$$
+\vec{m}\times\left(
+\gamma^2\nabla^2\vec{m}+\alpha\vec{m}
++\beta|\vec{m}|^2\vec{m}-\vec{\nabla}\times\vec{A}
+\right)=0.
+$$
+
+The fields are evolved by arrested Newton flow using the fourth-order
+Runge--Kutta integrator and the shared finite-difference operators. During
+each step, the magnetization gradient is projected onto the tangent plane of
+the sphere $|\vec{m}|=m_0$.
+
+### Vortices and skyrmions
+
+Each condensate may have its own winding number $N_1$ or $N_2$. The effective
+total vortex number used for the gauge-field ansatz is the vacuum-amplitude
+weighted average
+
+$$
+N_{\mathrm{v}}=\frac{u_1^2N_1+u_2^2N_2}{u_1^2+u_2^2},
+\qquad
+\Phi=N_{\mathrm{v}}\frac{2\pi}{q}.
+$$
+
+The magnetization supports Bloch, Néel, and antiskyrmion ansätze. With the
+orientation convention used in the implementation, a unit Bloch skyrmion has
+topological degree $n=-1$. This permits calculations of composite states in
+which the magnetic texture interacts with vortices in either or both
+condensates.
+
+### References
+
+- V. P. Mineev, *Theory of type-II superconductivity in ferromagnetic metals with triplet pairing*, [Low Temp. Phys. **44**, 510–518 (2018)](https://doi.org/10.1063/1.5037553)
+- V. P. Mineev, *Phase diagram of UCoGe*, [Phys. Rev. **95**, 104501 (2017)](https://doi.org/10.1103/PhysRevB.95.104501)
+- A. Knigavko and B. Rosenstein, *Spontaneous vortex state and ferromagnetic behavior of type-II p-wave superconductors*, [Phys. Rev. B **58**, 9354 (1998)](https://doi.org/10.1103/PhysRevB.58.9354)
 
 ## Initial configurations and multi-soliton construction
 
